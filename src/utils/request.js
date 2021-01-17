@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Notification, MessageBox, Message } from 'element-ui'
+import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
@@ -82,8 +82,9 @@ service.interceptors.response.use(
         duration: 5 * 1000
       })
     } else if (code !== 200) {
-      Notification.error({
-        title: response.data.msg
+      Message({
+        message: response.data.msg,
+        type: 'error'
       })
       return Promise.reject('error')
     } else {
