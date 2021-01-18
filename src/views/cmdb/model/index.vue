@@ -33,7 +33,7 @@
         </div>
         <!-- 模型列表 -->
         <div>
-          <div v-for="group of groupModelList" :key="group.id" style="margin-top: 23px">
+          <div v-for="group of groupModelList" :key="group.id" style="margin-top: 23px;">
             <!-- 模型分组名称 -->
             <div style="font-size: 16px;">
               <span class="group-title-before" />
@@ -48,15 +48,18 @@
                 class="el-icon-edit group-operate-icon"
                 @click="editModelGroupHandle(group.id, group.identifies, group.name)"
               />
-              <i
-                v-if="group.model_list === null || group.model_list === undefined || group.model_list.length === 0"
-                class="el-icon-delete group-operate-icon"
-                @click="deleteModelGroupHandle(group.id)"
-              />
+              <template v-if="group.model_list === null || group.model_list === undefined || group.model_list.length === 0">
+                <i
+                  v-if="isUsable==='启用中'"
+                  class="el-icon-delete group-operate-icon"
+                  @click="deleteModelGroupHandle(group.id)"
+                />
+              </template>
+
             </div>
             <!-- 模型列表 -->
             <div v-if="group.model_list !== null && group.model_list !== undefined && group.model_list.length !== 0">
-              <div v-for="model of group.model_list" :key="model.id" class="model-info-div">
+              <div v-for="model of group.model_list" :key="model.id" class="model-info-div" @click="modelConfigureField(model.id)">
                 <!-- 模型图标 -->
                 <div class="model-info-icon">
                   <i :class="model.icon" />
@@ -204,6 +207,9 @@ export default {
         this.query.isUsable = 0
       }
     },
+    modelConfigureField(modelId) {
+      this.$router.push({ path: '/cmdb/model/model-fields', query: { 'modelId': modelId }})
+    },
     createModelGroupHandle() {
       this.groupRuleForm = {}
       this.modelGroupDesc = {
@@ -275,9 +281,19 @@ export default {
           createModelInfo(this.modelRuleForm).then(res => {
             this.getList()
             this.modelDesc.dialog = false
-            this.$message({
+            this.$confirm('是否立即去配置模型字段?', '成功', {
+              confirmButtonText: '是',
+              cancelButtonText: '否',
               type: 'success',
-              message: '创建模型成功'
+              center: true
+            }).then(() => {
+              // 跳转到模型详情页面
+              this.$router.push({ path: '/cmdb/model/model-fields' })
+            }).catch(() => {
+              this.$message({
+                type: 'info',
+                message: '已取消'
+              })
             })
           })
         }
@@ -325,6 +341,8 @@ export default {
     border-radius: 4px;
     margin-left: 14px;
     margin-top: 12px;
+    cursor: pointer;
+    display: inline-block;
   }
 
   .model-info-icon {
