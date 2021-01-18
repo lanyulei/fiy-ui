@@ -13,7 +13,7 @@
         <!-- 操作 -->
         <div>
           <el-row>
-            <el-button size="mini" type="primary" @click="createModelHandle">新建模型</el-button>
+            <el-button size="mini" type="primary" @click="createModelHandle(undefined)">新建模型</el-button>
             <el-button size="mini" @click="createModelGroupHandle">新建分组</el-button>
             <el-input
               v-model="query.search"
@@ -42,6 +42,7 @@
               <i
                 class="el-icon-circle-plus-outline group-operate-icon"
                 style="font-size: 16px;"
+                @click="createModelHandle(group.id)"
               />
               <i
                 class="el-icon-edit group-operate-icon"
@@ -96,7 +97,7 @@
       <el-dialog
         :title="modelDesc.title"
         :visible.sync="modelDesc.dialog"
-        width="30%"
+        width="38%"
       >
         <el-form ref="modelRuleForm" :model="modelRuleForm" :rules="rules" label-width="100px">
           <el-form-item label="唯一标识" prop="identifies">
@@ -254,8 +255,11 @@ export default {
         }
       })
     },
-    createModelHandle() {
+    createModelHandle(groupId) {
       this.modelRuleForm = {}
+      if (groupId !== undefined) {
+        this.modelRuleForm.group_id = groupId
+      }
       this.modelDesc = {
         title: '新建模型',
         status: 'create',
