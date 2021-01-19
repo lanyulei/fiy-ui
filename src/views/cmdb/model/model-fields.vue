@@ -33,45 +33,75 @@
             <!-- 字段分组列表 -->
             <div style="margin-top: 15px">
               <div>
-                <i class="el-icon-arrow-right" style="font-size: 12px;" />
-                基础信息
+                <el-link
+                  style="font-size: 16px;"
+                  :underline="false"
+                  icon="el-icon-arrow-right"
+                  @click="groupFolding"
+                >基础信息</el-link>
+                <!-- 字段列表 -->
+                <div>
+                  <el-collapse-transition>
+                    <div v-show="show3">
+                      <div class="model-field-div">
+                        <!-- 模型详情 -->
+                        <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
+                        <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
+                      </div>
+                      <div class="model-field-div">
+                        <!-- 模型详情 -->
+                        <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
+                        <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
+                      </div>
+                      <div class="model-field-div">
+                        <!-- 模型详情 -->
+                        <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
+                        <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
+                      </div>
+                      <div class="model-field-div">
+                        <!-- 模型详情 -->
+                        <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
+                        <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
+                      </div>
+                      <div class="model-field-div model-field-add">
+                        <div class="model-field-title" style="color: #979ba5">
+                          <i class="el-icon-plus" />
+                          添加
+                        </div>
+                        <div class="model-field-remarks">点击此处新增字段</div>
+                      </div>
+                    </div>
+                  </el-collapse-transition>
+                </div>
               </div>
-              <!-- 字段列表 -->
-              <div>
-                <div class="model-field-div">
-                  <!-- 模型详情 -->
-                  <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
-                  <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
-                </div>
-                <div class="model-field-div">
-                  <!-- 模型详情 -->
-                  <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
-                  <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
-                </div>
-                <div class="model-field-div">
-                  <!-- 模型详情 -->
-                  <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
-                  <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
-                </div>
-                <div class="model-field-div">
-                  <!-- 模型详情 -->
-                  <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
-                  <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
-                </div>
-                <div class="model-field-div model-field-add">
-                  <div class="model-field-title" style="color: #979ba5">
-                    <i class="el-icon-plus" />
-                    添加
-                  </div>
-                  <div class="model-field-remarks">点击此处新增字段</div>
-                </div>
-              </div>
+              <el-link
+                style="font-size: 16px; margin-top: 20px;"
+                type="primary"
+                :underline="false"
+                icon="el-icon-circle-plus-outline"
+                @click="createFieldGroupHandle"
+              >
+                添加分组
+              </el-link>
             </div>
           </div>
         </el-tab-pane>
         <el-tab-pane label="模型关联" name="2">模型关联</el-tab-pane>
         <el-tab-pane label="唯一校验" name="3">唯一校验</el-tab-pane>
       </el-tabs>
+
+      <!-- 添加/编辑分组 -->
+      <el-dialog
+        :title="fieldGroupDesc.title"
+        :visible.sync="fieldGroupDesc.dialog"
+        width="30%"
+      >
+        <span>这是一段信息</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="fieldGroupDesc.dialog = false">取 消</el-button>
+          <el-button type="primary" @click="fieldGroupDesc.dialog = false">确 定</el-button>
+        </span>
+      </el-dialog>
     </template>
   </BasicLayout>
 </template>
@@ -83,7 +113,13 @@ export default {
   },
   data() {
     return {
-      activeName: '1'
+      activeName: '1',
+      show3: true,
+      fieldGroupDesc: {
+        title: '创建分组',
+        status: 'create',
+        dialog: false
+      }
     }
   },
   methods: {
@@ -92,7 +128,17 @@ export default {
 
     },
     handleClick(tab, event) {
-      console.log(tab, event)
+      // console.log(tab, event)
+    },
+    groupFolding() {
+      if (this.show3 === true) {
+        this.show3 = false
+      } else {
+        this.show3 = true
+      }
+    },
+    createFieldGroupHandle() {
+      this.fieldGroupDesc.dialog = true
     }
   }
 }
