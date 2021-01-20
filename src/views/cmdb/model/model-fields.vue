@@ -51,7 +51,7 @@
                             <div class="model-field-remarks">{{ field.type }}</div>
                           </div>
                         </template>
-                        <div class="model-field-div model-field-add">
+                        <div class="model-field-div model-field-add" @click="createFieldHandle">
                           <div class="model-field-title" style="color: #979ba5">
                             <i class="el-icon-plus" />
                             添加
@@ -62,17 +62,19 @@
                     </el-collapse-transition>
                   </div>
                 </div>
-                <el-link
-                  style="font-size: 16px; margin-top: 20px;"
-                  type="primary"
-                  :underline="false"
-                  icon="el-icon-circle-plus-outline"
-                  @click="createFieldGroupHandle"
-                >
-                  添加分组
-                </el-link>
               </div>
             </template>
+            <div>
+              <el-link
+                style="font-size: 16px; margin-top: 20px;"
+                type="primary"
+                :underline="false"
+                icon="el-icon-circle-plus-outline"
+                @click="createFieldGroupHandle"
+              >
+                添加分组
+              </el-link>
+            </div>
           </div>
         </el-tab-pane>
         <el-tab-pane label="模型关联" name="2">模型关联</el-tab-pane>
@@ -103,6 +105,39 @@
           <el-button type="primary" @click="CreateFieldGroupSubmitForm">确 定</el-button>
         </span>
       </el-dialog>
+
+      <!-- 创建/编辑字段 -->
+      <el-drawer
+        :with-header="false"
+        type="primary"
+        :visible.sync="fieldDialog"
+        direction="rtl"
+        :wrapper-closable="false"
+      >
+        <div>
+          <div class="model-field-sideslider-header">
+            <div class="model-field-sideslider-closer" style="float: left;">
+              <i
+                class="el-icon-arrow-right"
+              />
+            </div>
+            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+              新建字段
+            </div>
+          </div>
+          <div class="model-field-slider-content">
+            <el-form ref="createFieldForm" :model="createFieldForm" :rules="rules" label-width="78px">
+              <el-form-item label="活动名称" prop="name">
+                <el-input v-model="createFieldForm.name" />
+              </el-form-item>
+            </el-form>
+            <div style="text-align: center; margin-top: 30px;">
+              <el-button @click="fieldDialog = false">取 消</el-button>
+              <el-button type="primary" @click="fieldDialog = false">提 交</el-button>
+            </div>
+          </div>
+        </div>
+      </el-drawer>
     </template>
   </BasicLayout>
 </template>
@@ -121,12 +156,17 @@ export default {
       modelDetails: {},
       activeName: '1',
       show3: true,
+      fieldDialog: false,
       fieldGroupDesc: {
         title: '创建分组',
         status: 'create',
         dialog: false
       },
       fieldGroupForm: {},
+      fieldForm: {},
+      formLabelWidth: '80px',
+      modelId: 0,
+      createFieldForm: {},
       rules: {
         name: [
           { required: true, message: '请输入名称', trigger: 'blur' }
@@ -138,15 +178,26 @@ export default {
     }
   },
   created() {
+    this.modelId = this.$route.query.modelId
     this.getInfo()
   },
   methods: {
     // 获取数据
     getInfo() {
-      const modelId = this.$route.query.modelId
-      modelDetails(modelId).then(res => {
-        this.modelDetails = res.data
-      })
+      if (this.modelId > 0) {
+        modelDetails(this.modelId).then(res => {
+          this.modelDetails = res.data
+        })
+      } else {
+        this.$message({
+          type: 'error',
+          message: '请确认有没有modelId这个参数',
+          duration: 2000,
+          onClose: () => {
+            this.$router.push({ 'path': '/cmdb/model/index' })
+          }
+        })
+      }
     },
     handleClick(tab, event) {
       // console.log(tab, event)
@@ -164,12 +215,15 @@ export default {
     CreateFieldGroupSubmitForm(formName) {
       this.$refs['fieldGroupForm'].validate((valid) => {
         if (valid) {
-          this.fieldGroupForm.info_id = parseInt(this.$route.query.modelId)
+          this.fieldGroupForm.info_id = parseInt(this.modelId)
           createModelFieldGroup(this.fieldGroupForm).then(res => {
-            console.log(res)
+            this.getList()
           })
         }
       })
+    },
+    createFieldHandle() {
+      this.fieldDialog = true
     }
   }
 }
@@ -217,5 +271,39 @@ export default {
     text-align: center;
     font-size: 14px;
     border-style: dashed;
+  }
+
+  .model-field-div:hover {
+    border-color: #1890ff;
+  }
+
+  .model-field-sideslider-header {
+    width: 100%;
+    height: 60px;
+    background: rgb(255, 255, 255);
+  }
+
+  .model-field-sideslider-closer {
+    width: 30px;
+    height: 60px;
+    line-height: 60px;
+    background-color: rgb(58, 132, 255);
+    text-align: center;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    font-size: 24px;
+  }
+
+  .model-field-sideslider-title {
+    height: 60px;
+    line-height: 60px;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgb(102, 102, 102);
+    border-bottom: 1px solid rgb(220, 222, 229);
+  }
+
+  .model-field-slider-content {
+    padding: 20px;
   }
 </style>
