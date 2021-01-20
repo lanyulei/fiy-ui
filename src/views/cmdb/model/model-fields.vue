@@ -10,11 +10,11 @@
           />
         </div>
         <div style="font-size: 14px; float: left;" class="model-info-div">
-          <span style="color: #737987;">唯一标识：</span>1
-          <span style="color: #737987; margin-left: 10px;">名称：</span>1
+          <span style="color: #737987;">唯一标识：</span>{{ modelDetails.identifies }}
+          <span style="color: #737987; margin-left: 10px;">名称：</span>{{ modelDetails.name }}
           <span style="color: #737987; margin-left: 10px;">实例数量：</span>
           <span style="color: #1890ff">
-            <router-link to="/detail/one">
+            <router-link to="/">
               1 <i class="el-icon-s-promotion" />
             </router-link>
           </span>
@@ -29,61 +29,50 @@
       <el-tabs v-model="activeName" type="border-card" style="margin-top: 8px" @tab-click="handleClick">
         <el-tab-pane label="模型字段" name="1">
           <div>
-            <el-button plain size="mini">字段预览</el-button>
+            <el-button plain size="small">字段预览</el-button>
             <!-- 字段分组列表 -->
-            <div style="margin-top: 15px">
-              <div>
-                <el-link
-                  style="font-size: 16px;"
-                  :underline="false"
-                  icon="el-icon-arrow-right"
-                  @click="groupFolding"
-                >基础信息</el-link>
-                <!-- 字段列表 -->
+            <template v-if="modelDetails.field_groups !== undefined && modelDetails.field_groups !== null && modelDetails.field_groups.length > 0">
+              <div v-for="fieldGroup of modelDetails.field_groups" :key="fieldGroup.id" style="margin-top: 15px">
                 <div>
-                  <el-collapse-transition>
-                    <div v-show="show3">
-                      <div class="model-field-div">
-                        <!-- 模型详情 -->
-                        <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
-                        <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
-                      </div>
-                      <div class="model-field-div">
-                        <!-- 模型详情 -->
-                        <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
-                        <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
-                      </div>
-                      <div class="model-field-div">
-                        <!-- 模型详情 -->
-                        <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
-                        <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
-                      </div>
-                      <div class="model-field-div">
-                        <!-- 模型详情 -->
-                        <div class="model-field-title">1sad发送到发送到发送到发送到发送到发送到发送到发送到发送到发</div>
-                        <div class="model-field-remarks">1阿斯顿发围观发生的发色更发送到发噶是的发送到发送到</div>
-                      </div>
-                      <div class="model-field-div model-field-add">
-                        <div class="model-field-title" style="color: #979ba5">
-                          <i class="el-icon-plus" />
-                          添加
+                  <el-link
+                    style="font-size: 16px;"
+                    :underline="false"
+                    icon="el-icon-arrow-right"
+                    @click="groupFolding"
+                  >{{ fieldGroup.name }}</el-link>
+                  <!-- 字段列表 -->
+                  <div>
+                    <el-collapse-transition>
+                      <div v-show="show3">
+                        <template v-if="fieldGroup.fields !== undefined && fieldGroup.fields !== null && fieldGroup.fields.length > 0">
+                          <div v-for="field of fieldGroup.fields" :key="field.id" class="model-field-div">
+                            <!-- 字段详情 -->
+                            <div class="model-field-title">{{ field.name }}</div>
+                            <div class="model-field-remarks">{{ field.type }}</div>
+                          </div>
+                        </template>
+                        <div class="model-field-div model-field-add">
+                          <div class="model-field-title" style="color: #979ba5">
+                            <i class="el-icon-plus" />
+                            添加
+                          </div>
+                          <div class="model-field-remarks">点击此处新增字段</div>
                         </div>
-                        <div class="model-field-remarks">点击此处新增字段</div>
                       </div>
-                    </div>
-                  </el-collapse-transition>
+                    </el-collapse-transition>
+                  </div>
                 </div>
+                <el-link
+                  style="font-size: 16px; margin-top: 20px;"
+                  type="primary"
+                  :underline="false"
+                  icon="el-icon-circle-plus-outline"
+                  @click="createFieldGroupHandle"
+                >
+                  添加分组
+                </el-link>
               </div>
-              <el-link
-                style="font-size: 16px; margin-top: 20px;"
-                type="primary"
-                :underline="false"
-                icon="el-icon-circle-plus-outline"
-                @click="createFieldGroupHandle"
-              >
-                添加分组
-              </el-link>
-            </div>
+            </template>
           </div>
         </el-tab-pane>
         <el-tab-pane label="模型关联" name="2">模型关联</el-tab-pane>
@@ -96,10 +85,22 @@
         :visible.sync="fieldGroupDesc.dialog"
         width="30%"
       >
-        <span>这是一段信息</span>
+        <el-form ref="fieldGroupForm" :model="fieldGroupForm" :rules="rules" label-width="80px">
+          <el-form-item label="名称" prop="name">
+            <el-input v-model="fieldGroupForm.name" placeholder="请输入名称" />
+          </el-form-item>
+          <el-form-item label="是否折叠">
+            <el-switch
+              v-model="fieldGroupForm.is_fold"
+            />
+          </el-form-item>
+          <el-form-item label="展示顺序" prop="sequence">
+            <el-input-number v-model="fieldGroupForm.sequence" :min="1" :max="999" label="展示顺序" />
+          </el-form-item>
+        </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="fieldGroupDesc.dialog = false">取 消</el-button>
-          <el-button type="primary" @click="fieldGroupDesc.dialog = false">确 定</el-button>
+          <el-button type="primary" @click="CreateFieldGroupSubmitForm">确 定</el-button>
         </span>
       </el-dialog>
     </template>
@@ -107,25 +108,45 @@
 </template>
 
 <script>
+import {
+  createModelFieldGroup,
+  modelDetails
+} from '@/api/cmdb/model'
 export default {
   components: {
 
   },
   data() {
     return {
+      modelDetails: {},
       activeName: '1',
       show3: true,
       fieldGroupDesc: {
         title: '创建分组',
         status: 'create',
         dialog: false
+      },
+      fieldGroupForm: {},
+      rules: {
+        name: [
+          { required: true, message: '请输入名称', trigger: 'blur' }
+        ],
+        sequence: [
+          { required: true, message: '请输入顺序', trigger: 'change' }
+        ]
       }
     }
+  },
+  created() {
+    this.getInfo()
   },
   methods: {
     // 获取数据
     getInfo() {
-
+      const modelId = this.$route.query.modelId
+      modelDetails(modelId).then(res => {
+        this.modelDetails = res.data
+      })
     },
     handleClick(tab, event) {
       // console.log(tab, event)
@@ -139,6 +160,16 @@ export default {
     },
     createFieldGroupHandle() {
       this.fieldGroupDesc.dialog = true
+    },
+    CreateFieldGroupSubmitForm(formName) {
+      this.$refs['fieldGroupForm'].validate((valid) => {
+        if (valid) {
+          this.fieldGroupForm.info_id = parseInt(this.$route.query.modelId)
+          createModelFieldGroup(this.fieldGroupForm).then(res => {
+            console.log(res)
+          })
+        }
+      })
     }
   }
 }

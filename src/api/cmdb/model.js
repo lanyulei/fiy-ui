@@ -43,3 +43,20 @@ export function createModelInfo(data) {
     data
   })
 }
+
+// 创建模型字段
+export function createModelFieldGroup(data) {
+  return request({
+    url: `/api/v1/cmdb/model/field/group`,
+    method: 'post',
+    data
+  })
+}
+
+// 获取模型详情
+export function modelDetails(modelId) {
+  return request({
+    url: `/api/v1/cmdb/model/details/${modelId}`,
+    method: 'get'
+  })
+}
