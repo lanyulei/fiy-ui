@@ -47,7 +47,7 @@ export function createModelInfo(data) {
 // 创建模型字段
 export function createModelFieldGroup(data) {
   return request({
-    url: `/api/v1/cmdb/model/field/group`,
+    url: `/api/v1/cmdb/model/field-group`,
     method: 'post',
     data
   })
@@ -58,5 +58,40 @@ export function modelDetails(modelId) {
   return request({
     url: `/api/v1/cmdb/model/details/${modelId}`,
     method: 'get'
+  })
+}
+
+// 创建模型字段
+export function createModelField(data) {
+  return request({
+    url: `/api/v1/cmdb/model/field`,
+    method: 'post',
+    data
+  })
+}
+
+// 编辑模型字段
+export function editModelField(fieldId, data) {
+  return request({
+    url: `/api/v1/cmdb/model/field/${fieldId}`,
+    method: 'put',
+    data
+  })
+}
+
+// 删除字段分组
+export function deleteFieldGroup(fieldGroupId) {
+  return request({
+    url: `/api/v1/cmdb/model/field-group/${fieldGroupId}`,
+    method: 'delete'
+  })
+}
+
+// 编辑字段分组
+export function editFieldGroup(fieldGroupId, data) {
+  return request({
+    url: `/api/v1/cmdb/model/field-group/${fieldGroupId}`,
+    method: 'put',
+    data
   })
 }

@@ -84,7 +84,7 @@
         <el-form ref="groupRuleForm" :model="groupRuleForm" :rules="rules" label-width="100px">
           <el-form-item label="唯一标识" prop="identifies">
             <el-tooltip class="item" effect="dark" content="请以英文开头，且仅支持输入英文、数字及下划线" placement="top-start">
-              <el-input v-model="groupRuleForm.identifies" :disabled="modelGroupDesc.status==='create'?false:true" placeholder="请输入唯一标识" />
+              <el-input v-model="groupRuleForm.identifies" placeholder="请输入唯一标识" />
             </el-tooltip>
           </el-form-item>
           <el-form-item label="名称" prop="name">
@@ -105,7 +105,7 @@
         <el-form ref="modelRuleForm" :model="modelRuleForm" :rules="rules" label-width="100px">
           <el-form-item label="唯一标识" prop="identifies">
             <el-tooltip class="item" effect="dark" content="请以英文开头，且仅支持输入英文、数字及下划线" placement="top-start">
-              <el-input v-model="modelRuleForm.identifies" :disabled="modelDesc.status==='create'?false:true" placeholder="请输入唯一标识" />
+              <el-input v-model="modelRuleForm.identifies" placeholder="请输入唯一标识" />
             </el-tooltip>
           </el-form-item>
           <el-form-item label="名称" prop="name">

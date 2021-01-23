@@ -32,26 +32,36 @@
             <el-button plain size="small">字段预览</el-button>
             <!-- 字段分组列表 -->
             <template v-if="modelDetails.field_groups !== undefined && modelDetails.field_groups !== null && modelDetails.field_groups.length > 0">
-              <div v-for="fieldGroup of modelDetails.field_groups" :key="fieldGroup.id" style="margin-top: 15px">
+              <div v-for="fieldGroup of modelDetails.field_groups" :key="fieldGroup.id" style="margin-top: 25px">
                 <div>
                   <el-link
                     style="font-size: 16px;"
                     :underline="false"
                     icon="el-icon-arrow-right"
-                    @click="groupFolding"
-                  >{{ fieldGroup.name }}</el-link>
+                  >
+                    {{ fieldGroup.name }}
+                    <i
+                      class="el-icon-edit group-operate-icon"
+                      @click="editFieldGroupHandle(fieldGroup)"
+                    />
+                    <i
+                      v-if="fieldGroup.fields === undefined || fieldGroup.fields === null || fieldGroup.fields.length === 0"
+                      class="el-icon-delete group-operate-icon"
+                      @click="deleteFieldGroupHandle(fieldGroup.id)"
+                    />
+                  </el-link>
                   <!-- 字段列表 -->
                   <div>
                     <el-collapse-transition>
-                      <div v-show="show3">
+                      <div>
                         <template v-if="fieldGroup.fields !== undefined && fieldGroup.fields !== null && fieldGroup.fields.length > 0">
-                          <div v-for="field of fieldGroup.fields" :key="field.id" class="model-field-div">
+                          <div v-for="field of fieldGroup.fields" :key="field.id" class="model-field-div" @click="editFieldHandle(field)">
                             <!-- 字段详情 -->
                             <div class="model-field-title">{{ field.name }}</div>
-                            <div class="model-field-remarks">{{ field.type }}</div>
+                            <div class="model-field-remarks">{{ getFieldTypeLabel(field.type) }}</div>
                           </div>
                         </template>
-                        <div class="model-field-div model-field-add" @click="createFieldHandle">
+                        <div class="model-field-div model-field-add" @click="createFieldHandle(fieldGroup.id)">
                           <div class="model-field-title" style="color: #979ba5">
                             <i class="el-icon-plus" />
                             添加
@@ -110,7 +120,7 @@
       <el-drawer
         :with-header="false"
         type="primary"
-        :visible.sync="fieldDialog"
+        :visible.sync="fieldDesc.dialog"
         direction="rtl"
         :wrapper-closable="false"
       >
@@ -122,18 +132,136 @@
               />
             </div>
             <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
-              新建字段
+              {{ fieldDesc.title }}
             </div>
           </div>
           <div class="model-field-slider-content">
             <el-form ref="createFieldForm" :model="createFieldForm" :rules="rules" label-width="78px">
-              <el-form-item label="活动名称" prop="name">
-                <el-input v-model="createFieldForm.name" />
+              <el-form-item label="唯一标识" prop="identifies">
+                <el-tooltip class="item" effect="dark" content="请以英文开头，且仅支持输入英文、数字及下划线" placement="top-start">
+                  <el-input
+                    v-model="createFieldForm.identifies"
+                    placeholder="请输入唯一标识"
+                  />
+                </el-tooltip>
+              </el-form-item>
+              <el-form-item label="字段名称" prop="name">
+                <el-input v-model="createFieldForm.name" placeholder="请输入字段名称" />
+              </el-form-item>
+              <el-form-item label="是否唯一" prop="is_unique">
+                <el-checkbox v-model="createFieldForm.is_unique" />
+              </el-form-item>
+              <el-form-item label="字段类型" prop="type">
+                <el-select v-model="createFieldForm.type" style="width: 100%" filterable placeholder="请选择字段类型">
+                  <el-option
+                    v-for="item in fieldTypeOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </el-form-item>
+              <div class="model-field-settings">
+                <div style="margin-bottom: 15px;">字段设置</div>
+                <div>
+                  <el-checkbox v-model="createFieldForm.configuration.is_edit">可编辑</el-checkbox>
+                </div>
+                <!-- 正则表达式 -->
+                <div
+                  v-if="createFieldForm.type === 'string'"
+                  style="margin-top: 20px"
+                >
+                  <span>正则验证</span><br>
+                  <el-input
+                    v-model="createFieldForm.configuration.regular"
+                    style="margin-top: 5px"
+                    type="textarea"
+                    :rows="3"
+                    placeholder="请输入正则表达式"
+                  />
+                </div>
+                <!-- 最大 -->
+                <div
+                  v-if="createFieldForm.type === 'number'"
+                  style="margin-top: 20px"
+                >
+                  <span>最小值</span><br>
+                  <el-input-number
+                    v-model="createFieldForm.configuration.min_number"
+                    :min="1"
+                    style="margin-top: 5px"
+                  />
+                </div>
+                <!-- 最小 -->
+                <div
+                  v-if="createFieldForm.type === 'number'"
+                  style="margin-top: 20px"
+                >
+                  <span>最大值</span><br>
+                  <el-input-number
+                    v-model="createFieldForm.configuration.max_number"
+                    :min="10"
+                    style="margin-top: 5px"
+                  />
+                </div>
+                <!-- 枚举 -->
+                <div v-if="createFieldForm.type === 'enum'" style="margin-top: 20px">
+                  <div>
+                    <span>枚举值</span><br>
+                    <div v-for="(enumItem, enumIndex) in createFieldForm.configuration.enum_list" :key="enumIndex" style="margin-top: 5px;">
+                      <div style="width: calc(100% - 60px); display: inline-block;">
+                        <div style="width: 30%; display: inline-block;">
+                          <el-input v-model="createFieldForm.configuration.enum_list[enumIndex].uuid" placeholder="请输入ID" />
+                        </div>
+                        <div style="width: 50px; width: 70%; padding-left: 5px; display: inline-block;">
+                          <el-input v-model="createFieldForm.configuration.enum_list[enumIndex].value" placeholder="请输入值" />
+                        </div>
+                      </div>
+                      <div style="width: 60px; height: 38px; line-height: 38px; font-size: 23px; display: inline-block;">
+                        <i
+                          :style="enumIndex === 0 ? {'display': 'none'}: {}"
+                          class="el-icon-remove-outline"
+                          style="margin-left: 5px; cursor: pointer;"
+                          @click="deleteEnumValue(enumIndex)"
+                        />
+                        <i class="el-icon-circle-plus-outline" style="margin-left: 5px; cursor: pointer;" @click="addEnumValue" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="createFieldForm.type === 'list'" style="margin-top: 20px">
+                  <div>
+                    <span>列表值</span><br>
+                    <div
+                      v-for="(listItem, listIndex) in createFieldForm.configuration.list_value"
+                      :key="listIndex"
+                      style="margin-top: 5px;"
+                    >
+                      <div style="width: calc(100% - 60px); display: inline-block;">
+                        <div style="width: 100%;">
+                          <el-input v-model="createFieldForm.configuration.list_value[listIndex].name" placeholder="请输入值" />
+                        </div>
+                      </div>
+                      <div style="width: 60px; height: 38px; line-height: 38px; font-size: 23px; display: inline-block;">
+                        <i
+                          class="el-icon-remove-outline"
+                          style="margin-left: 5px; cursor: pointer;"
+                          :style="listIndex === 0 ? {'display': 'none'}: {}"
+                          @click="deleteListValue(listIndex)"
+                        />
+                        <i class="el-icon-circle-plus-outline" style="margin-left: 5px; cursor: pointer;" @click="addListValue" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <el-form-item label="用户提示">
+                <el-input v-model="createFieldForm.prompt" type="textarea" />
               </el-form-item>
             </el-form>
             <div style="text-align: center; margin-top: 30px;">
-              <el-button @click="fieldDialog = false">取 消</el-button>
-              <el-button type="primary" @click="fieldDialog = false">提 交</el-button>
+              <el-button @click="fieldDesc.dialog = false">取 消</el-button>
+              <el-button type="primary" @click="createFieldSubmit">提 交</el-button>
             </div>
           </div>
         </div>
@@ -145,34 +273,69 @@
 <script>
 import {
   createModelFieldGroup,
-  modelDetails
+  modelDetails,
+  createModelField,
+  editModelField,
+  deleteFieldGroup,
+  editFieldGroup
 } from '@/api/cmdb/model'
 export default {
   components: {
 
   },
   data() {
+    var validateIdentifies = (rule, value, callback) => {
+      const reg = /^[a-zA-Z][a-zA-Z0-9_]*$/
+      if (reg.test(value)) {
+        callback()
+      } else {
+        callback(new Error('必须是英文开头，仅包含英文、数字及下划线'))
+      }
+    }
     return {
       modelDetails: {},
       activeName: '1',
-      show3: true,
-      fieldDialog: false,
-      fieldGroupDesc: {
-        title: '创建分组',
-        status: 'create',
-        dialog: false
-      },
+      fieldDesc: {},
+      fieldGroupDesc: {},
       fieldGroupForm: {},
       fieldForm: {},
       formLabelWidth: '80px',
       modelId: 0,
-      createFieldForm: {},
+      createFieldForm: {
+        configuration: {
+          is_edit: true,
+          list_value: [{
+            value: ''
+          }],
+          enum_list: [{
+            uuid: '',
+            value: ''
+          }]
+        },
+        type: 'string'
+      },
+      fieldTypeOptions: [
+        { label: '字符', value: 'string' },
+        { label: '数字', value: 'number' },
+        { label: '枚举', value: 'enum' },
+        { label: '列表', value: 'list' },
+        { label: '日期', value: 'date' },
+        { label: '时间', value: 'time' },
+        { label: '时区', value: 'zone' },
+        { label: '布尔', value: 'bool' },
+        { label: '用户', value: 'user' },
+        { label: '部门', value: 'depart' }
+      ],
       rules: {
-        name: [
-          { required: true, message: '请输入名称', trigger: 'blur' }
+        identifies: [
+          { required: true, message: '请输入唯一标识', trigger: 'blur' },
+          { validator: validateIdentifies, trigger: 'blur' }
         ],
-        sequence: [
-          { required: true, message: '请输入顺序', trigger: 'change' }
+        name: [
+          { required: true, message: '请输入字段名称', trigger: 'blur' }
+        ],
+        type: [
+          { required: true, message: '请选择字段类型', trigger: 'change' }
         ]
       }
     }
@@ -199,31 +362,161 @@ export default {
         })
       }
     },
+    getFieldTypeLabel(value) {
+      for (var option of this.fieldTypeOptions) {
+        if (value === option.value) {
+          return option.label
+        }
+      }
+    },
+    deleteFieldGroupHandle(fieldGroupId) {
+      this.$confirm('是否删除字段分组?', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      }).then(() => {
+        deleteFieldGroup(fieldGroupId).then(res => {
+          this.getInfo()
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
     handleClick(tab, event) {
       // console.log(tab, event)
     },
-    groupFolding() {
-      if (this.show3 === true) {
-        this.show3 = false
-      } else {
-        this.show3 = true
+
+    editFieldGroupHandle(fieldGroup) {
+      this.fieldGroupDesc = {
+        title: '编辑字段分组',
+        status: 'edit',
+        dialog: true
       }
+      this.fieldGroupForm = fieldGroup
+      this.$nextTick(() => {
+        this.$refs.fieldGroupForm.clearValidate()
+      })
     },
     createFieldGroupHandle() {
-      this.fieldGroupDesc.dialog = true
+      this.fieldGroupForm = {}
+      this.fieldGroupDesc = {
+        title: '创建字段分组',
+        status: 'create',
+        dialog: true
+      }
+      this.$nextTick(() => {
+        this.$refs.fieldGroupForm.clearValidate()
+      })
     },
     CreateFieldGroupSubmitForm(formName) {
       this.$refs['fieldGroupForm'].validate((valid) => {
         if (valid) {
-          this.fieldGroupForm.info_id = parseInt(this.modelId)
-          createModelFieldGroup(this.fieldGroupForm).then(res => {
-            this.getList()
-          })
+          if (this.fieldGroupDesc.status === 'create') {
+            this.fieldGroupForm.info_id = parseInt(this.modelId)
+            createModelFieldGroup(this.fieldGroupForm).then(res => {
+              this.$message({
+                type: 'success',
+                message: '创建字段分组成功'
+              })
+            })
+          } else if (this.fieldGroupDesc.status === 'edit') {
+            editFieldGroup(this.fieldGroupForm.id, this.fieldGroupForm).then(res => {
+              this.$message({
+                type: 'success',
+                message: '编辑字段分组成功'
+              })
+            })
+          }
+          this.getInfo()
+          this.fieldGroupDesc.dialog = false
         }
       })
     },
-    createFieldHandle() {
-      this.fieldDialog = true
+    resetFieldForm() {
+      this.createFieldForm = {
+        configuration: {
+          is_edit: true,
+          list_value: [{
+            value: ''
+          }],
+          enum_list: [{
+            uuid: '',
+            value: ''
+          }]
+        },
+        type: 'string'
+      }
+    },
+    createFieldHandle(fieldGroupId) {
+      this.resetFieldForm()
+      this.createFieldForm.field_group_id = fieldGroupId
+      this.fieldDesc = {
+        title: '新建字段',
+        dialog: true,
+        status: 'create'
+      }
+      this.$nextTick(() => {
+        this.$refs.createFieldForm.clearValidate()
+      })
+    },
+    editFieldHandle(field) {
+      this.createFieldForm = field
+      this.fieldDesc = {
+        title: '编辑字段',
+        dialog: true,
+        status: 'edit'
+      }
+      this.$nextTick(() => {
+        this.$refs.createFieldForm.clearValidate()
+      })
+    },
+    createFieldSubmit() {
+      this.$refs['createFieldForm'].validate((valid) => {
+        if (valid) {
+          if (this.fieldDesc.status === 'create') {
+            this.createFieldForm.info_id = parseInt(this.modelId)
+            createModelField(this.createFieldForm).then(res => {
+              this.$message({
+                type: 'success',
+                message: '创建字段成功'
+              })
+            })
+          } else if (this.fieldDesc.status === 'edit') {
+            editModelField(this.createFieldForm.id, this.createFieldForm).then(res => {
+              this.$message({
+                type: 'success',
+                message: '更新字段成功'
+              })
+            })
+          }
+          this.getInfo()
+          this.fieldDesc.dialog = false
+        }
+      })
+    },
+    addEnumValue() {
+      this.createFieldForm.configuration.enum_list.push({
+        uuid: '',
+        value: ''
+      })
+    },
+    addListValue() {
+      this.createFieldForm.configuration.list_value.push({
+        value: ''
+      })
+    },
+    deleteEnumValue(index) {
+      this.createFieldForm.configuration.enum_list.splice(index, 1)
+    },
+    deleteListValue(index) {
+      this.createFieldForm.configuration.list_value.splice(index, 1)
     }
   }
 }
@@ -305,5 +598,20 @@ export default {
 
   .model-field-slider-content {
     padding: 20px;
+  }
+
+  .model-field-settings {
+    background-color: rgb(243, 248, 255);
+    margin-bottom: 22px;
+    padding: 15px;
+    color: #606266;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .group-operate-icon {
+    font-size: 15px;
+    margin-left: 10px;
+    cursor: pointer;
   }
 </style>
