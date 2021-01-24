@@ -210,3 +210,12 @@ aside {
 .el-drawer.rtl{
   overflow: auto;
 }
+
+.el-form--label-top .el-form-item {
+  margin-bottom: 0;
+}
+
+.el-form--label-top .el-form-item__label {
+  padding: 0;
+  line-height: 25px;
+}

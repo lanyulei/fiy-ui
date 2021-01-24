@@ -442,8 +442,7 @@ export default {
         this.userList = response.data.list
         this.total = response.data.count
         this.loading = false
-      }
-      )
+      })
     },
     /** 查询部门下拉树结构 */
     getTreeselect() {

@@ -6,12 +6,13 @@
         <div style="float: left;height: 65px">
           <i
             style="font-size: 45px; margin-right: 20px; color: #3a84ff;"
-            class="el-icon-info"
+            :class="modelDetails.icon"
           />
         </div>
         <div style="font-size: 14px; float: left;" class="model-info-div">
           <span style="color: #737987;">唯一标识：</span>{{ modelDetails.identifies }}
           <span style="color: #737987; margin-left: 10px;">名称：</span>{{ modelDetails.name }}
+          <span style="color: #737987; margin-left: 10px;">状态：</span>{{ modelDetails.is_usable ? '已启用' : '已停用' }}
           <span style="color: #737987; margin-left: 10px;">实例数量：</span>
           <span style="color: #1890ff">
             <router-link to="/">
@@ -20,16 +21,48 @@
           </span>
         </div>
         <div class="model-info-div" style="float: right;">
-          <el-link style="margin-left: 10px;" :underline="false" icon="el-icon-edit" type="primary">编辑</el-link>
-          <el-link style="margin-left: 10px;" :underline="false" icon="el-icon-remove-outline" type="primary">停用</el-link>
-          <el-link style="margin-left: 10px;" :underline="false" icon="el-icon-delete" type="primary">删除</el-link>
+          <el-link
+            style="margin-left: 10px;"
+            :underline="false"
+            icon="el-icon-edit"
+            type="primary"
+            @click="editModelInfoHandle({
+              id: modelDetails.id,
+              identifies: modelDetails.identifies,
+              name: modelDetails.name,
+              icon: modelDetails.icon,
+              group_id: modelDetails.group_id,
+            })"
+          >编辑</el-link>
+          <el-link
+            style="margin-left: 10px;"
+            :underline="false"
+            icon="el-icon-remove-outline"
+            type="primary"
+            @click="stopModelHandle(modelDetails.is_usable)"
+          >
+            {{ modelDetails.is_usable ? '停用' : '启用' }}
+          </el-link>
+          <el-tooltip class="item" effect="dark" content="字段分组不存在的情况下，才可删除模型" placement="top-end">
+            <el-link
+              style="margin-left: 10px;"
+              :underline="false"
+              icon="el-icon-delete"
+              type="primary"
+              :disabled="modelDetails.field_groups !== undefined &&
+                modelDetails.field_groups !== null &&
+                modelDetails.field_groups.length > 0?true:false"
+            >
+              删除
+            </el-link>
+          </el-tooltip>
         </div>
       </el-card>
 
       <el-tabs v-model="activeName" type="border-card" style="margin-top: 8px" @tab-click="handleClick">
         <el-tab-pane label="模型字段" name="1">
           <div>
-            <el-button plain size="small">字段预览</el-button>
+            <el-button plain size="small" @click="previewField">字段预览</el-button>
             <!-- 字段分组列表 -->
             <template v-if="modelDetails.field_groups !== undefined && modelDetails.field_groups !== null && modelDetails.field_groups.length > 0">
               <div v-for="fieldGroup of modelDetails.field_groups" :key="fieldGroup.id" style="margin-top: 25px">
@@ -57,16 +90,16 @@
                         <template v-if="fieldGroup.fields !== undefined && fieldGroup.fields !== null && fieldGroup.fields.length > 0">
                           <div v-for="field of fieldGroup.fields" :key="field.id" class="model-field-div" @click="editFieldHandle(field)">
                             <!-- 字段详情 -->
-                            <div class="model-field-title">{{ field.name }}</div>
-                            <div class="model-field-remarks">{{ getFieldTypeLabel(field.type) }}</div>
+                            <span class="model-field-title">{{ field.name }}</span><br>
+                            <span class="model-field-remarks">{{ getFieldTypeLabel(field.type) }}</span>
                           </div>
                         </template>
-                        <div class="model-field-div model-field-add" @click="createFieldHandle(fieldGroup.id)">
-                          <div class="model-field-title" style="color: #979ba5">
+                        <div class="model-field-div" style="text-align: center" @click="createFieldHandle(fieldGroup.id)">
+                          <span class="model-field-title" style="color: #979ba5">
                             <i class="el-icon-plus" />
                             添加
-                          </div>
-                          <div class="model-field-remarks">点击此处新增字段</div>
+                          </span><br>
+                          <span class="model-field-remarks">点击此处新增字段</span>
                         </div>
                       </div>
                     </el-collapse-transition>
@@ -118,6 +151,7 @@
 
       <!-- 创建/编辑字段 -->
       <el-drawer
+        size="38%"
         :with-header="false"
         type="primary"
         :visible.sync="fieldDesc.dialog"
@@ -148,9 +182,6 @@
               <el-form-item label="字段名称" prop="name">
                 <el-input v-model="createFieldForm.name" placeholder="请输入字段名称" />
               </el-form-item>
-              <el-form-item label="是否唯一" prop="is_unique">
-                <el-checkbox v-model="createFieldForm.is_unique" />
-              </el-form-item>
               <el-form-item label="字段类型" prop="type">
                 <el-select v-model="createFieldForm.type" style="width: 100%" filterable placeholder="请选择字段类型">
                   <el-option
@@ -161,10 +192,15 @@
                   />
                 </el-select>
               </el-form-item>
+              <el-form-item label="用户提示">
+                <el-input v-model="createFieldForm.prompt" type="textarea" />
+              </el-form-item>
               <div class="model-field-settings">
                 <div style="margin-bottom: 15px;">字段设置</div>
                 <div>
                   <el-checkbox v-model="createFieldForm.configuration.is_edit">可编辑</el-checkbox>
+                  <el-checkbox v-model="createFieldForm.is_unique">是否唯一</el-checkbox>
+                  <el-checkbox v-model="createFieldForm.required">是否必须</el-checkbox>
                 </div>
                 <!-- 正则表达式 -->
                 <div
@@ -239,7 +275,7 @@
                     >
                       <div style="width: calc(100% - 60px); display: inline-block;">
                         <div style="width: 100%;">
-                          <el-input v-model="createFieldForm.configuration.list_value[listIndex].name" placeholder="请输入值" />
+                          <el-input v-model="createFieldForm.configuration.list_value[listIndex].value" placeholder="请输入值" />
                         </div>
                       </div>
                       <div style="width: 60px; height: 38px; line-height: 38px; font-size: 23px; display: inline-block;">
@@ -255,17 +291,75 @@
                   </div>
                 </div>
               </div>
-              <el-form-item label="用户提示">
-                <el-input v-model="createFieldForm.prompt" type="textarea" />
-              </el-form-item>
             </el-form>
             <div style="text-align: center; margin-top: 30px;">
+              <el-button v-if="fieldDesc.status === 'edit'" type="danger" @click="deleteModelFieldHandle(createFieldForm.id)">删 除</el-button>
               <el-button @click="fieldDesc.dialog = false">取 消</el-button>
               <el-button type="primary" @click="createFieldSubmit">提 交</el-button>
             </div>
           </div>
         </div>
       </el-drawer>
+
+      <!-- 字段预览 -->
+      <el-drawer
+        size="38%"
+        :with-header="false"
+        type="primary"
+        :visible.sync="fieldPreviewDesc.dialog"
+        direction="rtl"
+        :wrapper-closable="false"
+      >
+        <div>
+          <div class="model-field-sideslider-header">
+            <div class="model-field-sideslider-closer" style="float: left;">
+              <i
+                class="el-icon-arrow-right"
+              />
+            </div>
+            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+              {{ fieldPreviewDesc.title }}
+            </div>
+            <div>
+              <renderModel :fields="modelDetails.field_groups" />
+            </div>
+          </div>
+        </div>
+      </el-drawer>
+
+      <!-- 编辑模型 -->
+      <el-dialog
+        title="编辑模型"
+        :visible.sync="modelDialog"
+        width="38%"
+      >
+        <el-form ref="modelRuleForm" :model="modelRuleForm" :rules="rules" label-width="100px">
+          <el-form-item label="唯一标识" prop="identifies">
+            <el-tooltip class="item" effect="dark" content="请以英文开头，且仅支持输入英文、数字及下划线" placement="top-start">
+              <el-input v-model="modelRuleForm.identifies" placeholder="请输入唯一标识" />
+            </el-tooltip>
+          </el-form-item>
+          <el-form-item label="名称" prop="name">
+            <el-input v-model="modelRuleForm.name" placeholder="请输入名称" />
+          </el-form-item>
+          <el-form-item label="图标" prop="icon">
+            <e-icon-picker v-model="modelRuleForm.icon" />
+          </el-form-item>
+          <el-form-item label="所属分组" prop="group_id">
+            <el-select v-model="modelRuleForm.group_id" placeholder="请选择所属分组" style="width: 100%">
+              <el-option
+                v-for="group of groupModelList"
+                :key="group.id"
+                :label="group.name"
+                :value="group.id"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="submitModelForm">提交</el-button>
+        </div>
+      </el-dialog>
     </template>
   </BasicLayout>
 </template>
@@ -277,11 +371,18 @@ import {
   createModelField,
   editModelField,
   deleteFieldGroup,
-  editFieldGroup
+  editFieldGroup,
+  getModelGroupList,
+  editModelInfo,
+  stopModelInfo,
+  deleteModelField
 } from '@/api/cmdb/model'
+
+import renderModel from './components/render-model'
+
 export default {
   components: {
-
+    renderModel
   },
   data() {
     var validateIdentifies = (rule, value, callback) => {
@@ -293,9 +394,13 @@ export default {
       }
     }
     return {
+      groupModelList: [],
+      modelRuleForm: {},
+      modelDialog: false,
       modelDetails: {},
       activeName: '1',
       fieldDesc: {},
+      fieldPreviewDesc: {},
       fieldGroupDesc: {},
       fieldGroupForm: {},
       fieldForm: {},
@@ -321,10 +426,9 @@ export default {
         { label: '列表', value: 'list' },
         { label: '日期', value: 'date' },
         { label: '时间', value: 'time' },
-        { label: '时区', value: 'zone' },
         { label: '布尔', value: 'bool' },
-        { label: '用户', value: 'user' },
-        { label: '部门', value: 'depart' }
+        { label: '用户', value: 'user' }
+        // { label: '部门', value: 'depart' }
       ],
       rules: {
         identifies: [
@@ -343,6 +447,7 @@ export default {
   created() {
     this.modelId = this.$route.query.modelId
     this.getInfo()
+    this.getModelGroupListHandle()
   },
   methods: {
     // 获取数据
@@ -362,12 +467,93 @@ export default {
         })
       }
     },
+    deleteModelFieldHandle(fieldId) {
+      this.$confirm('是否删除此字段?', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      }).then(() => {
+        deleteModelField(fieldId).then(res => {
+          this.getInfo()
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.fieldDesc.dialog = false
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    previewField() {
+      this.fieldPreviewDesc = {
+        dialog: true,
+        title: '字段预览'
+      }
+    },
+    getModelGroupListHandle() {
+      getModelGroupList().then(res => {
+        this.groupModelList = res.data
+      })
+    },
+    editModelInfoHandle(modelInfo) {
+      this.modelRuleForm = modelInfo
+      this.modelDialog = true
+    },
+    submitModelForm() {
+      this.$refs['modelRuleForm'].validate((valid) => {
+        if (valid) {
+          editModelInfo(this.modelRuleForm.id, this.modelRuleForm).then(res => {
+            this.getInfo()
+            this.modelDialog = false
+          })
+        }
+      })
+    },
     getFieldTypeLabel(value) {
       for (var option of this.fieldTypeOptions) {
         if (value === option.value) {
           return option.label
         }
       }
+    },
+    // 停用
+    stopModelHandle(status) {
+      var isUsable = true
+      var statusName = '停用'
+      var iconName = 'warning'
+      if (!status) {
+        isUsable = true
+        statusName = '启用'
+        iconName = 'info'
+      } else {
+        isUsable = false
+        statusName = '停用'
+        iconName = 'warning'
+      }
+      this.$confirm(`是否${statusName}此模型?`, '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: iconName
+      }).then(() => {
+        stopModelInfo(this.modelId, {
+          is_usable: isUsable
+        }).then(res => {
+          this.getInfo()
+          this.$message({
+            type: 'success',
+            message: `${statusName}成功!`
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
+      })
     },
     deleteFieldGroupHandle(fieldGroupId) {
       this.$confirm('是否删除字段分组?', '提示', {
@@ -483,6 +669,7 @@ export default {
           if (this.fieldDesc.status === 'create') {
             this.createFieldForm.info_id = parseInt(this.modelId)
             createModelField(this.createFieldForm).then(res => {
+              this.getInfo()
               this.$message({
                 type: 'success',
                 message: '创建字段成功'
@@ -490,13 +677,13 @@ export default {
             })
           } else if (this.fieldDesc.status === 'edit') {
             editModelField(this.createFieldForm.id, this.createFieldForm).then(res => {
+              this.getInfo()
               this.$message({
                 type: 'success',
                 message: '更新字段成功'
               })
             })
           }
-          this.getInfo()
           this.fieldDesc.dialog = false
         }
       })
@@ -536,6 +723,7 @@ export default {
     border-radius: 4px;
     margin-left: 10px;
     margin-top: 12px;
+    padding-top: 9px;
     cursor: pointer;
     display: inline-block;
   }

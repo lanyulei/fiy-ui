@@ -35,6 +35,14 @@ export function deleteModelGroup(groupId) {
   })
 }
 
+// 获取模型分组列表
+export function getModelGroupList() {
+  return request({
+    url: `/api/v1/cmdb/model/group-list`,
+    method: 'get'
+  })
+}
+
 // 创建模型
 export function createModelInfo(data) {
   return request({
@@ -93,5 +101,31 @@ export function editFieldGroup(fieldGroupId, data) {
     url: `/api/v1/cmdb/model/field-group/${fieldGroupId}`,
     method: 'put',
     data
+  })
+}
+
+// 编辑模型信息
+export function editModelInfo(modelId, data) {
+  return request({
+    url: `/api/v1/cmdb/model/info/${modelId}`,
+    method: 'put',
+    data
+  })
+}
+
+// 编辑模型信息
+export function stopModelInfo(modelId, data) {
+  return request({
+    url: `/api/v1/cmdb/model/stop/info/${modelId}`,
+    method: 'put',
+    data
+  })
+}
+
+// 删除模型字段
+export function deleteModelField(fieldId) {
+  return request({
+    url: `/api/v1/cmdb/model/field/${fieldId}`,
+    method: 'delete'
   })
 }
