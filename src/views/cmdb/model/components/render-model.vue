@@ -1,90 +1,89 @@
 <template>
-  <div style="padding: 0 0 20px 20px">
-    <el-form v-if="formStatus" ref="ruleForm" :model="ruleForm" :rules="rules" label-position="top">
+  <div style="padding: 0 20px 20px 20px">
+    <el-form v-if="formStatus" ref="ruleForm" label-width="100px" :model="ruleForm" :rules="rules">
       <div v-for="(item, index) in fields" :key="index" style="margin-top: 23px">
         <div style="font-size: 15px; font-weight: 500;">
           <i class="el-icon-arrow-right" style="font-size: 12px;" />
           {{ item.name }}
         </div>
-        <el-row>
-          <el-col
+        <div style="margin-top: 15px;">
+          <el-form-item
             v-for="(fieldItem, fieldIndex) in item.fields"
             :key="fieldIndex"
-            :span="12"
-            style="padding-right: 15px; margin-top: 15px;"
+            :label="fieldItem.name"
+            :prop="fieldItem.identifies"
           >
-            <el-form-item :label="fieldItem.name" :prop="fieldItem.identifies">
-              <div v-if="fieldItem.type === 'string'">
-                <el-input
-                  v-model="fieldItem.default_value"
-                  :disabled="fieldItem.configuration.is_edit?false:true"
-                  size="small"
-                  :placeholder="'请输入' + fieldItem.name"
+            <div v-if="fieldItem.type === 'string'">
+              <el-input
+                v-model="fieldItem.default_value"
+                :disabled="fieldItem.configuration.is_edit?false:true"
+                size="small"
+                :placeholder="'请输入' + fieldItem.name"
+              />
+            </div>
+            <div v-if="fieldItem.type === 'number'">
+              <el-input-number
+                v-model="fieldItem.default_value"
+                size="small"
+                :disabled="fieldItem.configuration.is_edit?false:true"
+                :min="fieldItem.configuration.min_number"
+                :max="fieldItem.configuration.max_number"
+              />
+            </div>
+            <div v-else-if="fieldItem.type === 'enum'">
+              <el-select v-model="fieldItem.default_value" size="small" :placeholder="'请选择' + fieldItem.name" style="width: 100%">
+                <el-option
+                  v-for="listItem of fieldItem.configuration.enum_list"
+                  :key="listItem.uuid"
+                  :label="listItem.value"
+                  :value="listItem.uuid"
                 />
-              </div>
-              <div v-if="fieldItem.type === 'number'">
-                <el-input-number
-                  v-model="fieldItem.default_value"
-                  size="small"
-                  :disabled="fieldItem.configuration.is_edit?false:true"
-                  :min="fieldItem.configuration.min_number"
-                  :max="fieldItem.configuration.max_number"
+              </el-select>
+            </div>
+            <div v-else-if="fieldItem.type === 'list'">
+              <el-select v-model="fieldItem.default_value" size="small" :placeholder="'请选择' + fieldItem.name" style="width: 100%">
+                <el-option
+                  v-for="listItem of fieldItem.configuration.list_value"
+                  :key="listItem.value"
+                  :label="listItem.value"
+                  :value="listItem.value"
                 />
-              </div>
-              <div v-else-if="fieldItem.type === 'enum'">
-                <el-select v-model="fieldItem.default_value" size="small" :placeholder="'请选择' + fieldItem.name" style="width: 100%">
-                  <el-option
-                    v-for="listItem of fieldItem.configuration.enum_list"
-                    :key="listItem.uuid"
-                    :label="listItem.value"
-                    :value="listItem.uuid"
-                  />
-                </el-select>
-              </div>
-              <div v-else-if="fieldItem.type === 'list'">
-                <el-select v-model="fieldItem.default_value" size="small" :placeholder="'请选择' + fieldItem.name" style="width: 100%">
-                  <el-option
-                    v-for="listItem of fieldItem.configuration.list_value"
-                    :key="listItem.value"
-                    :label="listItem.value"
-                    :value="listItem.value"
-                  />
-                </el-select>
-              </div>
-              <div v-else-if="fieldItem.type === 'date'">
-                <el-date-picker
-                  v-model="fieldItem.default_value"
-                  style="width: 100%"
-                  size="small"
-                  type="date"
-                  :placeholder="'请选择' + fieldItem.name"
+              </el-select>
+            </div>
+            <div v-else-if="fieldItem.type === 'date'">
+              <el-date-picker
+                v-model="fieldItem.default_value"
+                style="width: 100%"
+                size="small"
+                type="date"
+                :placeholder="'请选择' + fieldItem.name"
+              />
+            </div>
+            <div v-else-if="fieldItem.type === 'time'">
+              <el-time-picker
+                v-model="fieldItem.default_value"
+                style="width: 100%"
+                size="small"
+                :placeholder="'请选择' + fieldItem.name"
+              />
+            </div>
+            <div v-else-if="fieldItem.type === 'bool'">
+              <el-switch
+                v-model="fieldItem.default_value"
+                size="small"
+              />
+            </div>
+            <div v-else-if="fieldItem.type === 'user'">
+              <el-select v-model="fieldItem.default_value" size="small" style="width: 100%" :placeholder="'请选择' + fieldItem.name">
+                <el-option
+                  v-for="userItem in userList"
+                  :key="userItem.userId"
+                  :label="userItem.nickName"
+                  :value="userItem.userId"
                 />
-              </div>
-              <div v-else-if="fieldItem.type === 'time'">
-                <el-time-picker
-                  v-model="fieldItem.default_value"
-                  style="width: 100%"
-                  size="small"
-                  :placeholder="'请选择' + fieldItem.name"
-                />
-              </div>
-              <div v-else-if="fieldItem.type === 'bool'">
-                <el-switch
-                  v-model="fieldItem.default_value"
-                  size="small"
-                />
-              </div>
-              <div v-else-if="fieldItem.type === 'user'">
-                <el-select v-model="fieldItem.default_value" size="small" style="width: 100%" :placeholder="'请选择' + fieldItem.name">
-                  <el-option
-                    v-for="userItem in userList"
-                    :key="userItem.userId"
-                    :label="userItem.nickName"
-                    :value="userItem.userId"
-                  />
-                </el-select>
-              </div>
-              <!-- <div v-else-if="fieldItem.type === 'depart'">
+              </el-select>
+            </div>
+          <!-- <div v-else-if="fieldItem.type === 'depart'">
                 <el-cascader
                   v-model="fieldItem.default_value"
                   style="width: 100%"
@@ -97,9 +96,8 @@
                   </template>
                 </el-cascader>
               </div> -->
-            </el-form-item>
-          </el-col>
-        </el-row>
+          </el-form-item>
+        </div>
       </div>
     </el-form>
   </div>

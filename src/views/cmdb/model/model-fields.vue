@@ -303,7 +303,7 @@
 
       <!-- 字段预览 -->
       <el-drawer
-        size="38%"
+        size="36%"
         :with-header="false"
         type="primary"
         :visible.sync="fieldPreviewDesc.dialog"
