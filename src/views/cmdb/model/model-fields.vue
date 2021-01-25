@@ -321,7 +321,7 @@
               {{ fieldPreviewDesc.title }}
             </div>
             <div>
-              <renderModel :fields="modelDetails.field_groups" />
+              <renderModel v-if="renderModelStatus" :fields="modelDetails.field_groups" />
             </div>
           </div>
         </div>
@@ -394,6 +394,7 @@ export default {
       }
     }
     return {
+      renderModelStatus: false,
       groupModelList: [],
       modelRuleForm: {},
       modelDialog: false,
@@ -489,6 +490,7 @@ export default {
       })
     },
     previewField() {
+      this.renderModelStatus = true
       this.fieldPreviewDesc = {
         dialog: true,
         title: '字段预览'
@@ -684,6 +686,7 @@ export default {
               })
             })
           }
+          this.renderModelStatus = false
           this.fieldDesc.dialog = false
         }
       })
