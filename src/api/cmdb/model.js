@@ -129,3 +129,11 @@ export function deleteModelField(fieldId) {
     method: 'delete'
   })
 }
+
+// 获取唯一校验的字段
+export function getUniqueFields(modelId) {
+  return request({
+    url: `/api/v1/cmdb/model/unique-field/${modelId}`,
+    method: 'get'
+  })
+}

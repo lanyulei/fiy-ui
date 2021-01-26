@@ -121,7 +121,9 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="模型关联" name="2">模型关联</el-tab-pane>
-        <el-tab-pane label="唯一校验" name="3">唯一校验</el-tab-pane>
+        <el-tab-pane label="唯一校验" name="3">
+          <uniqueFields ref="uniqueFields" :model-id="modelId" />
+        </el-tab-pane>
       </el-tabs>
 
       <!-- 添加/编辑分组 -->
@@ -158,7 +160,7 @@
         direction="rtl"
         :wrapper-closable="false"
       >
-        <div>
+        <div v-if="fieldDesc.dialog">
           <div class="model-field-sideslider-header">
             <div class="model-field-sideslider-closer" style="float: left;">
               <i
@@ -379,10 +381,12 @@ import {
 } from '@/api/cmdb/model'
 
 import renderModel from './components/render-model'
+import uniqueFields from './components/unique-fields'
 
 export default {
   components: {
-    renderModel
+    renderModel,
+    uniqueFields
   },
   data() {
     var validateIdentifies = (rule, value, callback) => {
@@ -399,7 +403,7 @@ export default {
       modelRuleForm: {},
       modelDialog: false,
       modelDetails: {},
-      activeName: '1',
+      activeName: '3',
       fieldDesc: {},
       fieldPreviewDesc: {},
       fieldGroupDesc: {},
@@ -442,7 +446,8 @@ export default {
         type: [
           { required: true, message: '请选择字段类型', trigger: 'change' }
         ]
-      }
+      },
+      tableUniqueData: []
     }
   },
   created() {
@@ -578,9 +583,10 @@ export default {
       })
     },
     handleClick(tab, event) {
-      // console.log(tab, event)
+      if (this.activeName === '3') {
+        this.$refs.uniqueFields.getUniqueFieldsHandle()
+      }
     },
-
     editFieldGroupHandle(fieldGroup) {
       this.fieldGroupDesc = {
         title: '编辑字段分组',
