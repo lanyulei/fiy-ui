@@ -6,13 +6,13 @@
         <div style="float: left;height: 65px">
           <i
             style="font-size: 45px; margin-right: 20px; color: #3a84ff;"
-            :class="modelDetails.icon"
+            :class="modelDetail.icon"
           />
         </div>
         <div style="font-size: 14px; float: left;" class="model-info-div">
-          <span style="color: #737987;">唯一标识：</span>{{ modelDetails.identifies }}
-          <span style="color: #737987; margin-left: 10px;">名称：</span>{{ modelDetails.name }}
-          <span style="color: #737987; margin-left: 10px;">状态：</span>{{ modelDetails.is_usable ? '已启用' : '已停用' }}
+          <span style="color: #737987;">唯一标识：</span>{{ modelDetail.identifies }}
+          <span style="color: #737987; margin-left: 10px;">名称：</span>{{ modelDetail.name }}
+          <span style="color: #737987; margin-left: 10px;">状态：</span>{{ modelDetail.is_usable ? '已启用' : '已停用' }}
           <span style="color: #737987; margin-left: 10px;">实例数量：</span>
           <span style="color: #1890ff">
             <router-link to="/">
@@ -27,11 +27,11 @@
             icon="el-icon-edit"
             type="primary"
             @click="editModelInfoHandle({
-              id: modelDetails.id,
-              identifies: modelDetails.identifies,
-              name: modelDetails.name,
-              icon: modelDetails.icon,
-              group_id: modelDetails.group_id,
+              id: modelDetail.id,
+              identifies: modelDetail.identifies,
+              name: modelDetail.name,
+              icon: modelDetail.icon,
+              group_id: modelDetail.group_id,
             })"
           >编辑</el-link>
           <el-link
@@ -39,9 +39,9 @@
             :underline="false"
             icon="el-icon-remove-outline"
             type="primary"
-            @click="stopModelHandle(modelDetails.is_usable)"
+            @click="stopModelHandle(modelDetail.is_usable)"
           >
-            {{ modelDetails.is_usable ? '停用' : '启用' }}
+            {{ modelDetail.is_usable ? '停用' : '启用' }}
           </el-link>
           <el-tooltip class="item" effect="dark" content="字段分组不存在的情况下，才可删除模型" placement="top-end">
             <el-link
@@ -49,9 +49,9 @@
               :underline="false"
               icon="el-icon-delete"
               type="primary"
-              :disabled="modelDetails.field_groups !== undefined &&
-                modelDetails.field_groups !== null &&
-                modelDetails.field_groups.length > 0?true:false"
+              :disabled="modelDetail.field_groups !== undefined &&
+                modelDetail.field_groups !== null &&
+                modelDetail.field_groups.length > 0?true:false"
             >
               删除
             </el-link>
@@ -64,8 +64,8 @@
           <div>
             <el-button plain size="small" @click="previewField">字段预览</el-button>
             <!-- 字段分组列表 -->
-            <template v-if="modelDetails.field_groups !== undefined && modelDetails.field_groups !== null && modelDetails.field_groups.length > 0">
-              <div v-for="fieldGroup of modelDetails.field_groups" :key="fieldGroup.id" style="margin-top: 25px">
+            <template v-if="modelDetail.field_groups !== undefined && modelDetail.field_groups !== null && modelDetail.field_groups.length > 0">
+              <div v-for="fieldGroup of modelDetail.field_groups" :key="fieldGroup.id" style="margin-top: 25px">
                 <div>
                   <el-link
                     style="font-size: 16px;"
@@ -122,7 +122,7 @@
         </el-tab-pane>
         <el-tab-pane label="模型关联" name="2">模型关联</el-tab-pane>
         <el-tab-pane label="唯一校验" name="3">
-          <uniqueFields ref="uniqueFields" :model-id="modelId" />
+          <uniqueFields ref="uniqueFields" :model-id="modelId" :fields="modelDetail.field_groups" />
         </el-tab-pane>
       </el-tabs>
 
@@ -323,7 +323,7 @@
               {{ fieldPreviewDesc.title }}
             </div>
             <div>
-              <renderModel v-if="renderModelStatus" :fields="modelDetails.field_groups" />
+              <renderModel v-if="renderModelStatus" :fields="modelDetail.field_groups" />
             </div>
           </div>
         </div>
@@ -402,8 +402,8 @@ export default {
       groupModelList: [],
       modelRuleForm: {},
       modelDialog: false,
-      modelDetails: {},
-      activeName: '3',
+      modelDetail: {},
+      activeName: '1',
       fieldDesc: {},
       fieldPreviewDesc: {},
       fieldGroupDesc: {},
@@ -460,7 +460,7 @@ export default {
     getInfo() {
       if (this.modelId > 0) {
         modelDetails(this.modelId).then(res => {
-          this.modelDetails = res.data
+          this.modelDetail = res.data
         })
       } else {
         this.$message({

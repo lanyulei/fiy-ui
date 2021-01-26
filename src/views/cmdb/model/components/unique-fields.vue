@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button size="small" type="primary" style="margin-bottom: 13px">新建校验</el-button>
+    <el-button size="small" type="primary" style="margin-bottom: 13px" @click="addUniqueFieldHandle">新建校验</el-button>
     <el-table
       border
       :data="tableUniqueData"
@@ -26,12 +26,6 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-link
-            icon="el-icon-edit"
-            type="primary"
-            :underline="false"
-            @click="uniqueFieldEdit(scope.$index, scope.row)"
-          >编辑</el-link>
-          <el-link
             icon="el-icon-delete"
             type="primary"
             :underline="false"
@@ -41,6 +35,28 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog
+      title="新建校验"
+      :visible.sync="dialogVisible"
+      width="30%"
+    >
+      <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm">
+        <el-form-item label="字段名称" prop="modelId">
+          <el-select v-model="ruleForm.modelId" placeholder="请选择" filterable clearable size="small" style="width: 100%">
+            <el-option
+              v-for="item in allField"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" size="small" @click="submitForm">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -50,20 +66,54 @@ import {
 } from '@/api/cmdb/model'
 export default {
   // eslint-disable-next-line vue/require-prop-types
-  props: ['modelId'],
+  props: ['modelId', 'fields'],
   data() {
     return {
-      tableUniqueData: []
+      allField: [],
+      tableUniqueData: [],
+      ruleForm: {},
+      dialogVisible: false,
+      rules: {
+        modelId: [
+          { required: true, message: '请输入字段名称', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
-    getUniqueFieldsHandle() {
+    getList() {
       getUniqueFields(this.modelId).then(res => {
         this.tableUniqueData = res.data
       })
     },
-    uniqueFieldEdit() {},
-    uniqueFieldDelete() {}
+    getUniqueFieldsHandle() {
+      // 所有字段
+      for (var group of this.fields) {
+        for (var field of group.fields) {
+          this.allField.push(field)
+        }
+      }
+
+      this.getList()
+    },
+    uniqueFieldDelete() {},
+    addUniqueFieldHandle() {
+      this.dialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+    },
+    submitForm() {
+      this.$refs['ruleForm'].validate((valid) => {
+        if (valid) {
+          alert('submit!')
+          this.getList()
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    }
   }
 }
 </script>
