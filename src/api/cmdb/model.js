@@ -146,3 +146,21 @@ export function updateUniqueField(fieldId, params) {
     params
   })
 }
+
+// 新建关联类型
+export function createAssociationType(data) {
+  return request({
+    url: `/api/v1/cmdb/model/association-type`,
+    method: 'post',
+    data
+  })
+}
+
+// 关联类型列表
+export function associationTypeList(params) {
+  return request({
+    url: `/api/v1/cmdb/model/association-type`,
+    method: 'get',
+    params
+  })
+}

@@ -120,7 +120,13 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="模型关联" name="2">模型关联</el-tab-pane>
+        <el-tab-pane label="模型关联" name="2">
+          <modelAssociation
+            ref="uniqueFields"
+            :model-id="modelId"
+            :fields="modelDetail.field_groups"
+          />
+        </el-tab-pane>
         <el-tab-pane label="唯一校验" name="3">
           <uniqueFields
             ref="uniqueFields"
@@ -386,11 +392,13 @@ import {
 
 import renderModel from './components/render-model'
 import uniqueFields from './components/unique-fields'
+import modelAssociation from './components/model-association'
 
 export default {
   components: {
     renderModel,
-    uniqueFields
+    uniqueFields,
+    modelAssociation
   },
   data() {
     var validateIdentifies = (rule, value, callback) => {
