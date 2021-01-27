@@ -1,146 +1,108 @@
 <template>
-  <div class="echartLayout">
-    <div id="container" style="width:100%; height:100%; overflow:hidden;" />
+  <div id="app">
+    <div id="container" style="width: 600px;height:400px;" />
   </div>
 </template>
-
 <script>
-import echarts from 'echarts'
-import imgSrc from '@/assets/login.png'
+
+const echarts = require('echarts/lib/echarts')
+require('echarts/lib/component/title')
+require('echarts/lib/component/tooltip')
+require('echarts/lib/chart/graph')
+
 export default {
-  name: 'PersonRelation',
-  data() {
-    return {
-      myChart: null,
-      chartData: [],
-      chartLink: []
-    }
-  },
+  name: 'Topology',
   mounted() {
-    this.initEchart()
+    this.initChart()
   },
   methods: {
-    initEchart() {
-      const dom = document.getElementById('container')
-      this.myChart = echarts.init(dom)
-      this.chartData = this.dataEChart()
-      this.chartLink = this.linkEChart()
-      const option = {
-        tooltip: {
-          show: false
+    initChart() {
+      // 基于准备好的dom，初始化echarts实例
+      const myChart = echarts.init(document.getElementById('container'))
+      // 指定图表的配置项和数据
+      var option = {
+        title: {
+          text: 'Graph 简单示例'
         },
+        tooltip: {},
+        animationDurationUpdate: 1500,
+        animationEasingUpdate: 'quinticInOut',
         series: [
           {
-            edgeLabel: {
-              normal: {
-                formatter: '{c}',
-                show: true
-              }
-            },
-            edgeSymbol: 'circle',
-            force: {
-              repulsion: 2000
-            },
-            layout: 'force',
-            roam: true,
-            itemStyle: {
-              normal: {
-                color: '#6495ED'
-              },
-              // 鼠标放上去有阴影效果
-              emphasis: {
-                shadowColor: '#3721db',
-                shadowOffsetX: 0,
-                shadowOffsetY: 0,
-                shadowBlur: 40
-              }
-            },
-            label: {
-              normal: {
-                show: true
-              }
-            },
-            // 头像
-            symbol: `image://${imgSrc}`,
-            symbolSize: 86,
             type: 'graph',
-            links: this.chartLink,
-            data: this.chartData
+            layout: 'none',
+            symbolSize: 50,
+            roam: true,
+            label: {
+              show: true
+            },
+            edgeSymbol: ['circle', 'arrow'],
+            edgeSymbolSize: [4, 10],
+            edgeLabel: {
+              fontSize: 20
+            },
+            data: [{
+              name: '节点1',
+              x: 300,
+              y: 300
+            }, {
+              name: '节点2',
+              x: 800,
+              y: 300
+            }, {
+              name: '节点3',
+              x: 550,
+              y: 100
+            }, {
+              name: '节点4',
+              x: 550,
+              y: 500
+            }],
+            // links: [],
+            links: [{
+              source: 0,
+              target: 1,
+              symbolSize: [5, 20],
+              label: {
+                show: true
+              },
+              lineStyle: {
+                width: 5,
+                curveness: 0.2
+              }
+            }, {
+              source: '节点2',
+              target: '节点1',
+              label: {
+                show: true
+              },
+              lineStyle: {
+                curveness: 0.2
+              }
+            }, {
+              source: '节点1',
+              target: '节点3'
+            }, {
+              source: '节点2',
+              target: '节点3'
+            }, {
+              source: '节点2',
+              target: '节点4'
+            }, {
+              source: '节点1',
+              target: '节点4'
+            }],
+            lineStyle: {
+              opacity: 0.9,
+              width: 2,
+              curveness: 0
+            }
           }
         ]
       }
-      this.myChart.setOption(option)
-      this.myChart.on('click', function(params) {
-        console.log(params.data)// 获取点击的头像的数据信息
-      })
-    },
-    /**
-       * 数据集合
-       */
-    dataEChart() {
-      const data = [
-        {
-          name: '张1',
-          symbolSize: 76,
-          id: '1'
-        },
-        {
-          name: '张2',
-          id: '2'
-        },
-        {
-          name: '张3',
-          id: '3'
-        },
-        {
-          name: '张4',
-          id: '4'
-        },
-        {
-          name: '张5',
-          id: '5'
-        },
-        {
-          name: '张6',
-          id: '6'
-        },
-        {
-          name: '张7',
-          id: '7'
-        },
-        {
-          name: '张6',
-          id: '8'
-        }
-      ]
-      return data
-    },
-    /**
-       * 关系数据集合
-       */
-    linkEChart() {
-      const dataLink = [
-        { value: '同事', source: '1', target: '2' },
-        { value: '同事', source: '1', target: '3' },
-        { value: '同事', source: '1', target: '4' },
-        { value: '同学', source: '1', target: '5' },
-        { value: '同学', source: '1', target: '6' },
-        { value: '同学', source: '1', target: '7' },
-        { value: '爸爸', source: '1', target: '8' }
-      ]
-      return dataLink
+      // 使用刚指定的配置项和数据显示图表。
+      myChart.setOption(option)
     }
   }
 }
 </script>
-
-<style scoped>
-  .echartLayout {
-    margin: auto;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-  }
-</style>
