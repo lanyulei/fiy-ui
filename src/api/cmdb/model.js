@@ -137,3 +137,12 @@ export function getUniqueFields(modelId) {
     method: 'get'
   })
 }
+
+// 获取唯一校验的字段
+export function updateUniqueField(fieldId, params) {
+  return request({
+    url: `/api/v1/cmdb/model/unique-field/${fieldId}`,
+    method: 'put',
+    params
+  })
+}

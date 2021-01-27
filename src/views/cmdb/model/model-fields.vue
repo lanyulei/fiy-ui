@@ -122,7 +122,11 @@
         </el-tab-pane>
         <el-tab-pane label="模型关联" name="2">模型关联</el-tab-pane>
         <el-tab-pane label="唯一校验" name="3">
-          <uniqueFields ref="uniqueFields" :model-id="modelId" :fields="modelDetail.field_groups" />
+          <uniqueFields
+            ref="uniqueFields"
+            :model-id="modelId"
+            :fields="modelDetail.field_groups"
+          />
         </el-tab-pane>
       </el-tabs>
 

@@ -30,7 +30,7 @@
             type="primary"
             :underline="false"
             style="margin-left: 15px;"
-            @click="uniqueFieldDelete(scope.$index, scope.row)"
+            @click="uniqueFieldDelete(scope.row.id)"
           >删除</el-link>
         </template>
       </el-table-column>
@@ -41,8 +41,8 @@
       width="30%"
     >
       <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm">
-        <el-form-item label="字段名称" prop="modelId">
-          <el-select v-model="ruleForm.modelId" placeholder="请选择" filterable clearable size="small" style="width: 100%">
+        <el-form-item label="字段名称" prop="fieldId">
+          <el-select v-model="ruleForm.fieldId" placeholder="请选择" filterable clearable size="small" style="width: 100%">
             <el-option
               v-for="item in allField"
               :key="item.id"
@@ -62,7 +62,8 @@
 
 <script>
 import {
-  getUniqueFields
+  getUniqueFields,
+  updateUniqueField
 } from '@/api/cmdb/model'
 export default {
   // eslint-disable-next-line vue/require-prop-types
@@ -74,7 +75,7 @@ export default {
       ruleForm: {},
       dialogVisible: false,
       rules: {
-        modelId: [
+        fieldId: [
           { required: true, message: '请输入字段名称', trigger: 'blur' }
         ]
       }
@@ -87,6 +88,7 @@ export default {
       })
     },
     getUniqueFieldsHandle() {
+      this.allField = []
       // 所有字段
       for (var group of this.fields) {
         for (var field of group.fields) {
@@ -96,8 +98,30 @@ export default {
 
       this.getList()
     },
-    uniqueFieldDelete() {},
+    uniqueFieldDelete(fieldId) {
+      this.$confirm('是否删除唯一校验?', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      }).then(() => {
+        updateUniqueField(fieldId, {
+          unique_status: 'delete'
+        }).then(() => {
+          this.getList()
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
+      })
+    },
     addUniqueFieldHandle() {
+      this.ruleForm = {}
       this.dialogVisible = true
       this.$nextTick(() => {
         this.$refs.ruleForm.clearValidate()
@@ -106,11 +130,16 @@ export default {
     submitForm() {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
-          alert('submit!')
-          this.getList()
-        } else {
-          console.log('error submit!!')
-          return false
+          updateUniqueField(this.ruleForm.fieldId, {
+            unique_status: 'create'
+          }).then(() => {
+            this.getList()
+            this.$message({
+              type: 'success',
+              message: '创建成功!'
+            })
+            this.dialogVisible = false
+          })
         }
       })
     }
