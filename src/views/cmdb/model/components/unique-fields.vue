@@ -42,7 +42,7 @@
     >
       <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm">
         <el-form-item label="字段名称" prop="fieldId">
-          <el-select v-model="ruleForm.fieldId" placeholder="请选择" filterable clearable size="small" style="width: 100%">
+          <el-select v-model="ruleForm.fieldId" placeholder="请选择字段名称" filterable clearable size="small" style="width: 100%">
             <el-option
               v-for="item in allField"
               :key="item.id"
@@ -76,7 +76,7 @@ export default {
       dialogVisible: false,
       rules: {
         fieldId: [
-          { required: true, message: '请输入字段名称', trigger: 'blur' }
+          { required: true, message: '字段名称必选', trigger: 'change' }
         ]
       }
     }

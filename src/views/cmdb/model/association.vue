@@ -74,14 +74,6 @@
               </template>
             </el-table-column>
           </el-table>
-
-          <pagination
-            v-show="total>0"
-            :total="total"
-            :page.sync="queryParams.page"
-            :limit.sync="queryParams.per_page"
-            @pagination="getList"
-          />
         </div>
       </el-card>
 
@@ -146,7 +138,6 @@ export default {
       relatedType: {},
       loading: false,
       list: [],
-      total: 0,
       queryParams: {
         page: 1,
         per_page: 10
@@ -181,7 +172,6 @@ export default {
     getList() {
       associationTypeList(this.queryParams).then(res => {
         this.list = res.data.list
-        this.total = res.data.total_count
       })
     },
     addAssociation() {

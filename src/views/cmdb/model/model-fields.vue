@@ -626,21 +626,23 @@ export default {
         if (valid) {
           if (this.fieldGroupDesc.status === 'create') {
             this.fieldGroupForm.info_id = parseInt(this.modelId)
-            createModelFieldGroup(this.fieldGroupForm).then(res => {
+            createModelFieldGroup(this.fieldGroupForm).then(() => {
+              this.getInfo()
               this.$message({
                 type: 'success',
                 message: '创建字段分组成功'
               })
             })
           } else if (this.fieldGroupDesc.status === 'edit') {
-            editFieldGroup(this.fieldGroupForm.id, this.fieldGroupForm).then(res => {
+            editFieldGroup(this.fieldGroupForm.id, this.fieldGroupForm).then(() => {
+              this.getInfo()
               this.$message({
                 type: 'success',
                 message: '编辑字段分组成功'
               })
             })
           }
-          this.getInfo()
+
           this.fieldGroupDesc.dialog = false
         }
       })
