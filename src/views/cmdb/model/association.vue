@@ -15,9 +15,9 @@
           <el-row>
             <el-button size="mini" type="primary" @click="addAssociation">新建</el-button>
             <el-input
-              v-model="queryParams.search"
+              v-model="queryParams.name"
               size="mini"
-              placeholder="请输入内容"
+              placeholder="请输入名称"
               class="input-with-select"
               style="width: 300px; margin-left: 10px"
               @keyup.enter.native="getList"
@@ -59,11 +59,17 @@
             <el-table-column label="操作">
               <template slot-scope="scope">
                 <el-link
+                  icon="el-icon-edit"
+                  type="primary"
+                  :underline="false"
+                  @click="editAssociationTypeHandle(scope.row)"
+                >编辑</el-link>
+                <el-link
                   icon="el-icon-delete"
                   type="primary"
                   :underline="false"
                   style="margin-left: 15px;"
-                  @click="uniqueFieldDelete(scope.row.id)"
+                  @click="deleteAssociationTypeHandle(scope.row.id)"
                 >删除</el-link>
               </template>
             </el-table-column>
@@ -83,7 +89,7 @@
       <el-dialog
         :title="relatedType.title"
         :visible.sync="relatedType.dialog"
-        width="30%"
+        width="38%"
       >
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="110px">
           <el-form-item label="唯一标识" prop="identifies">
@@ -119,7 +125,9 @@
 <script>
 import {
   createAssociationType,
-  associationTypeList
+  associationTypeList,
+  updateAssociationType,
+  deleteAssociationType
 } from '@/api/cmdb/model'
 export default {
   components: {
@@ -171,29 +179,83 @@ export default {
   },
   methods: {
     getList() {
-      associationTypeList().then(res => {
-        console.log(res.data)
+      associationTypeList(this.queryParams).then(res => {
         this.list = res.data.list
         this.total = res.data.total_count
       })
     },
     addAssociation() {
+      this.ruleForm = {
+        direction: 1
+      }
       this.relatedType = {
         title: '新建关联',
         status: 'create',
         dialog: true
       }
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+    },
+    editAssociationTypeHandle(row) {
+      this.ruleForm = row
+      this.relatedType = {
+        title: '编辑关联',
+        status: 'edit',
+        dialog: true
+      }
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
     },
     submitForm() {
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
-          createAssociationType(this.ruleForm).then(res => {
-            console.log(res)
-          })
-        } else {
-          console.log('error submit!!')
-          return false
+          if (this.relatedType.status === 'create') {
+            createAssociationType(this.ruleForm).then(res => {
+              this.getList()
+              this.$message({
+                type: 'success',
+                message: '创建关联类型成功'
+              })
+            })
+          } else if (this.relatedType.status === 'edit') {
+            updateAssociationType(this.ruleForm.id, {
+              identifies: this.ruleForm.identifies,
+              name: this.ruleForm.name,
+              source_describe: this.ruleForm.source_describe,
+              target_describe: this.ruleForm.target_describe,
+              direction: this.ruleForm.direction
+            }).then(res => {
+              this.getList()
+              this.$message({
+                type: 'success',
+                message: '编辑关联类型成功'
+              })
+            })
+          }
+          this.relatedType.dialog = false
         }
+      })
+    },
+    deleteAssociationTypeHandle(associationId) {
+      this.$confirm('是否删除关联分类?', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      }).then(() => {
+        deleteAssociationType(associationId).then(() => {
+          this.getList()
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
       })
     }
   }

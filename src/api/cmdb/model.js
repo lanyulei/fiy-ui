@@ -164,3 +164,20 @@ export function associationTypeList(params) {
     params
   })
 }
+
+// 更新关联类型
+export function updateAssociationType(associationId, data) {
+  return request({
+    url: `/api/v1/cmdb/model/association-type/${associationId}`,
+    method: 'put',
+    data
+  })
+}
+
+// 删除关联类型
+export function deleteAssociationType(associationId) {
+  return request({
+    url: `/api/v1/cmdb/model/association-type/${associationId}`,
+    method: 'delete'
+  })
+}
