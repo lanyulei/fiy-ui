@@ -288,7 +288,7 @@ export default {
               center: true
             }).then(() => {
               // 跳转到模型详情页面
-              this.$router.push({ path: '/cmdb/model/model-fields' })
+              this.$router.push({ path: '/cmdb/model/model-fields', query: { 'modelId': res.data.id }})
             }).catch(() => {
               this.$message({
                 type: 'info',
