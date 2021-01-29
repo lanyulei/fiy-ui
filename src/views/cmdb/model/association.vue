@@ -30,10 +30,6 @@
         <div style="margin-top: 15px;">
           <el-table v-loading="loading" :data="list" border>
             <el-table-column
-              prop="id"
-              label="ID"
-            />
-            <el-table-column
               prop="identifies"
               label="唯一标识"
             />

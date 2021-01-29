@@ -7,10 +7,6 @@
       style="width: 100%"
     >
       <el-table-column
-        prop="id"
-        label="ID"
-      />
-      <el-table-column
         prop="identifies"
         label="唯一标识"
       />
