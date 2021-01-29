@@ -7,23 +7,24 @@
       style="width: 100%"
     >
       <el-table-column
-        prop="identifies"
-        label="唯一标识"
-      />
-      <el-table-column
-        prop="name"
+        prop="related_type_name"
         label="关联类型"
       />
       <el-table-column
-        prop="name"
         label="源-目标约束"
-      />
+      >
+        <template slot-scope="scope">
+          <span v-if="scope.row.constraint === 1">1 - 1</span>
+          <span v-else-if="scope.row.constraint === 2">1 - N</span>
+          <span v-else-if="scope.row.constraint === 3">N - N</span>
+        </template>
+      </el-table-column>
       <el-table-column
-        prop="name"
+        prop="source_model_name"
         label="源模型"
       />
       <el-table-column
-        prop="name"
+        prop="target_model_name"
         label="目标模型"
       />
       <el-table-column label="操作">
@@ -46,34 +47,18 @@
       width="30%"
     >
       <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px">
-        <el-form-item label="源模型" prop="source">
-          <el-select v-model="ruleForm.source" placeholder="请选择源模型" size="small" style="width: 100%">
-            <el-option-group
-              v-for="group in fields"
-              :key="group.id"
-              :label="group.name"
-            >
-              <el-option
-                v-for="fieldItem in group.fields"
-                :key="fieldItem.id"
-                :label="fieldItem.name"
-                :value="fieldItem.id"
-              />
-            </el-option-group>
-          </el-select>
-        </el-form-item>
         <el-form-item label="目标模型" prop="target">
           <el-select v-model="ruleForm.target" placeholder="请选择目标模型" size="small" style="width: 100%">
             <el-option-group
-              v-for="group in fields"
+              v-for="group in groupModelList"
               :key="group.id"
               :label="group.name"
             >
               <el-option
-                v-for="fieldItem in group.fields"
-                :key="fieldItem.id"
-                :label="fieldItem.name"
-                :value="fieldItem.id"
+                v-for="modelItem in group.model_list"
+                :key="modelItem.id"
+                :label="modelItem.name"
+                :value="modelItem.id"
               />
             </el-option-group>
           </el-select>
@@ -100,7 +85,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="关联描述" prop="remark">
+        <el-form-item label="关联描述">
           <el-input
             v-model="ruleForm.remark"
             type="textarea"
@@ -120,18 +105,21 @@
 
 <script>
 import {
-  getUniqueFields,
   updateUniqueField,
-  associationTypeList
+  createModelRelated,
+  modelRelatedList,
+  associationTypeList,
+  modelList
 } from '@/api/cmdb/model'
 export default {
   // eslint-disable-next-line vue/require-prop-types
-  props: ['modelId', 'fields'],
+  props: ['modelId'],
   data() {
     return {
       list: [],
       relatedList: [],
       relatedDialog: {},
+      groupModelList: [],
       constraintOptions: [{
         label: 'N - N',
         value: 3
@@ -155,29 +143,18 @@ export default {
         ],
         constraint: [
           { required: true, message: '源-目标约束必选', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '关联描述必填', trigger: 'blur' }
         ]
       }
     }
   },
-  watch: {
-    fields: {
-      handler(newName, oldName) {
-        this.fields = newName
-      },
-      immediate: true,
-      deep: true
-    }
-  },
   created() {
-    this.getRelatedList()
+    this.getList()
+    this.getModelList()
   },
   methods: {
     getList() {
-      getUniqueFields(this.modelId).then(res => {
-        this.tableUniqueData = res.data
+      modelRelatedList().then(res => {
+        this.list = res.data
       })
     },
     getRelatedList() {
@@ -187,16 +164,12 @@ export default {
         this.relatedList = res.data.list
       })
     },
-    getUniqueFieldsHandle() {
-      this.allField = []
-      // 所有字段
-      for (var group of this.fields) {
-        for (var field of group.fields) {
-          this.allField.push(field)
-        }
-      }
-
-      this.getList()
+    getModelList() {
+      modelList({
+        isUsable: 1
+      }).then(res => {
+        this.groupModelList = res.data
+      })
     },
     uniqueFieldDelete(fieldId) {
       this.$confirm('是否删除唯一校验?', '提示', {
@@ -234,7 +207,17 @@ export default {
     submitForm() {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
-          console.log(1)
+          this.ruleForm.source = this.modelId
+          if (this.ruleForm.source !== this.ruleForm.target) {
+            createModelRelated(this.ruleForm).then(res => {
+              console.log(res)
+            })
+          } else {
+            this.$message({
+              type: 'error',
+              message: '源模型和目标模型不能是同一个'
+            })
+          }
         }
       })
     }

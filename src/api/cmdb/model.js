@@ -181,3 +181,21 @@ export function deleteAssociationType(associationId) {
     method: 'delete'
   })
 }
+
+// 新建模型关联
+export function createModelRelated(data) {
+  return request({
+    url: `/api/v1/cmdb/model/model-related`,
+    method: 'post',
+    data
+  })
+}
+
+// 模型关联列表
+export function modelRelatedList() {
+  return request({
+    url: `/api/v1/cmdb/model/model-related`,
+    method: 'get'
+  })
+}
+
