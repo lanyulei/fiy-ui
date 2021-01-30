@@ -52,6 +52,7 @@
               :disabled="modelDetail.field_groups !== undefined &&
                 modelDetail.field_groups !== null &&
                 modelDetail.field_groups.length > 0?true:false"
+              @click="deleteModelInfoHandle(modelDetail.id)"
             >
               删除
             </el-link>
@@ -387,7 +388,8 @@ import {
   getModelGroupList,
   editModelInfo,
   stopModelInfo,
-  deleteModelField
+  deleteModelField,
+  deleteModelInfo
 } from '@/api/cmdb/model'
 
 import renderModel from './components/render-model'
@@ -484,6 +486,22 @@ export default {
           }
         })
       }
+    },
+    deleteModelInfoHandle(id) {
+      this.$confirm('是否删除此模块?', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      }).then(() => {
+        deleteModelInfo(id).then(() => {
+          this.$router.push({ path: '/cmdb/model/index' })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
+      })
     },
     deleteModelFieldHandle(fieldId) {
       this.$confirm('是否删除此字段?', '提示', {

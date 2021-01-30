@@ -52,6 +52,14 @@ export function createModelInfo(data) {
   })
 }
 
+// 删除模型
+export function deleteModelInfo(modelId) {
+  return request({
+    url: `/api/v1/cmdb/model/info/${modelId}`,
+    method: 'delete'
+  })
+}
+
 // 创建模型字段
 export function createModelFieldGroup(data) {
   return request({
@@ -192,10 +200,27 @@ export function createModelRelated(data) {
 }
 
 // 模型关联列表
-export function modelRelatedList() {
+export function modelRelatedList(id) {
   return request({
-    url: `/api/v1/cmdb/model/model-related`,
+    url: `/api/v1/cmdb/model/model-related/${id}`,
     method: 'get'
+  })
+}
+
+// 编辑模型关联
+export function editModelRelated(id, data) {
+  return request({
+    url: `/api/v1/cmdb/model/model-related/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+// 编辑模型关联
+export function deleteModelRelated(id) {
+  return request({
+    url: `/api/v1/cmdb/model/model-related/${id}`,
+    method: 'delete'
   })
 }
 

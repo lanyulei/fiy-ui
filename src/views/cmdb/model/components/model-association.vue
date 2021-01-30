@@ -30,11 +30,18 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-link
+            icon="el-icon-edit"
+            type="primary"
+            :underline="false"
+            style="margin-left: 15px;"
+            @click="editModelAssociation(scope.row)"
+          >编辑</el-link>
+          <el-link
             icon="el-icon-delete"
             type="primary"
             :underline="false"
             style="margin-left: 15px;"
-            @click="uniqueFieldDelete(scope.row.id)"
+            @click="deleteModelAssociation(scope.row.id)"
           >删除</el-link>
         </template>
       </el-table-column>
@@ -105,11 +112,12 @@
 
 <script>
 import {
-  updateUniqueField,
   createModelRelated,
   modelRelatedList,
   associationTypeList,
-  modelList
+  modelList,
+  editModelRelated,
+  deleteModelRelated
 } from '@/api/cmdb/model'
 export default {
   // eslint-disable-next-line vue/require-prop-types
@@ -150,10 +158,11 @@ export default {
   created() {
     this.getList()
     this.getModelList()
+    this.getRelatedList()
   },
   methods: {
     getList() {
-      modelRelatedList().then(res => {
+      modelRelatedList(this.modelId).then(res => {
         this.list = res.data
       })
     },
@@ -171,15 +180,13 @@ export default {
         this.groupModelList = res.data
       })
     },
-    uniqueFieldDelete(fieldId) {
-      this.$confirm('是否删除唯一校验?', '提示', {
+    deleteModelAssociation(id) {
+      this.$confirm('是否删除模型关联?', '提示', {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
       }).then(() => {
-        updateUniqueField(fieldId, {
-          unique_status: 'delete'
-        }).then(() => {
+        deleteModelRelated(id).then(() => {
           this.getList()
           this.$message({
             type: 'success',
@@ -204,14 +211,46 @@ export default {
         this.$refs.ruleForm.clearValidate()
       })
     },
+    editModelAssociation(row) {
+      this.ruleForm = row
+      this.relatedDialog = {
+        title: '编辑关联',
+        status: 'edit',
+        dialog: true
+      }
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+    },
     submitForm() {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
-          this.ruleForm.source = this.modelId
+          this.ruleForm.source = parseInt(this.modelId)
           if (this.ruleForm.source !== this.ruleForm.target) {
-            createModelRelated(this.ruleForm).then(res => {
-              console.log(res)
-            })
+            if (this.relatedDialog.status === 'create') {
+              createModelRelated(this.ruleForm).then(() => {
+                this.getList()
+                this.relatedDialog.dialog = false
+                this.$message({
+                  type: 'success',
+                  message: '新建成功'
+                })
+              })
+            } else if (this.relatedDialog.status === 'edit') {
+              editModelRelated(this.ruleForm.id, {
+                target: this.ruleForm.target,
+                related_type_id: this.ruleForm.related_type_id,
+                constraint: this.ruleForm.constraint,
+                remark: this.ruleForm.remark
+              }).then(() => {
+                this.getList()
+                this.relatedDialog.dialog = false
+                this.$message({
+                  type: 'success',
+                  message: '新建成功'
+                })
+              })
+            }
           } else {
             this.$message({
               type: 'error',

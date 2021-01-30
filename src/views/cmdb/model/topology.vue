@@ -1,10 +1,15 @@
 <template>
-  <div id="app">
-    <div id="container" style="width: 600px;height:400px;" />
-  </div>
+  <BasicLayout>
+    <template #wrapper>
+      <!-- <div id="container" style="width: 600px;height:400px;" /> -->
+      <div style="text-align: center; margin-top: 200px; font-size: 200px; font-weight: bold;">
+        <span>待完善</span>
+      </div>
+    </template>
+  </BasicLayout>
 </template>
-<script>
 
+<script>
 const echarts = require('echarts/lib/echarts')
 require('echarts/lib/component/title')
 require('echarts/lib/component/tooltip')
