@@ -77,6 +77,15 @@ export function modelDetails(modelId) {
   })
 }
 
+// 获取模型详情
+export function filterModelDetails(params) {
+  return request({
+    url: `/api/v1/cmdb/model/details`,
+    method: 'get',
+    params
+  })
+}
+
 // 创建模型字段
 export function createModelField(data) {
   return request({

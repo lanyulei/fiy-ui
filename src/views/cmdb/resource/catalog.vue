@@ -62,7 +62,7 @@ export default {
       })
     },
     toModelDetails(identifies) {
-      this.$router.push({ name: 'ResourceCatalogDetails', params: { classify: identifies }})
+      this.$router.push({ name: 'ResourceDetails', params: { classify: identifies }})
     }
   }
 }
