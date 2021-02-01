@@ -88,12 +88,12 @@
             新建业务
           </div>
           <div>
-            <renderModel v-if="renderModelStatus" :fields="fields.field_groups" />
+            <renderModel v-if="renderModelStatus" :fields="fields.field_groups" :field-data.sync="fieldData" />
           </div>
           <div style="text-align: center;">
             <span slot="footer" class="dialog-footer">
               <el-button @click="bizDialog = false">取 消</el-button>
-              <el-button type="primary" @click="bizDialog = false">确 定</el-button>
+              <el-button type="primary" @click="submitForm">确 定</el-button>
             </span>
           </div>
 
@@ -115,6 +115,7 @@ export default {
   },
   data() {
     return {
+      fieldData: {},
       renderModelStatus: false,
       bizDialog: false,
       loading: false,
@@ -142,6 +143,9 @@ export default {
     },
     addBiz() {
       this.bizDialog = true
+    },
+    submitForm() {
+      console.log(this.fieldData)
     }
   }
 }

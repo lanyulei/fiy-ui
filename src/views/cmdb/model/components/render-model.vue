@@ -15,7 +15,7 @@
           >
             <div v-if="fieldItem.type === 'string'">
               <el-input
-                v-model="fieldItem.default_value"
+                v-model="fieldData[fieldItem.identifies]"
                 :disabled="fieldItem.configuration.is_edit?false:true"
                 size="small"
                 :placeholder="'请输入' + fieldItem.name"
@@ -23,7 +23,7 @@
             </div>
             <div v-if="fieldItem.type === 'number'">
               <el-input-number
-                v-model="fieldItem.default_value"
+                v-model="fieldData[fieldItem.identifies]"
                 size="small"
                 :disabled="fieldItem.configuration.is_edit?false:true"
                 :min="fieldItem.configuration.min_number"
@@ -31,7 +31,7 @@
               />
             </div>
             <div v-else-if="fieldItem.type === 'enum'">
-              <el-select v-model="fieldItem.default_value" size="small" :placeholder="'请选择' + fieldItem.name" style="width: 100%">
+              <el-select v-model="fieldData[fieldItem.identifies]" size="small" :placeholder="'请选择' + fieldItem.name" style="width: 100%">
                 <el-option
                   v-for="listItem of fieldItem.configuration.enum_list"
                   :key="listItem.uuid"
@@ -41,7 +41,7 @@
               </el-select>
             </div>
             <div v-else-if="fieldItem.type === 'list'">
-              <el-select v-model="fieldItem.default_value" size="small" :placeholder="'请选择' + fieldItem.name" style="width: 100%">
+              <el-select v-model="fieldData[fieldItem.identifies]" size="small" :placeholder="'请选择' + fieldItem.name" style="width: 100%">
                 <el-option
                   v-for="listItem of fieldItem.configuration.list_value"
                   :key="listItem.value"
@@ -52,7 +52,7 @@
             </div>
             <div v-else-if="fieldItem.type === 'date'">
               <el-date-picker
-                v-model="fieldItem.default_value"
+                v-model="fieldData[fieldItem.identifies]"
                 style="width: 100%"
                 size="small"
                 type="date"
@@ -61,7 +61,7 @@
             </div>
             <div v-else-if="fieldItem.type === 'time'">
               <el-time-picker
-                v-model="fieldItem.default_value"
+                v-model="fieldData[fieldItem.identifies]"
                 style="width: 100%"
                 size="small"
                 :placeholder="'请选择' + fieldItem.name"
@@ -69,12 +69,12 @@
             </div>
             <div v-else-if="fieldItem.type === 'bool'">
               <el-switch
-                v-model="fieldItem.default_value"
+                v-model="fieldData[fieldItem.identifies]"
                 size="small"
               />
             </div>
             <div v-else-if="fieldItem.type === 'user'">
-              <el-select v-model="fieldItem.default_value" size="small" style="width: 100%" :placeholder="'请选择' + fieldItem.name">
+              <el-select v-model="fieldData[fieldItem.identifies]" size="small" style="width: 100%" :placeholder="'请选择' + fieldItem.name">
                 <el-option
                   v-for="userItem in userList"
                   :key="userItem.userId"
@@ -85,7 +85,7 @@
             </div>
           <!-- <div v-else-if="fieldItem.type === 'depart'">
                 <el-cascader
-                  v-model="fieldItem.default_value"
+                  v-model="fieldData[fieldItem.identifies]"
                   style="width: 100%"
                   :options="deptOptions"
                   :show-all-levels="false"
@@ -108,7 +108,7 @@ import { listUser } from '@/api/system/sysuser'
 // import { treeselect } from '@/api/system/dept'
 export default {
   // eslint-disable-next-line vue/require-prop-types
-  props: ['fields'],
+  props: ['fields', 'fieldData'],
   data() {
     return {
       formStatus: false,
