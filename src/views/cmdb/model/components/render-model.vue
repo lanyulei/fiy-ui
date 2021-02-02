@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 0 20px 20px 20px">
-    <el-form v-if="formStatus" ref="ruleForm" label-width="100px" :model="ruleForm" :rules="rules">
+    <el-form v-if="formStatus" ref="fieldData" label-width="100px" :model="fieldData" :rules="rules">
       <div v-for="(item, index) in fields" :key="index" style="margin-top: 23px">
         <div style="font-size: 15px; font-weight: 500;">
           <i class="el-icon-arrow-right" style="font-size: 12px;" />
@@ -99,16 +99,40 @@
           </el-form-item>
         </div>
       </div>
+      <div style="text-align: center; padding-bottom: 30px; padding-top: 20px;">
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="closeDialog">取 消</el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+        </span>
+      </div>
     </el-form>
   </div>
 </template>
 
 <script>
 import { listUser } from '@/api/system/sysuser'
+import {
+  createData
+} from '@/api/cmdb/resource'
 // import { treeselect } from '@/api/system/dept'
 export default {
   // eslint-disable-next-line vue/require-prop-types
-  props: ['fields', 'fieldData'],
+  props: {
+    fields: {
+      type: Array,
+      default: () => []
+    },
+    isSubmit: {
+      type: String,
+      default: ''
+    },
+    fieldData: {
+      type: Object,
+      default: function() {
+        return {}
+      }
+    }
+  },
   data() {
     return {
       formStatus: false,
@@ -160,6 +184,28 @@ export default {
       }).then(response => {
         this.userList = response.data.list
       })
+    },
+    submitForm() {
+      this.$refs.fieldData.validate((valid) => {
+        if (valid) {
+          if (this.isSubmit !== '') {
+            if (this.isSubmit === 'create') {
+              createData({
+                info_id: parseInt(this.$route.params.classify),
+                data: this.fieldData
+              }).then(res => {
+                console.log(res)
+              })
+            }
+          }
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
+    closeDialog() {
+      this.$emit('update:bizDialog', false)
     }
     // getTreeselect() {
     //   treeselect().then(response => {

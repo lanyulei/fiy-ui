@@ -1,6 +1,9 @@
 <template>
   <div>
     <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span>{{ fields.name }}</span>
+      </div>
       <!-- 操作 -->
       <div>
         <el-row>
@@ -88,15 +91,13 @@
             新建业务
           </div>
           <div>
-            <renderModel v-if="renderModelStatus" :fields="fields.field_groups" :field-data.sync="fieldData" />
+            <renderModel
+              v-if="renderModelStatus"
+              :fields="fields.field_groups"
+              :biz-dialog.sync="bizDialog"
+              :is-submit="submitStatus"
+            />
           </div>
-          <div style="text-align: center;">
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="bizDialog = false">取 消</el-button>
-              <el-button type="primary" @click="submitForm">确 定</el-button>
-            </span>
-          </div>
-
         </div>
       </div>
     </el-drawer>
@@ -105,7 +106,7 @@
 
 <script>
 import {
-  filterModelDetails
+  modelDetails
 } from '@/api/cmdb/model'
 
 import renderModel from '@/views/cmdb/model/components/render-model'
@@ -115,6 +116,7 @@ export default {
   },
   data() {
     return {
+      submitStatus: 'create',
       fieldData: {},
       renderModelStatus: false,
       bizDialog: false,
@@ -134,18 +136,14 @@ export default {
   methods: {
     getList() {},
     getModelDetails() {
-      filterModelDetails({
-        identifies: 'built_in_biz'
-      }).then(res => {
+      modelDetails(this.$route.params.classify).then(res => {
         this.fields = res.data
         this.renderModelStatus = true
       })
     },
     addBiz() {
+      this.submitStatus = 'create'
       this.bizDialog = true
-    },
-    submitForm() {
-      console.log(this.fieldData)
     }
   }
 }

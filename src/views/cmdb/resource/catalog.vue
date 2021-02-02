@@ -16,7 +16,7 @@
                   v-for="(modelItem, modelIndex) in item.model_list"
                   :key="modelIndex"
                   class="models-link"
-                  @click="toModelDetails(modelItem.identifies)"
+                  @click="toModelDetails(modelItem.id)"
                 >
 
                   <span class="model-name">
@@ -61,8 +61,8 @@ export default {
         this.groupModelList = res.data
       })
     },
-    toModelDetails(identifies) {
-      this.$router.push({ name: 'ResourceDetails', params: { classify: identifies }})
+    toModelDetails(id) {
+      this.$router.push({ name: 'ResourceDetails', params: { classify: id }})
     }
   }
 }

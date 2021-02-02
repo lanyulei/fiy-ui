@@ -319,7 +319,7 @@
         size="36%"
         :with-header="false"
         type="primary"
-        :visible.sync="fieldPreviewDesc.dialog"
+        :visible.sync="bizDialog"
         direction="rtl"
         :wrapper-closable="false"
       >
@@ -334,7 +334,11 @@
               {{ fieldPreviewDesc.title }}
             </div>
             <div>
-              <renderModel v-if="renderModelStatus" :fields="modelDetail.field_groups" />
+              <renderModel
+                v-if="renderModelStatus"
+                :fields="modelDetail.field_groups"
+                :biz-dialog.sync="bizDialog"
+              />
             </div>
           </div>
         </div>
@@ -412,6 +416,7 @@ export default {
       }
     }
     return {
+      bizDialog: false,
       renderModelStatus: false,
       groupModelList: [],
       modelRuleForm: {},
@@ -526,8 +531,8 @@ export default {
     },
     previewField() {
       this.renderModelStatus = true
+      this.bizDialog = true
       this.fieldPreviewDesc = {
-        dialog: true,
         title: '字段预览'
       }
     },
