@@ -112,7 +112,8 @@
 <script>
 import { listUser } from '@/api/system/sysuser'
 import {
-  createData
+  createData,
+  editData
 } from '@/api/cmdb/resource'
 // import { treeselect } from '@/api/system/dept'
 export default {
@@ -194,19 +195,43 @@ export default {
                 info_id: parseInt(this.$route.params.classify),
                 data: this.fieldData
               }).then(res => {
-                console.log(res)
+                this.closeDialog()
+                this.$emit('getList')
+                this.$message({
+                  type: 'success',
+                  message: '创建成功!'
+                })
+              })
+            } else if (this.isSubmit === 'edit') {
+              var dataId = this.fieldData.id
+              var infoId = this.fieldData.info_id
+              delete this.fieldData.id
+              delete this.fieldData.info_id
+              editData(dataId, {
+                info_id: infoId,
+                data: this.fieldData
+              }).then(res => {
+                this.closeDialog()
+                this.$emit('getList')
+                this.$message({
+                  type: 'success',
+                  message: '编辑成功!'
+                })
               })
             }
           }
         } else {
-          console.log('error submit!!')
           return false
         }
       })
     },
     closeDialog() {
       this.$emit('update:bizDialog', false)
+    },
+    clearValidateHandle() {
+      this.$refs.fieldData.clearValidate()
     }
+
     // getTreeselect() {
     //   treeselect().then(response => {
     //     this.deptOptions = response.data
