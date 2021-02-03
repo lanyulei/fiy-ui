@@ -9,13 +9,16 @@
         <el-row>
           <el-button size="mini" type="primary" @click="createBiz">新建</el-button>
           <el-input
-            v-model="queryParams.name"
+            v-model="queryParams.value"
             size="mini"
-            placeholder="请输入名称"
+            placeholder="请输入内容"
             class="input-with-select"
-            style="width: 300px; margin-left: 10px"
+            style="width: 500px; margin-left: 10px"
             @keyup.enter.native="getList"
           >
+            <el-select slot="prepend" v-model="queryParams.identifies" placeholder="请选择" style="width: 100px;">
+              <el-option v-for="field of fieldList" :key="field.id" :label="field.name" :value="field.identifies" />
+            </el-select>
             <el-button slot="append" icon="el-icon-search" @click="getList" />
           </el-input>
         </el-row>
