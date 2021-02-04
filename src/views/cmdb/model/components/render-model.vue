@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 0 20px 20px 20px">
-    <el-form v-if="formStatus" ref="fieldData" label-width="100px" :model="fieldData" :rules="rules">
+    <el-form v-if="formStatus" ref="fieldData" label-width="150px" :model="fieldData" :rules="rules">
       <div v-for="(item, index) in fields" :key="index" style="margin-top: 23px">
         <div style="font-size: 15px; font-weight: 500;">
           <i class="el-icon-arrow-right" style="font-size: 12px;" />

@@ -91,7 +91,7 @@
                         <template v-if="fieldGroup.fields !== undefined && fieldGroup.fields !== null && fieldGroup.fields.length > 0">
                           <div v-for="field of fieldGroup.fields" :key="field.id" class="model-field-div" @click="editFieldHandle(field)">
                             <!-- 字段详情 -->
-                            <span class="model-field-title">{{ field.name }}</span><br>
+                            <span class="model-field-title">{{ field.name }} <span v-if="field.required" style="color: red">*</span></span><br>
                             <span class="model-field-remarks">{{ getFieldTypeLabel(field.type) }}</span>
                           </div>
                         </template>
@@ -204,6 +204,15 @@
                     :value="item.value"
                   />
                 </el-select>
+              </el-form-item>
+              <el-form-item label="列表展示">
+                <el-radio-group v-model="createFieldForm.is_list_display">
+                  <el-radio :label="true">是</el-radio>
+                  <el-radio :label="false">否</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="展示顺序">
+                <el-input-number v-model="createFieldForm.list_display_sort" :min="1" :max="100" />
               </el-form-item>
               <el-form-item label="用户提示">
                 <el-input v-model="createFieldForm.prompt" type="textarea" />

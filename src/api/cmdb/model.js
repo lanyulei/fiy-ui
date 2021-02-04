@@ -77,6 +77,14 @@ export function modelDetails(modelId) {
   })
 }
 
+// 获取模型字段列表
+export function modelFields(modelId) {
+  return request({
+    url: `/api/v1/cmdb/model/fields/${modelId}`,
+    method: 'get'
+  })
+}
+
 // 创建模型字段
 export function createModelField(data) {
   return request({
