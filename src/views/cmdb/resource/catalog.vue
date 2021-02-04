@@ -62,7 +62,7 @@ export default {
       })
     },
     toModelDetails(id) {
-      this.$router.push({ name: 'ResourceDetails', params: { classify: id }})
+      this.$router.push({ name: 'ResourceList', params: { classify: id }})
     }
   }
 }

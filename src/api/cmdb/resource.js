@@ -34,3 +34,11 @@ export function editData(modelId, data) {
     data
   })
 }
+
+// 编辑数据
+export function dataDetails(id) {
+  return request({
+    url: `/api/v1/cmdb/resource/detail/${id}`,
+    method: 'get'
+  })
+}

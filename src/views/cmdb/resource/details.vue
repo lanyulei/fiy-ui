@@ -3,204 +3,63 @@
     <template #wrapper>
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>{{ fields.name }}</span>
+          <span>资源详情</span>
         </div>
-        <!-- 操作 -->
         <div>
-          <el-row>
-            <el-button size="mini" type="primary" @click="createDataInfo">新建</el-button>
-            <el-input
-              v-model="queryParams.value"
-              size="mini"
-              placeholder="请输入内容"
-              class="input-with-select"
-              style="width: 500px; margin-left: 10px"
-              @keyup.enter.native="getList"
-            >
-              <el-select slot="prepend" v-model="queryParams.identifies" placeholder="请选择" style="width: 95px">
-                <el-option v-for="fieldItem of fieldList" :key="fieldItem.id" :label="fieldItem.name" :value="fieldItem.identifies" />
-              </el-select>
-              <el-button slot="append" icon="el-icon-search" @click="getList" />
-            </el-input>
-          </el-row>
-        </div>
-        <!-- 模型列表 -->
-        <div style="margin-top: 15px;">
-          <el-table v-loading="loading" :data="list" border>
-            <template v-for="field of fieldList">
-              <el-table-column
-                v-if="field.is_list_display"
-                :key="field.id"
-                :prop="field.identifies"
-                :label="field.name"
-              />
-            </template>
-            <el-table-column label="操作" width="150">
-              <template slot-scope="scope">
-                <el-link
-                  icon="el-icon-edit"
-                  type="primary"
-                  :underline="false"
-                  @click="editDataInfo(scope.row)"
-                >编辑</el-link>
-                <el-link
-                  icon="el-icon-delete"
-                  type="primary"
-                  :underline="false"
-                  style="margin-left: 15px;"
-                  @click="deleteDataHandle(scope.row.id)"
-                >删除</el-link>
-              </template>
-            </el-table-column>
-          </el-table>
-          <pagination
-            v-show="total>0"
-            :total="total"
-            :page.sync="queryParams.page"
-            :limit.sync="queryParams.per_page"
-            @pagination="getList"
-          />
+          <div v-for="field_groups of fields.field_groups" :key="field_groups.id" class="group">
+            <div class="group-name">{{ field_groups.name }}</div>
+            <ul class="property-list">
+              <li v-for="field of field_groups.fields" id="property-item-1" :key="field.id" class="property-item">
+                <span class="property-name" tabindex="0">
+                  {{ field.name }}:
+                </span>
+                <span class="property-value" tabindex="0">
+                  <span class="value-default-theme">{{ fieldForm[field.identifies] }}</span>
+                </span>
+                <div class="copy-box">
+                  <i class="property-copy icon-cc-details-copy" />
+                </div>
+              </li>
+            </ul>
+          </div>
+
         </div>
       </el-card>
-
-      <el-drawer
-        size="60%"
-        :with-header="false"
-        type="primary"
-        :visible.sync="bizDialog"
-        direction="rtl"
-        :wrapper-closable="false"
-      >
-        <div>
-          <div class="model-field-sideslider-header">
-            <div class="model-field-sideslider-closer" style="float: left;">
-              <i
-                class="el-icon-arrow-right"
-              />
-            </div>
-            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
-              {{ createOrUpdateTitle }}
-            </div>
-            <div>
-              <renderModel
-                v-if="renderModelStatus"
-                ref="fieldForm"
-                :fields="fields.field_groups"
-                :biz-dialog.sync="bizDialog"
-                :is-submit="submitStatus"
-                :field-data="fieldData"
-                @getList="getList"
-              />
-            </div>
-          </div>
-        </div>
-      </el-drawer>
     </template>
   </BasicLayout>
 </template>
 
 <script>
 import {
-  modelFields,
   modelDetails
 } from '@/api/cmdb/model'
 
 import {
-  getDataList,
-  deleteData
+  dataDetails
 } from '@/api/cmdb/resource'
-
-import renderModel from '@/views/cmdb/model/components/render-model'
 export default {
-  components: {
-    renderModel
-  },
   data() {
     return {
-      submitStatus: 'create',
-      renderModelStatus: false,
-      bizDialog: false,
-      loading: false,
-      list: [],
       fields: {},
-      fieldList: [],
-      total: 0,
-      queryParams: {
-        page: 1,
-        per_page: 10
-      },
-      createOrUpdateTitle: '新建业务',
-      fieldData: {}
+      fieldForm: {}
     }
   },
   created() {
-    this.getModelDetails()
-    this.getModelDetailsForm()
+    this.initForm()
   },
   methods: {
-    getList() {
-      this.loading = true
-      getDataList(this.$route.params.classify, this.queryParams).then(response => {
-        this.list = []
-        if (response.data.total_count > 0) {
-          for (var l of response.data.list) {
-            l.data.id = l.id
-            l.data.info_id = l.info_id
-            this.list.push(l.data)
-          }
-        }
-        this.total = response.data.total_count
-        this.loading = false
-      })
+    initForm() {
+      this.getModelDetailsForm()
     },
     getModelDetails() {
-      modelFields(this.$route.params.classify).then(res => {
-        this.fieldList = res.data
-        this.renderModelStatus = true
-        this.getList()
+      dataDetails(this.$route.params.id).then(res => {
+        this.fieldForm = res.data.data
       })
     },
     getModelDetailsForm() {
-      modelDetails(this.$route.params.classify).then(res => {
+      modelDetails(this.$route.query.fieldId).then(res => {
         this.fields = res.data
-      })
-    },
-    deleteDataHandle(id) {
-      this.$confirm('是否删除此数据？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteData(id).then(() => {
-          this.getList()
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
-      })
-    },
-    createDataInfo() {
-      this.submitStatus = 'create'
-      this.fieldData = {}
-      this.createOrUpdateTitle = '新建业务'
-      this.bizDialog = true
-      this.$nextTick(() => {
-        this.$refs.fieldForm.clearValidateHandle()
-      })
-    },
-    editDataInfo(row) {
-      this.fieldData = row
-      this.submitStatus = 'edit'
-      this.createOrUpdateTitle = '编辑业务'
-      this.bizDialog = true
-      this.$nextTick(() => {
-        this.$refs.fieldForm.clearValidateHandle()
+        this.getModelDetails()
       })
     }
   }
@@ -208,5 +67,71 @@ export default {
 </script>
 
 <style scoped>
+  .group .group-name:before {
+    content: "";
+    display: inline-block;
+    vertical-align: -2px;
+    width: 4px;
+    height: 14px;
+    margin-right: 9px;
+    background-color: #c3cdd7;
+  }
 
+  .group .group-name {
+    line-height: 21px;
+    font-size: 16px;
+    font-weight: normal;
+    color: #333948;
+  }
+
+  .property-list {
+    width: 80%;
+    color: #63656e;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+  }
+
+  .property-list .property-item {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding-bottom: 8px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+  }
+
+  .property-list .property-item .property-name {
+    position: relative;
+    width: 150px;
+    line-height: 32px;
+    padding: 0 16px 0 0;
+    font-size: 14px;
+    color: #63656E;
+    /* overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; */
+  }
+
+  .property-list .property-item .property-value {
+    margin: 6px 0 0 4px;
+    max-width: 75%;
+    font-size: 14px;
+    color: #313237;
+    /* overflow: hidden; */
+    text-overflow: ellipsis;
+    word-break: break-all;
+    display: -webkit-box;
+    /* -webkit-line-clamp: 2; */
+    -webkit-box-orient: vertical;
+}
+
+  ul, dl {
+    list-style: none;
+  }
 </style>
