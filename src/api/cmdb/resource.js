@@ -35,10 +35,36 @@ export function editData(modelId, data) {
   })
 }
 
-// 编辑数据
+// 数据详情
 export function dataDetails(id) {
   return request({
     url: `/api/v1/cmdb/resource/detail/${id}`,
     method: 'get'
+  })
+}
+
+// 创建云账户
+export function createCloudAccount(data) {
+  return request({
+    url: `/api/v1/cmdb/resource/cloud-account`,
+    method: 'post',
+    data
+  })
+}
+
+// 云账户列表
+export function cloudAccountList(params) {
+  return request({
+    url: `/api/v1/cmdb/resource/cloud-account`,
+    method: 'get',
+    params
+  })
+}
+
+// 删除云账户
+export function deleteCloudAccount(id) {
+  return request({
+    url: `/api/v1/cmdb/resource/cloud-account/${id}`,
+    method: 'delete'
   })
 }

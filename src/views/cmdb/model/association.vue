@@ -3,8 +3,9 @@
     <template #wrapper>
       <el-card class="box-card">
         <!-- 提示 -->
-        <div style="margin-bottom: 13px;">
+        <div style="margin-bottom: 15px;">
           <el-alert
+            style="background: #F0F8FF; color: #63656E"
             title="“关联类型”是模型关联的分类，如主机于交换机、路由之间的关系都可以分类为“上联”类型。"
             type="info"
             show-icon
@@ -92,8 +93,8 @@
           <el-form-item label="目标->源描述" prop="target_describe">
             <el-input v-model="ruleForm.target_describe" size="small" />
           </el-form-item>
-          <el-form-item label="是否有方向" prop="direction" size="small">
-            <el-radio-group v-model="ruleForm.direction">
+          <el-form-item label="是否有方向" prop="direction">
+            <el-radio-group v-model="ruleForm.direction" size="small">
               <el-radio :label="1">有，源指向目标</el-radio>
               <el-radio :label="2">双向</el-radio>
               <el-radio :label="3">无方向</el-radio>
@@ -249,58 +250,5 @@ export default {
 </script>
 
 <style scoped>
-  .group-title-before {
-    content: "";
-    display: inline-block;
-    width: 4px;
-    height: 14px;
-    vertical-align: middle;
-    margin: 0px 10px 0px 0px;
-    background: rgb(195, 205, 215);
-  }
 
-  .model-info-div {
-    width: calc(20% - 14px);
-    height: 70px;
-    border: 1px solid rgb(221, 228, 235);;
-    border-radius: 4px;
-    margin-left: 14px;
-    margin-top: 12px;
-    cursor: pointer;
-    display: inline-block;
-  }
-
-  .model-info-icon {
-    float: left;
-    width: 66px;
-    text-align: center;
-    font-size: 32px;
-    color: #3a84ff;
-    line-height: 68px;
-  }
-
-  .model-info-details-title {
-    margin-top: 16px;
-    line-height: 19px;
-    font-size: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .model-info-details-remarks {
-    line-height: 16px;
-    font-size: 12px;
-    color: #bfc7d2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .group-operate-icon {
-    margin-left: 10px;
-    font-size: 15px;
-    color: rgb(51, 57, 72);
-    cursor: pointer;
-  }
 </style>

@@ -3,8 +3,9 @@
     <template #wrapper>
       <el-card class="box-card">
         <!-- 提示 -->
-        <div style="margin-bottom: 13px;">
+        <div style="margin-bottom: 15px;">
           <el-alert
+            style="background: #F0F8FF; color: #63656E"
             title="模型可以查看并动态更改CMDB当前的数据结构，例如新增了一种设备需要通过记录到CMDB，可以通过新建对应的模型实现。"
             type="info"
             show-icon
