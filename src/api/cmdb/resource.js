@@ -68,3 +68,21 @@ export function deleteCloudAccount(id) {
     method: 'delete'
   })
 }
+
+// 新建云资产发现
+export function createCloudDiscovery(data) {
+  return request({
+    url: `/api/v1/cmdb/resource/cloud-discovery`,
+    method: 'post',
+    data
+  })
+}
+
+// 云资产发现列表
+export function cloudDiscoveryList(params) {
+  return request({
+    url: `/api/v1/cmdb/resource/cloud-discovery`,
+    method: 'get',
+    params
+  })
+}
