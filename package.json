@@ -77,6 +77,7 @@
     "vue": "2.6.11",
     "vue-count-to": "1.0.13",
     "vue-cropper": "^0.5.5",
+    "vue-json-editor": "^1.4.3",
     "vue-particles": "^1.0.9",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "3.4.7",

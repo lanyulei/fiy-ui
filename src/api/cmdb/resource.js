@@ -69,7 +69,7 @@ export function deleteCloudAccount(id) {
   })
 }
 
-// 新建云资产发现
+// 新建云资源同步
 export function createCloudDiscovery(data) {
   return request({
     url: `/api/v1/cmdb/resource/cloud-discovery`,
@@ -78,11 +78,28 @@ export function createCloudDiscovery(data) {
   })
 }
 
-// 云资产发现列表
+// 云资源同步列表
 export function cloudDiscoveryList(params) {
   return request({
     url: `/api/v1/cmdb/resource/cloud-discovery`,
     method: 'get',
     params
+  })
+}
+
+// 编辑云资源同步
+export function editCloudDiscovery(id, data) {
+  return request({
+    url: `/api/v1/cmdb/resource/cloud-discovery/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+// 删除云资源同步
+export function deleteCloudDiscovery(id) {
+  return request({
+    url: `/api/v1/cmdb/resource/cloud-discovery/${id}`,
+    method: 'delete'
   })
 }

@@ -70,6 +70,14 @@
               prop="modifier_name"
               label="修改人"
             />
+            <el-table-column
+              label="状态"
+            >
+              <template slot-scope="scope">
+                <el-tag v-if="scope.row.status" type="success">可用</el-tag>
+                <el-tag v-else type="danger">暂停</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="操作" width="150px;">
               <template slot-scope="scope">
                 <el-link
@@ -97,11 +105,11 @@
           />
         </div>
 
-        <!-- 新建/编辑关联类型 -->
+        <!-- 新建/编辑 -->
         <el-dialog
           :title="dialogForm.title"
           :visible.sync="dialogForm.dialog"
-          width="38%"
+          width="50%"
         >
           <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="80px">
             <el-form-item label="任务名称" prop="name">
@@ -156,6 +164,29 @@
                 size="small"
               />
             </el-form-item>
+            <el-form-item label="字段映射" prop="field_map">
+              <div class="div-json-field-map">
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  placement="top"
+                >
+                  <div slot="content">
+                    需按照指定格式，例如：[{"source": "Hostname", "target": "hostname"}]<br>
+                    source表示云厂商数据字段，target表示本系统模型字段
+                  </div>
+                  <vue-json-editor
+                    :key="ruleForm.id"
+                    v-model="ruleForm.field_map"
+                    :show-btns="false"
+                    :mode="'code'"
+                    lang="zh"
+                    @json-change="onJsonChange"
+                    @json-save="onJsonSave"
+                  />
+                </el-tooltip>
+              </div>
+            </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogForm.dialog = false">取 消</el-button>
@@ -169,11 +200,14 @@
 </template>
 
 <script>
+import vueJsonEditor from 'vue-json-editor'
+
 import {
   cloudAccountList,
-  deleteCloudAccount,
   createCloudDiscovery,
-  cloudDiscoveryList
+  cloudDiscoveryList,
+  editCloudDiscovery,
+  deleteCloudDiscovery
 } from '@/api/cmdb/resource'
 
 import {
@@ -182,6 +216,7 @@ import {
 
 export default {
   components: {
+    vueJsonEditor
   },
   data() {
     return {
@@ -203,7 +238,8 @@ export default {
       rules: {
         name: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
         cloud_account: [{ required: true, message: '请选择账号名称', trigger: 'change' }],
-        resource_type: [{ required: true, message: '请选择资源模型', trigger: 'change' }]
+        resource_type: [{ required: true, message: '请选择资源模型', trigger: 'change' }],
+        field_map: [{ required: true, message: '请输入字段映射', trigger: 'blur' }]
       }
     }
   },
@@ -249,7 +285,7 @@ export default {
     addSyncTask() {
       this.ruleForm = { status: true }
       this.dialogForm = {
-        title: '新建云账号',
+        title: '新建云资源同步',
         status: 'create',
         dialog: true
       }
@@ -260,7 +296,7 @@ export default {
     edSyncTask(row) {
       this.ruleForm = row
       this.dialogForm = {
-        title: '编辑云账号',
+        title: '编辑云资源同步',
         status: 'edit',
         dialog: true
       }
@@ -269,12 +305,12 @@ export default {
       })
     },
     delSyncTask(id) {
-      this.$confirm('是否删除此云账号?', '提示', {
+      this.$confirm('是否删除此云资源同步?', '提示', {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
       }).then(() => {
-        deleteCloudAccount(id).then(() => {
+        deleteCloudDiscovery(id).then(() => {
           this.getList()
           this.$message({
             type: 'success',
@@ -293,11 +329,19 @@ export default {
         if (valid) {
           // 新建云账号
           if (this.dialogForm.status === 'create') {
-            createCloudDiscovery(this.ruleForm).then(res => {
+            createCloudDiscovery(this.ruleForm).then(() => {
               this.getList()
               this.$message({
                 type: 'success',
                 message: '创建成功!'
+              })
+            })
+          } else if (this.dialogForm.status === 'edit') {
+            editCloudDiscovery(this.ruleForm.id, this.ruleForm).then(() => {
+              this.getList()
+              this.$message({
+                type: 'success',
+                message: '更新成功!'
               })
             })
           }
@@ -309,6 +353,19 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+  .div-json-field-map{
+    border-radius: 4px;
+    /deep/ .jsoneditor-poweredBy{
+      display: none;
+    }
+    /deep/ div.jsoneditor {
+      border: 1px solid #dfe6ec;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    /deep/ .jsoneditor-vue{
+      height:300px;
+    }
+  }
 </style>
