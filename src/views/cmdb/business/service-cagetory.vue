@@ -9,82 +9,56 @@
           show-icon
         />
         <div class="category-list">
-          <div class="category-item bgc-white">
-            <div class="category-title" style="background-color: #fafbfd;">
-              <div class="category-name">
-                <span
-                  title="数据库"
-                  class="category-name-text"
-                >数据库</span>
-              </div>
-              <div
-                class="fiy-tooltip dot-menu-operation dot-menu is-open"
-              >
-                <el-dropdown trigger="click">
-                  <span class="el-dropdown-link">
-                    <div
-                      class="fiy-tooltip dot-menu-operation dot-menu is-open"
-                    >
+          <template v-for="(gItem, gIndex) in list">
+            <div :key="gIndex" class="category-item bgc-white">
+              <div class="category-title" style="background-color: #fafbfd;">
+                <div class="category-name">
+                  <span
+                    title="数据库"
+                    class="category-name-text"
+                  >{{ gItem.name }} <i class="el-icon-edit category-name-icon" /></span>
+                </div>
+                <div
+                  class="fiy-tooltip dot-menu-operation dot-menu is-open"
+                >
+                  <el-dropdown trigger="click">
+                    <span class="el-dropdown-link">
                       <div
-                        class="fiy-tooltip-ref tippy-active"
-                        tabindex="0"
-                        aria-describedby="tippy-21"
+                        class="fiy-tooltip dot-menu-operation dot-menu is-open"
                       >
-                        <i class="menu-trigger" />
+                        <div
+                          class="fiy-tooltip-ref tippy-active"
+                          tabindex="0"
+                          aria-describedby="tippy-21"
+                        >
+                          <i class="menu-trigger" />
+                        </div>
                       </div>
-                    </div>
-                  </span>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-circle-plus">狮子头</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-check">双皮奶</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-circle-check">蚵仔煎</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-              </div>
-            </div>
-            <div class="child-category">
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Etcd</span>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item icon="el-icon-circle-plus">新增二级分类</el-dropdown-item>
+                      <el-dropdown-item icon="el-icon-delete">删除</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
                 </div>
               </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>MongoDB</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Mysql</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Oracle</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Redis</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>SQLServer</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Zookeeper</span>
+              <div class="child-category">
+                <div v-for="(sItem, sIndex) in gItem.Services" :key="sIndex" class="child-item is-built-in">
+                  <div class="child-title">
+                    <span>
+                      {{ sItem.name }}
+                      <i style="margin-left: 10px; cursor: pointer;" class="el-icon-edit" />
+                      <i style="margin-left: 10px; cursor: pointer;" class="el-icon-delete" />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </template>
           <div
             class="category-item add-item"
             style="border-style: dashed; cursor: pointer;"
+            @click="createGroupTitle"
           >
             <div
               class="category-title"
@@ -100,22 +74,99 @@
         </div>
       </div>
 
+      <!-- 创建/编辑 -->
+      <el-dialog
+        :title="dialogVisible.title"
+        :visible.sync="dialogVisible.dialog"
+        width="30%"
+      >
+        <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
+          <el-form-item label="唯一标识" prop="identifies">
+            <el-input v-model="ruleForm.identifies" />
+          </el-form-item>
+          <el-form-item label="名称" prop="name">
+            <el-input v-model="ruleForm.name" />
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible.dialog = false">取 消</el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+        </span>
+      </el-dialog>
     </template>
   </BasicLayout>
 </template>
 
 <script>
+import {
+  createServiceClassify,
+  serviceClassifyList
+} from '@/api/cmdb/business'
 export default {
   components: {
 
   },
   data() {
+    var validateIdentifies = (rule, value, callback) => {
+      const reg = /^[a-zA-Z][a-zA-Z0-9_]*$/
+      if (reg.test(value)) {
+        callback()
+      } else {
+        callback(new Error('必须是英文开头，仅包含英文、数字及下划线'))
+      }
+    }
     return {
-
+      list: [],
+      dialogVisible: {},
+      ruleForm: {},
+      rules: {
+        identifies: [
+          { required: true, message: '请输入唯一标识', trigger: 'blur' },
+          { validator: validateIdentifies, trigger: 'blur' }
+        ],
+        name: [
+          { required: true, message: '请输入名称', trigger: 'blur' }
+        ]
+      }
     }
   },
+  created() {
+    this.getList()
+  },
   methods: {
-
+    getList() {
+      serviceClassifyList().then(res => {
+        this.list = res.data
+        console.log(this.list)
+      })
+    },
+    createGroupTitle() {
+      this.dialogVisible = {
+        title: '新建分组',
+        status: 'group',
+        dialog: true
+      }
+      this.ruleForm.level = 1
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+    },
+    submitForm() {
+      this.$refs['ruleForm'].validate((valid) => {
+        if (valid) {
+          if (this.dialogVisible.status === 'group') {
+            createServiceClassify(this.ruleForm).then(() => {
+              this.getList()
+              this.$message({
+                type: 'success',
+                message: '新建分组成功'
+              })
+            })
+          }
+          this.dialogVisible.dialog = false
+        }
+      })
+    }
   }
 }
 </script>
@@ -340,5 +391,10 @@ export default {
   .category-item.add-item .add-btn::before {
     width: 3px;
     height: 20px;
+  }
+
+  .category-name-icon {
+    margin-left: 10px;
+    cursor: pointer;
   }
 </style>
