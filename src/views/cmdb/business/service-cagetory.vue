@@ -10,13 +10,38 @@
         />
         <div class="category-list">
           <div class="category-item bgc-white">
-            <div class="category-title">
+            <div class="category-title" style="background-color: #fafbfd;">
               <div class="category-name">
                 <span
                   title="数据库"
                   class="category-name-text"
                 >数据库</span>
-                <span class="built-in-sign">内置</span>
+              </div>
+              <div
+                class="fiy-tooltip dot-menu-operation dot-menu is-open"
+              >
+                <el-dropdown trigger="click">
+                  <span class="el-dropdown-link">
+                    <div
+                      class="fiy-tooltip dot-menu-operation dot-menu is-open"
+                    >
+                      <div
+                        class="fiy-tooltip-ref tippy-active"
+                        tabindex="0"
+                        aria-describedby="tippy-21"
+                      >
+                        <i class="menu-trigger" />
+                      </div>
+                    </div>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-circle-plus">狮子头</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-check">双皮奶</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-circle-check">蚵仔煎</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
               </div>
             </div>
             <div class="child-category">
@@ -57,54 +82,21 @@
               </div>
             </div>
           </div>
-          <div class="category-item bgc-white">
-            <div class="category-title">
-              <div class="category-name">
-                <span
-                  title="数据库"
-                  class="category-name-text"
-                >数据库</span>
-                <span class="built-in-sign">内置</span>
-              </div>
-            </div>
-            <div class="child-category">
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Etcd</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>MongoDB</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Mysql</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Oracle</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Redis</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>SQLServer</span>
-                </div>
-              </div>
-              <div class="child-item is-built-in">
-                <div class="child-title">
-                  <span>Zookeeper</span>
-                </div>
-              </div>
-            </div>
+          <div
+            class="category-item add-item"
+            style="border-style: dashed; cursor: pointer;"
+          >
+            <div
+              class="category-title"
+              style="border-bottom-style: dashed;"
+            />
+            <div class="child-category" />
+            <span
+              type="button"
+              class="add-btn"
+            />
           </div>
+
         </div>
       </div>
 
@@ -128,11 +120,7 @@ export default {
 }
 </script>
 
-<style scoped>
-  .service-cagetory-list {
-    padding: 10px;
-  }
-
+<style lang="scss" scoped>
   .category-list {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -172,8 +160,7 @@ export default {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    background-color: #fafbfd;
-    padding: 0 20px 0 16px;
+    padding: 0 16px 0 16px;
     height: 42px;
     line-height: 42px;
     font-size: 14px;
@@ -275,5 +262,83 @@ export default {
     border-bottom: 1px solid #dcdee5;
     border-left: 1px solid #dcdee5;
     z-index: -1;
+  }
+
+  .category-title .dot-menu-operation {
+    cursor: pointer;
+  }
+
+  .dot-menu:hover, .dot-menu.is-open {
+    display: inline-block !important;
+  }
+
+  .dot-menu {
+    width: 25px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 0;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .category-title .dot-menu-operation .fiy-tooltip-ref {
+    width: 100%;
+  }
+
+  .dot-menu .fiy-tooltip-ref {
+    width: 100%;
+    outline: none;
+  }
+
+  .fiy-tooltip-ref {
+    position: relative;
+    outline: 0;
+  }
+
+  .fiy-tooltip, .fiy-tooltip-ref {
+    display: inline-block;
+  }
+
+  .dot-menu .menu-trigger {
+    display: inline-block;
+    vertical-align: middle;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  .dot-menu .menu-trigger:hover:before {
+    background-color: #3a84ff;
+    -webkit-box-shadow: 0 -5px 0 0 #3a84ff,0 5px 0 0 #3a84ff;
+    box-shadow: 0 -5px 0 0 #3a84ff,0 5px 0 0 #3a84ff;
+  }
+
+  .dot-menu .menu-trigger:before {
+    display: inline-block;
+    vertical-align: middle;
+    content: "";
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background-color: #979ba5;
+    -webkit-box-shadow: 0 -5px 0 0 #979ba5,0 5px 0 0 #979ba5;
+    box-shadow: 0 -5px 0 0 #979ba5,0 5px 0 0 #979ba5;
+  }
+
+  .category-item.add-item .add-btn::after, .category-item.add-item .add-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 3px;
+    background-color: #3a84ff;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+
+  .category-item.add-item .add-btn::before {
+    width: 3px;
+    height: 20px;
   }
 </style>
