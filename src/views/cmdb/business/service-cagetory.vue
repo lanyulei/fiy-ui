@@ -16,42 +16,31 @@
                   <span
                     title="数据库"
                     class="category-name-text"
-                  >{{ gItem.name }} <i class="el-icon-edit category-name-icon" /></span>
+                  >{{ gItem.name }}
+                    <i class="el-icon-edit category-name-icon" @click="editService(gItem)" />
+                    <i
+                      v-if="gItem.Services === undefined || gItem.Services === null || gItem.Services.length === 0"
+                      class="el-icon-delete category-name-icon"
+                      @click="deleteData(gItem.id, gItem.level)"
+                    />
+                  </span>
                 </div>
-                <div
-                  class="fiy-tooltip dot-menu-operation dot-menu is-open"
-                >
-                  <el-dropdown trigger="click">
-                    <span class="el-dropdown-link">
-                      <div
-                        class="fiy-tooltip dot-menu-operation dot-menu is-open"
-                      >
-                        <div
-                          class="fiy-tooltip-ref tippy-active"
-                          tabindex="0"
-                          aria-describedby="tippy-21"
-                        >
-                          <i class="menu-trigger" />
-                        </div>
-                      </div>
-                    </span>
-                    <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item icon="el-icon-circle-plus">新增二级分类</el-dropdown-item>
-                      <el-dropdown-item icon="el-icon-delete">删除</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                </div>
+                <span style="cursor: pointer;" @click="createService(gItem.id)">
+                  <i class="el-icon-plus" />
+                </span>
               </div>
               <div class="child-category">
-                <div v-for="(sItem, sIndex) in gItem.Services" :key="sIndex" class="child-item is-built-in">
-                  <div class="child-title">
-                    <span>
-                      {{ sItem.name }}
-                      <i style="margin-left: 10px; cursor: pointer;" class="el-icon-edit" />
-                      <i style="margin-left: 10px; cursor: pointer;" class="el-icon-delete" />
-                    </span>
+                <template v-if="gItem.Services !== undefined && gItem.Services !== null && gItem.Services.length > 0">
+                  <div v-for="(sItem, sIndex) in gItem.Services" :key="sIndex" class="child-item is-built-in">
+                    <div class="child-title">
+                      <span>
+                        {{ sItem.name }}
+                        <i class="el-icon-edit category-name-icon" @click="editService(sItem)" />
+                        <i class="el-icon-delete category-name-icon" @click="deleteData(sItem.id, sItem.level)" />
+                      </span>
+                    </div>
                   </div>
-                </div>
+                </template>
               </div>
             </div>
           </template>
@@ -100,7 +89,9 @@
 <script>
 import {
   createServiceClassify,
-  serviceClassifyList
+  serviceClassifyList,
+  deleteServiceClassify,
+  editServiceClassify
 } from '@/api/cmdb/business'
 export default {
   components: {
@@ -137,10 +128,32 @@ export default {
     getList() {
       serviceClassifyList().then(res => {
         this.list = res.data
-        console.log(this.list)
+      })
+    },
+    deleteData(id, level) {
+      this.$confirm('是否删除此服务分类?', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      }).then(() => {
+        deleteServiceClassify(id, {
+          level: level
+        }).then(() => {
+          this.getList()
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
       })
     },
     createGroupTitle() {
+      this.ruleForm = {}
       this.dialogVisible = {
         title: '新建分组',
         status: 'group',
@@ -151,15 +164,56 @@ export default {
         this.$refs.ruleForm.clearValidate()
       })
     },
+    createService(id) {
+      this.ruleForm = {}
+      this.dialogVisible = {
+        title: '新建服务分类',
+        status: 'create',
+        dialog: true
+      }
+      this.ruleForm.level = 2
+      this.ruleForm.parent = id
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+    },
+    editService(row) {
+      this.ruleForm = row
+      this.dialogVisible = {
+        status: 'edit',
+        dialog: true
+      }
+
+      if (this.ruleForm.level === 1) {
+        this.dialogVisible.title = '编辑分组'
+      } else if (this.ruleForm.level === 2) {
+        this.dialogVisible.title = '编辑服务分类'
+      }
+
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+    },
     submitForm() {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
-          if (this.dialogVisible.status === 'group') {
+          if (this.dialogVisible.status === 'group' || this.dialogVisible.status === 'create') {
             createServiceClassify(this.ruleForm).then(() => {
               this.getList()
               this.$message({
                 type: 'success',
-                message: '新建分组成功'
+                message: '新建成功'
+              })
+            })
+          } else if (this.dialogVisible.status === 'edit') {
+            editServiceClassify(this.ruleForm.id, {
+              identifies: this.ruleForm.identifies,
+              name: this.ruleForm.name
+            }).then(() => {
+              this.getList()
+              this.$message({
+                type: 'success',
+                message: '编辑成功'
               })
             })
           }
@@ -313,67 +367,6 @@ export default {
     border-bottom: 1px solid #dcdee5;
     border-left: 1px solid #dcdee5;
     z-index: -1;
-  }
-
-  .category-title .dot-menu-operation {
-    cursor: pointer;
-  }
-
-  .dot-menu:hover, .dot-menu.is-open {
-    display: inline-block !important;
-  }
-
-  .dot-menu {
-    width: 25px;
-    height: 20px;
-    line-height: 20px;
-    text-align: center;
-    font-size: 0;
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  .category-title .dot-menu-operation .fiy-tooltip-ref {
-    width: 100%;
-  }
-
-  .dot-menu .fiy-tooltip-ref {
-    width: 100%;
-    outline: none;
-  }
-
-  .fiy-tooltip-ref {
-    position: relative;
-    outline: 0;
-  }
-
-  .fiy-tooltip, .fiy-tooltip-ref {
-    display: inline-block;
-  }
-
-  .dot-menu .menu-trigger {
-    display: inline-block;
-    vertical-align: middle;
-    width: 100%;
-    cursor: pointer;
-  }
-
-  .dot-menu .menu-trigger:hover:before {
-    background-color: #3a84ff;
-    -webkit-box-shadow: 0 -5px 0 0 #3a84ff,0 5px 0 0 #3a84ff;
-    box-shadow: 0 -5px 0 0 #3a84ff,0 5px 0 0 #3a84ff;
-  }
-
-  .dot-menu .menu-trigger:before {
-    display: inline-block;
-    vertical-align: middle;
-    content: "";
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background-color: #979ba5;
-    -webkit-box-shadow: 0 -5px 0 0 #979ba5,0 5px 0 0 #979ba5;
-    box-shadow: 0 -5px 0 0 #979ba5,0 5px 0 0 #979ba5;
   }
 
   .category-item.add-item .add-btn::after, .category-item.add-item .add-btn::before {

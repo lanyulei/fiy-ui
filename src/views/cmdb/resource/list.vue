@@ -218,5 +218,96 @@ export default {
 </script>
 
 <style scoped>
+  .model-info-div {
+    display: inline-block;
+    height: 45px;
+    line-height: 45px;
+  }
 
+  .model-field-div {
+    width: calc(20% - 10px);
+    height: 59px;
+    border: 1px solid rgb(221, 228, 235);;
+    border-radius: 4px;
+    margin-left: 10px;
+    margin-top: 12px;
+    padding-top: 9px;
+    cursor: pointer;
+    display: inline-block;
+  }
+
+  .model-field-title {
+    margin: 11px 15px 0 15px;
+    line-height: 19px;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .model-field-remarks {
+    line-height: 16px;
+    font-size: 12px;
+    color: #bfc7d2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0 15px;
+  }
+
+  .model-field-add {
+    line-height: 59px;
+    text-align: center;
+    font-size: 14px;
+    border-style: dashed;
+  }
+
+  .model-field-div:hover {
+    border-color: #1890ff;
+  }
+
+  .model-field-sideslider-header {
+    width: 100%;
+    height: 60px;
+    background: rgb(255, 255, 255);
+  }
+
+  .model-field-sideslider-closer {
+    width: 30px;
+    height: 60px;
+    line-height: 60px;
+    background-color: rgb(58, 132, 255);
+    text-align: center;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    font-size: 24px;
+  }
+
+  .model-field-sideslider-title {
+    height: 60px;
+    line-height: 60px;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgb(102, 102, 102);
+    border-bottom: 1px solid rgb(220, 222, 229);
+  }
+
+  .model-field-slider-content {
+    padding: 20px;
+  }
+
+  .model-field-settings {
+    background-color: rgb(243, 248, 255);
+    margin-bottom: 22px;
+    padding: 15px;
+    color: #606266;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .group-operate-icon {
+    font-size: 15px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
 </style>
