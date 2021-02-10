@@ -19,7 +19,7 @@
                   >{{ gItem.name }}
                     <i class="el-icon-edit category-name-icon" @click="editService(gItem)" />
                     <i
-                      v-if="gItem.Services === undefined || gItem.Services === null || gItem.Services.length === 0"
+                      v-if="gItem.services === undefined || gItem.services === null || gItem.services.length === 0"
                       class="el-icon-delete category-name-icon"
                       @click="deleteData(gItem.id, gItem.level)"
                     />
@@ -30,8 +30,8 @@
                 </span>
               </div>
               <div class="child-category">
-                <template v-if="gItem.Services !== undefined && gItem.Services !== null && gItem.Services.length > 0">
-                  <div v-for="(sItem, sIndex) in gItem.Services" :key="sIndex" class="child-item is-built-in">
+                <template v-if="gItem.services !== undefined && gItem.services !== null && gItem.services.length > 0">
+                  <div v-for="(sItem, sIndex) in gItem.services" :key="sIndex" class="child-item is-built-in">
                     <div class="child-title">
                       <span>
                         {{ sItem.name }}
