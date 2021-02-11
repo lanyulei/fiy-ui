@@ -35,3 +35,47 @@ export function editServiceClassify(id, data) {
   })
 }
 
+// 新建服务模板
+export function createSvcTpl(data) {
+  return request({
+    url: `/api/v1/cmdb/business/svc-tpl`,
+    method: 'post',
+    data
+  })
+}
+
+// 服务模板列表
+export function svcTplList(params) {
+  return request({
+    url: `/api/v1/cmdb/business/svc-tpl`,
+    method: 'get',
+    params
+  })
+}
+
+// 服务模板详情
+export function svcTplDetails(id) {
+  return request({
+    url: `/api/v1/cmdb/business/svc-tpl/${id}`,
+    method: 'get'
+  })
+}
+
+// 新建流程
+export function createSvcTplProcess(data) {
+  return request({
+    url: `/api/v1/cmdb/business/svc-tpl-process`,
+    method: 'post',
+    data
+  })
+}
+
+// 编辑流程
+export function editSvcTplProcess(id, data) {
+  return request({
+    url: `/api/v1/cmdb/business/svc-tpl-process/${id}`,
+    method: 'put',
+    data
+  })
+}
+

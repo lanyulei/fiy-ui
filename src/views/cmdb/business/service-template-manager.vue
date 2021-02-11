@@ -12,18 +12,26 @@
               <el-input v-model="ruleForm.name" style="width:30%" size="small" placeholder="请输入账号名称" />
             </el-form-item>
             <el-form-item label="服务分类" prop="svc_classify">
-              <el-cascader
+              <el-select
                 v-model="ruleForm.svc_classify"
-                :options="sclist"
-                size="small"
-                placeholder="请选择服务分类"
                 style="width:30%"
-                :props="setKey"
+                size="small"
+                filterable
+                placeholder="请选择服务分类"
               >
-                <template slot-scope="{ data }">
-                  <span>{{ data.name }}</span>
-                </template>
-              </el-cascader>
+                <el-option-group
+                  v-for="group in sclist"
+                  :key="group.id"
+                  :label="group.name"
+                >
+                  <el-option
+                    v-for="item in group.services"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  />
+                </el-option-group>
+              </el-select>
             </el-form-item>
           </el-form>
           <div class="create-template-title">服务进程</div>
@@ -35,7 +43,7 @@
               </el-button>
             </div>
             <div style="margin-left: 22px; margin-top: 10px">
-              <el-table v-loading="loading" :data="processList" border>
+              <el-table v-loading="loading" :data="ruleForm.process_list" border>
                 <el-table-column
                   prop="name"
                   label="进程名称"
@@ -62,20 +70,24 @@
                       icon="el-icon-edit"
                       type="primary"
                       :underline="false"
-                      @click="edCloudAccount(scope.row)"
+                      @click="editProcessData(scope.row)"
                     >编辑</el-link>
                     <el-link
                       icon="el-icon-delete"
                       type="primary"
                       :underline="false"
                       style="margin-left: 15px;"
-                      @click="delCloudAccount(scope.row.id)"
+                      @click="deleteProcessData(scope.row.id)"
                     >删除</el-link>
                   </template>
                 </el-table-column>
               </el-table>
             </div>
           </div>
+          <el-row style="margin-top: 30px; text-align: center;">
+            <el-button @click="backtrack">返 回</el-button>
+            <el-button type="primary" @click="submitForm">提 交</el-button>
+          </el-row>
         </div>
 
         <!-- 新建/编辑 -->
@@ -256,8 +268,8 @@
                 </el-form>
                 <div style="text-align: center; padding-bottom: 30px; padding-top: 20px;">
                   <span slot="footer" class="dialog-footer">
-                    <el-button @click="dialogForm.dialog = false">取 消</el-button>
-                    <el-button type="primary" @click="submitForm">确 定</el-button>
+                    <el-button @click="processDialog.dialog = false">取 消</el-button>
+                    <el-button type="primary" @click="submitProcessForm">确 定</el-button>
                   </span>
                 </div>
               </div>
@@ -271,11 +283,11 @@
 
 <script>
 import {
-  createCloudAccount,
-  deleteCloudAccount
-} from '@/api/cmdb/resource'
-import {
-  serviceClassifyList
+  serviceClassifyList,
+  createSvcTpl,
+  svcTplDetails,
+  createSvcTplProcess,
+  editSvcTplProcess
 } from '@/api/cmdb/business'
 export default {
   components: {
@@ -285,14 +297,8 @@ export default {
       loading: false,
       processList: [],
       status: '',
-      setKey: {
-        value: 'id',
-        label: 'name',
-        children: 'services'
-      }, // 自定义  级联选择器value label
       ruleForm: {},
       sclist: [],
-      dialogForm: {},
       processDialog: {},
       processRuleForm: {},
       rules: {
@@ -304,48 +310,55 @@ export default {
   },
   created() {
     this.status = this.$route.query.status
-    console.log(this.status)
+    if (this.status !== undefined && this.status !== null && this.status === 'edit') {
+      this.getDetails()
+    }
     this.getSvcClassifyList()
   },
   methods: {
+    getDetails() {
+      this.loading = true
+      svcTplDetails(this.$route.query.id).then(res => {
+        this.ruleForm = res.data
+        this.loading = false
+      })
+    },
     getSvcClassifyList() {
       serviceClassifyList().then(res => {
         this.sclist = res.data
       })
     },
     createProcessData() {
+      this.processRuleForm = {}
       this.processDialog = {
         title: '新建流程',
         status: 'create',
         dialog: true
       }
       this.$nextTick(() => {
-        this.$refs.ruleForm.clearValidate()
+        this.$refs.processRuleForm.clearValidate()
       })
     },
-    edCloudAccount(row) {
-      this.ruleForm = row
-      this.dialogForm = {
-        title: '编辑云账号',
+    editProcessData(row) {
+      this.processRuleForm = row
+      this.processDialog = {
+        title: '编辑流程',
         status: 'edit',
         dialog: true
       }
       this.$nextTick(() => {
-        this.$refs.ruleForm.clearValidate()
+        this.$refs.processRuleForm.clearValidate()
       })
     },
-    delCloudAccount(id) {
+    deleteProcessData(id) {
       this.$confirm('是否删除此云账号?', '提示', {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
       }).then(() => {
-        deleteCloudAccount(id).then(() => {
-          this.getList()
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
         })
       }).catch(() => {
         this.$message({
@@ -354,22 +367,58 @@ export default {
         })
       })
     },
-    submitForm() {
-      this.$refs.ruleForm.validate((valid) => {
+    submitProcessForm() {
+      this.$refs.processRuleForm.validate((valid) => {
         if (valid) {
-          // 新建云账号
-          if (this.dialogForm.status === 'create') {
-            createCloudAccount(this.ruleForm).then(res => {
-              this.getList()
+          if (this.processDialog.status === 'create') {
+            if (this.status === undefined || this.status === null || this.status === 'create') {
+              var process = JSON.parse(JSON.stringify(this.processRuleForm))
+              if (this.ruleForm.process_list === undefined || this.ruleForm.process_list === null || this.ruleForm.process_list.length === 0) {
+                this.ruleForm.process_list = [process]
+              } else {
+                this.ruleForm.process_list.push(process)
+              }
+            } else if (this.status === 'edit') {
+              // 直接新增流程数据
+              this.processRuleForm.svc_tpl = parseInt(this.$route.query.id)
+              createSvcTplProcess(this.processRuleForm).then(() => {
+                this.getDetails()
+                this.$message({
+                  type: 'success',
+                  message: '新建流程成功'
+                })
+              })
+            }
+          } else if (this.processDialog.status === 'edit') {
+            delete this.processRuleForm.created_at
+            delete this.processRuleForm.updated_at
+            editSvcTplProcess(this.processRuleForm.id, this.processRuleForm).then(() => {
+              this.getDetails()
               this.$message({
                 type: 'success',
-                message: '创建成功!'
+                message: '编辑流程成功'
               })
             })
           }
-          this.dialogForm.dialog = false
+          this.processDialog.dialog = false
         }
       })
+    },
+    submitForm() {
+      this.$refs.ruleForm.validate((valid) => {
+        if (valid) {
+          if (this.status === undefined || this.status === null || this.status === 'create') {
+            createSvcTpl(this.ruleForm).then(res => {
+              this.$router.push({ path: '/cmdb/business/service-template' })
+            })
+          } else if (this.status === 'edit') {
+            console.log(1)
+          }
+        }
+      })
+    },
+    backtrack() {
+      this.$router.push({ path: '/cmdb/business/service-template' })
     }
   }
 }

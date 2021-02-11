@@ -33,26 +33,14 @@
           <el-table v-loading="loading" :data="list" border>
             <el-table-column
               prop="name"
-              label="账户名称"
+              label="模板名称"
             />
             <el-table-column
-              prop="type"
-              label="账户类型"
-            >
-              <template slot-scope="{row}">
-                {{ getAccountType(row.type) }}
-              </template>
-            </el-table-column>
+              prop="svc_classify_name"
+              label="模板分类"
+            />
             <el-table-column
-              label="状态"
-            >
-              <template slot-scope="scope">
-                <el-tag v-if="scope.row.status" type="success">可用</el-tag>
-                <el-tag v-else type="danger">暂停</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
-              prop="modifier_name"
+              prop="modify_name"
               label="修改人"
             />
             <el-table-column
@@ -68,7 +56,7 @@
                   icon="el-icon-edit"
                   type="primary"
                   :underline="false"
-                  @click="edCloudAccount(scope.row)"
+                  @click="editData(scope.row)"
                 >编辑</el-link>
                 <el-link
                   icon="el-icon-delete"
@@ -97,11 +85,11 @@
 <script>
 import {
   createCloudAccount,
-  cloudAccountList,
   deleteCloudAccount
 } from '@/api/cmdb/resource'
 import {
-  serviceClassifyList
+  serviceClassifyList,
+  svcTplList
 } from '@/api/cmdb/business'
 export default {
   components: {
@@ -139,7 +127,7 @@ export default {
   methods: {
     getList() {
       this.loading = true
-      cloudAccountList(this.listQuery).then(res => {
+      svcTplList(this.listQuery).then(res => {
         this.list = res.data.list
         this.total = res.data.total_count
         this.loading = false
@@ -163,16 +151,8 @@ export default {
         this.$refs.ruleForm.clearValidate()
       })
     },
-    edCloudAccount(row) {
-      this.ruleForm = row
-      this.dialogForm = {
-        title: '编辑云账号',
-        status: 'edit',
-        dialog: true
-      }
-      this.$nextTick(() => {
-        this.$refs.ruleForm.clearValidate()
-      })
+    editData(row) {
+      this.$router.push({ name: 'BusinessSvcTplManager', query: { status: 'edit', id: row.id }})
     },
     delCloudAccount(id) {
       this.$confirm('是否删除此云账号?', '提示', {
