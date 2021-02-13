@@ -68,6 +68,7 @@
         :title="dialogVisible.title"
         :visible.sync="dialogVisible.dialog"
         width="30%"
+        :close-on-click-modal="false"
       >
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
           <el-form-item label="唯一标识" prop="identifies">

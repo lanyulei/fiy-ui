@@ -63,7 +63,7 @@
                   type="primary"
                   :underline="false"
                   style="margin-left: 15px;"
-                  @click="delCloudAccount(scope.row.id)"
+                  @click="deleteData(scope.row.id)"
                 >删除</el-link>
               </template>
             </el-table-column>
@@ -84,12 +84,8 @@
 
 <script>
 import {
-  createCloudAccount,
-  deleteCloudAccount
-} from '@/api/cmdb/resource'
-import {
-  serviceClassifyList,
-  svcTplList
+  svcTplList,
+  deleteSvcTpl
 } from '@/api/cmdb/business'
 export default {
   components: {
@@ -104,7 +100,6 @@ export default {
       loading: false,
       ruleForm: {},
       list: [],
-      sclist: [],
       total: 0,
       listQuery: {
         page: 1,
@@ -122,7 +117,6 @@ export default {
   },
   created() {
     this.getList()
-    this.getSvcClassifyList()
   },
   methods: {
     getList() {
@@ -133,34 +127,19 @@ export default {
         this.loading = false
       })
     },
-    getSvcClassifyList() {
-      serviceClassifyList().then(res => {
-        this.sclist = res.data
-      })
-    },
     createData() {
       this.$router.push({ name: 'BusinessSvcTplManager', query: { status: 'create' }})
-    },
-    createProcessData() {
-      this.processDialog = {
-        title: '新建流程',
-        status: 'create',
-        dialog: true
-      }
-      this.$nextTick(() => {
-        this.$refs.ruleForm.clearValidate()
-      })
     },
     editData(row) {
       this.$router.push({ name: 'BusinessSvcTplManager', query: { status: 'edit', id: row.id }})
     },
-    delCloudAccount(id) {
-      this.$confirm('是否删除此云账号?', '提示', {
+    deleteData(id) {
+      this.$confirm('是否删除此模版?', '提示', {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
       }).then(() => {
-        deleteCloudAccount(id).then(() => {
+        deleteSvcTpl(id).then(() => {
           this.getList()
           this.$message({
             type: 'success',
@@ -172,23 +151,6 @@ export default {
           type: 'info',
           message: '已取消删除'
         })
-      })
-    },
-    submitForm() {
-      this.$refs.ruleForm.validate((valid) => {
-        if (valid) {
-          // 新建云账号
-          if (this.dialogForm.status === 'create') {
-            createCloudAccount(this.ruleForm).then(res => {
-              this.getList()
-              this.$message({
-                type: 'success',
-                message: '创建成功!'
-              })
-            })
-          }
-          this.dialogForm.dialog = false
-        }
       })
     }
   }

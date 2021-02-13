@@ -15,11 +15,11 @@
         <!-- 操作 -->
         <div>
           <el-row>
-            <el-button size="mini" type="primary" @click="addCloudAccount">新建</el-button>
+            <el-button size="mini" type="primary" @click="createData">新建</el-button>
             <el-input
               v-model="listQuery.name"
               size="mini"
-              placeholder="请输入账号名称"
+              placeholder="请输入服务模板名称"
               class="input-with-select"
               style="width: 300px; margin-left: 10px"
               @keyup.enter.native="getList"
@@ -29,31 +29,14 @@
           </el-row>
         </div>
 
-        <!-- 云账户列表 -->
         <div style="margin-top: 15px;">
           <el-table v-loading="loading" :data="list" border>
             <el-table-column
               prop="name"
-              label="账户名称"
+              label="模板名称"
             />
             <el-table-column
-              prop="type"
-              label="账户类型"
-            >
-              <template slot-scope="{row}">
-                {{ getAccountType(row.type) }}
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="状态"
-            >
-              <template slot-scope="scope">
-                <el-tag v-if="scope.row.status" type="success">可用</el-tag>
-                <el-tag v-else type="danger">暂停</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
-              prop="modifier_name"
+              prop="modify_name"
               label="修改人"
             />
             <el-table-column
@@ -69,14 +52,14 @@
                   icon="el-icon-edit"
                   type="primary"
                   :underline="false"
-                  @click="edCloudAccount(scope.row)"
+                  @click="editData(scope.row)"
                 >编辑</el-link>
                 <el-link
                   icon="el-icon-delete"
                   type="primary"
                   :underline="false"
                   style="margin-left: 15px;"
-                  @click="delCloudAccount(scope.row.id)"
+                  @click="deleteData(scope.row.id)"
                 >删除</el-link>
               </template>
             </el-table-column>
@@ -90,94 +73,78 @@
           />
         </div>
 
-        <!-- 新建/编辑关联类型 -->
         <el-dialog
-          :title="dialogForm.title"
-          :visible.sync="dialogForm.dialog"
-          width="38%"
+          title="提示"
+          :visible.sync="dialogVisible.dialog"
+          width="50%"
+          :close-on-click-modal="false"
         >
-          <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px">
-            <el-form-item label="账号名称" prop="name">
-              <el-input v-model="ruleForm.name" size="small" placeholder="请输入账号名称" />
+          <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="90px">
+            <el-form-item label="模板名称" prop="name">
+              <el-input v-model="ruleForm.name" size="small" />
             </el-form-item>
-            <el-form-item label="账户类型" prop="type">
-              <el-select v-model="ruleForm.type" size="small" placeholder="请选择账户类型" style="width: 100%">
-                <el-option
-                  v-for="item in accountTypeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                  <span style="float: left">
-                    <svg-icon :icon-class="item.icon" style="margin-right: 5px; font-size: 16px;" />
-                    {{ item.label }}
-                  </span>
-                  <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
-                </el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="Secret" prop="secret">
-              <el-input v-model="ruleForm.secret" size="small" placeholder="请输入Secret" />
-            </el-form-item>
-            <el-form-item label="KeyId" prop="key">
-              <el-input v-model="ruleForm.key" size="small" placeholder="请输入KeyId" />
-            </el-form-item>
-            <el-form-item v-if="dialogForm.status === 'edit'" label="状态">
-              <el-switch
-                v-model="ruleForm.status"
-                size="small"
-              />
-            </el-form-item>
-            <el-form-item label="备注">
-              <el-input
-                v-model="ruleForm.remarks"
-                type="textarea"
-                :rows="3"
-                placeholder="请输入备注"
-              />
+            <el-form-item label="集群拓扑" prop="name">
+              <div class="cluster-topology">
+                <div class="cluster-topology-title">
+                  <!-- <svg-icon icon-class="ji" style="font-size: 20px; margin-left: 5px;" /> -->
+                  <i class="fiy-node-icon fl">集</i>
+                  <span>模板集群名称</span>
+                </div>
+                <div class="cluster-topology-body">
+                  <ul class="node-children">
+                    <li class="node-child clearfix">
+                      <i class="fiy-node-icon fl">模</i>
+                      <span class="fr">
+                        <i class="fiy-node-icon-operate el-icon-view" style="margin-right: 8px;" />
+                        <i class="fiy-node-icon-operate el-icon-close" />
+                      </span>
+                      <span class="child-name">appt</span>
+                    </li>
+
+                    <li class="options-child node-child clearfix">
+                      <span style="cursor: pointer;">
+                        <i class="el-icon-circle-plus-outline" style="font-size: 20px; margin-right: 3px; color: #3A84FF;" />
+                        <span class="child-name">添加服务模板</span>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogForm.dialog = false">取 消</el-button>
-            <el-button @click="dialogForm.dialog = false">测试连通</el-button>
-            <el-button type="primary" @click="submitForm">确 定</el-button>
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
           </span>
         </el-dialog>
 
       </el-card>
+
     </template>
   </BasicLayout>
 </template>
 
 <script>
 import {
-  createCloudAccount,
-  cloudAccountList,
-  deleteCloudAccount
-} from '@/api/cmdb/resource'
+  svcTplList,
+  deleteSvcTpl
+} from '@/api/cmdb/business'
 export default {
   components: {
   },
   data() {
     return {
-      accountTypeOptions: [
-        { icon: 'alibabacloud', label: '阿里云', value: 'aliyun' },
-        { icon: 'tengxunyun', label: '腾讯云', value: 'tencent' }
-      ],
       loading: false,
-      ruleForm: { status: true },
       list: [],
       total: 0,
       listQuery: {
         page: 1,
         per_page: 10
       },
-      dialogForm: {},
+      dialogVisible: {},
+      ruleForm: {},
       rules: {
-        name: [{ required: true, message: '请输入账号名称', trigger: 'blur' }],
-        type: [{ required: true, message: '请选择账户类型', trigger: 'change' }],
-        secret: [{ required: true, message: '请输入AccessSecret', trigger: 'blur' }],
-        key: [{ required: true, message: '请输入AccessKeyId', trigger: 'blur' }]
+        name: [{ required: true, message: '必填', trigger: 'blur' }]
       }
     }
   },
@@ -187,24 +154,16 @@ export default {
   methods: {
     getList() {
       this.loading = true
-      cloudAccountList(this.listQuery).then(res => {
+      svcTplList(this.listQuery).then(res => {
         this.list = res.data.list
         this.total = res.data.total_count
         this.loading = false
       })
     },
-    getAccountType(value) {
-      for (var i of this.accountTypeOptions) {
-        if (i.value === value) {
-          return i.label
-        }
-      }
-      return ''
-    },
-    addCloudAccount() {
-      this.ruleForm = { status: true }
-      this.dialogForm = {
-        title: '新建云账号',
+    createData() {
+      this.ruleForm = {}
+      this.dialogVisible = {
+        title: '新建集群',
         status: 'create',
         dialog: true
       }
@@ -212,10 +171,10 @@ export default {
         this.$refs.ruleForm.clearValidate()
       })
     },
-    edCloudAccount(row) {
-      this.ruleForm = row
-      this.dialogForm = {
-        title: '编辑云账号',
+    editData(row) {
+      this.ruleForm = {}
+      this.dialogVisible = {
+        title: '编辑集群',
         status: 'edit',
         dialog: true
       }
@@ -223,13 +182,13 @@ export default {
         this.$refs.ruleForm.clearValidate()
       })
     },
-    delCloudAccount(id) {
-      this.$confirm('是否删除此云账号?', '提示', {
+    deleteData(id) {
+      this.$confirm('是否删除此模版?', '提示', {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
       }).then(() => {
-        deleteCloudAccount(id).then(() => {
+        deleteSvcTpl(id).then(() => {
           this.getList()
           this.$message({
             type: 'success',
@@ -242,28 +201,99 @@ export default {
           message: '已取消删除'
         })
       })
-    },
-    submitForm() {
-      this.$refs.ruleForm.validate((valid) => {
-        if (valid) {
-          // 新建云账号
-          if (this.dialogForm.status === 'create') {
-            createCloudAccount(this.ruleForm).then(res => {
-              this.getList()
-              this.$message({
-                type: 'success',
-                message: '创建成功!'
-              })
-            })
-          }
-          this.dialogForm.dialog = false
-        }
-      })
     }
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+  .cluster-topology {
+    padding: 10px 20px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+  }
 
+  .cluster-topology-title {
+    height: 36px;
+    line-height: 36px;
+  }
+
+  .cluster-topology-body .node-children {
+    line-height: 36px;
+    cursor: default;
+  }
+
+  .cluster-topology-body .node-children .node-child {
+    padding: 0 10px 0 28px;
+    position: relative;
+  }
+
+  .cluster-topology-body .node-children .node-child:hover {
+    background-color: #F0F1F5;
+  }
+
+  .cluster-topology-body .node-children .node-child:hover .fiy-node-icon-operate {
+    display: inline-block;
+  }
+
+  .cluster-topology-body .clearfix {
+    zoom: 1;
+  }
+
+  .cluster-topology-body .node-child:before {
+    position: absolute;
+    left: 0px;
+    top: -18px;
+    content: "";
+    width: 25px;
+    height: 36px;
+    border-left: 1px dashed #DCDEE5;
+    border-bottom: 1px dashed #DCDEE5;
+    z-index: 1;
+  }
+
+  .cluster-topology-body .clearfix:before, .clearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  .cluster-topology-body .node-children .node-child.options-child .child-name {
+    color: #3A84FF;
+  }
+
+  .cluster-topology-body ul, dl {
+    list-style: none;
+  }
+
+  .cluster-topology-body ul {
+    margin-block-start: 0;
+    margin-block-end: 0;
+    padding-inline-start: 10px;
+  }
+
+  .fiy-node-icon {
+    position: relative;
+    margin: 8px 4px 8px 0px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    line-height: 20px;
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    color: #fff;
+    background-color: #97AED6;
+    z-index: 2;
+  }
+
+  .fiy-node-icon-operate {
+    font-size: 16px;
+    cursor: pointer;
+    display: none;
+  }
+
+  .fiy-node-icon-operate:hover {
+    color: #3A84FF;
+  }
 </style>

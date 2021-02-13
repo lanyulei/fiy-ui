@@ -287,7 +287,8 @@ import {
   createSvcTpl,
   svcTplDetails,
   createSvcTplProcess,
-  editSvcTplProcess
+  editSvcTplProcess,
+  deleteSvcTplProcess
 } from '@/api/cmdb/business'
 export default {
   components: {
@@ -331,7 +332,7 @@ export default {
     createProcessData() {
       this.processRuleForm = {}
       this.processDialog = {
-        title: '新建流程',
+        title: '新建进程',
         status: 'create',
         dialog: true
       }
@@ -342,7 +343,7 @@ export default {
     editProcessData(row) {
       this.processRuleForm = row
       this.processDialog = {
-        title: '编辑流程',
+        title: '编辑进程',
         status: 'edit',
         dialog: true
       }
@@ -351,14 +352,17 @@ export default {
       })
     },
     deleteProcessData(id) {
-      this.$confirm('是否删除此云账号?', '提示', {
+      this.$confirm('是否删除此进程?', '提示', {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
+        deleteSvcTplProcess(id).then(() => {
+          this.getDetails()
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
         })
       }).catch(() => {
         this.$message({
@@ -379,13 +383,13 @@ export default {
                 this.ruleForm.process_list.push(process)
               }
             } else if (this.status === 'edit') {
-              // 直接新增流程数据
+              // 直接新增进程数据
               this.processRuleForm.svc_tpl = parseInt(this.$route.query.id)
               createSvcTplProcess(this.processRuleForm).then(() => {
                 this.getDetails()
                 this.$message({
                   type: 'success',
-                  message: '新建流程成功'
+                  message: '新建进程成功'
                 })
               })
             }
@@ -396,7 +400,7 @@ export default {
               this.getDetails()
               this.$message({
                 type: 'success',
-                message: '编辑流程成功'
+                message: '编辑进程成功'
               })
             })
           }

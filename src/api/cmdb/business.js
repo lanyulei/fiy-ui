@@ -61,7 +61,15 @@ export function svcTplDetails(id) {
   })
 }
 
-// 新建流程
+// 删除服务模板
+export function deleteSvcTpl(id) {
+  return request({
+    url: `/api/v1/cmdb/business/svc-tpl/${id}`,
+    method: 'delete'
+  })
+}
+
+// 新建进程
 export function createSvcTplProcess(data) {
   return request({
     url: `/api/v1/cmdb/business/svc-tpl-process`,
@@ -70,12 +78,20 @@ export function createSvcTplProcess(data) {
   })
 }
 
-// 编辑流程
+// 编辑进程
 export function editSvcTplProcess(id, data) {
   return request({
     url: `/api/v1/cmdb/business/svc-tpl-process/${id}`,
     method: 'put',
     data
+  })
+}
+
+// 删除进程
+export function deleteSvcTplProcess(id) {
+  return request({
+    url: `/api/v1/cmdb/business/svc-tpl-process/${id}`,
+    method: 'delete'
   })
 }
 
