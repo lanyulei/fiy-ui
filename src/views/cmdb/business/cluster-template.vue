@@ -107,8 +107,8 @@
               <div class="cluster-topology">
                 <div class="cluster-topology-title">
                   <i class="fiy-node-icon fl">集</i>
-                  <span v-if="ruleForm.name === undefined || ruleForm.name === ''">模板集群名称</span>
-                  <span v-else>{{ ruleForm.name }}</span>
+                  <span v-if="ruleForm.name === undefined || ruleForm.name === ''" style="font-weight: 700">模板集群名称</span>
+                  <span v-else style="font-weight: 700">{{ ruleForm.name }}</span>
                 </div>
                 <div class="cluster-topology-body">
                   <ul class="node-children">
@@ -126,7 +126,7 @@
                     <li class="options-child node-child clearfix">
                       <span style="cursor: pointer;" @click="addSvcTplDialog">
                         <i class="el-icon-circle-plus-outline" style="font-size: 20px; margin-right: 3px; color: #3A84FF;" />
-                        <span class="child-name">添加服务模板</span>
+                        <span class="child-name">{{ dialogVisible.status === 'edit' ? '编辑': '添加' }}服务模板</span>
                       </span>
                     </li>
                   </ul>
@@ -136,12 +136,10 @@
           </el-form>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+            <el-button type="primary" @click="submitForm">确 定</el-button>
           </span>
         </el-dialog>
-
       </el-card>
-
     </template>
   </BasicLayout>
 </template>
@@ -149,7 +147,11 @@
 <script>
 import {
   svcTplList,
-  deleteSvcTpl
+  createClusterTpl,
+  clusterTplList,
+  clusterTplReSvcTpl,
+  editClusterTpl,
+  deleteClusterTpl
 } from '@/api/cmdb/business'
 export default {
   components: {
@@ -160,9 +162,9 @@ export default {
       checkAll: false,
       checkedSvcTpls: [],
       isIndeterminate: true,
-
       loading: false,
       svcTpls: [],
+      svcTplIdList: [],
       list: [],
       total: 0,
       listQuery: {
@@ -183,7 +185,7 @@ export default {
   },
   methods: {
     handleCheckAllChange(val) {
-      this.checkedSvcTpls = val ? this.cities : []
+      this.checkedSvcTpls = val ? this.svcTplIdList : []
       this.isIndeterminate = false
     },
     handlecheckedSvcTplsChange(value) {
@@ -191,35 +193,43 @@ export default {
       this.checkAll = checkedCount === this.svcTpls.length
       this.isIndeterminate = checkedCount > 0 && checkedCount < this.svcTpls.length
     },
-    getList() {},
+    getList() {
+      this.loading = true
+      clusterTplList(this.listQuery).then(res => {
+        this.list = res.data.list
+        this.total = res.data.total_count
+        this.loading = false
+      })
+    },
     getsvcTplList() {
       svcTplList({
         per_page: 99999
       }).then(res => {
         this.svcTpls = res.data.list
+        for (var i of res.data.list) {
+          this.svcTplIdList.push(i.id)
+        }
       })
     },
-    // 新建服务模板
     addSvcTpl() {
-      if (this.dialogVisible.status === 'create') {
-        this.currentSvcTpls = []
-        for (var st of this.svcTpls) {
-          if (this.checkedSvcTpls.indexOf(st.id) !== -1) {
-            this.currentSvcTpls.push(st)
-          }
+      this.currentSvcTpls = []
+      for (var st of this.svcTpls) {
+        if (this.checkedSvcTpls.indexOf(st.id) !== -1) {
+          this.currentSvcTpls.splice(0, 0, st)
         }
       }
+      this.innerVisible.dialog = false
     },
     delSvcTpl(i, v) {
-      if (this.dialogVisible.status === 'create') {
-        this.currentSvcTpls.splice(i, 1)
-        var tmp = this.checkedSvcTpls.indexOf(v)
-        if (tmp !== -1) {
-          this.checkedSvcTpls.splice(tmp, 1)
-        }
+      this.currentSvcTpls.splice(i, 1)
+      var tmp = this.checkedSvcTpls.indexOf(v)
+      if (tmp !== -1) {
+        this.checkedSvcTpls.splice(tmp, 1)
       }
     },
     createData() {
+      this.checkedSvcTpls = []
+      this.currentSvcTpls = []
       this.ruleForm = {}
       this.dialogVisible = {
         title: '新建集群模板',
@@ -231,14 +241,21 @@ export default {
       })
     },
     editData(row) {
-      this.ruleForm = {}
-      this.dialogVisible = {
-        title: '编辑集群模板',
-        status: 'edit',
-        dialog: true
-      }
-      this.$nextTick(() => {
-        this.$refs.ruleForm.clearValidate()
+      clusterTplReSvcTpl(row.id).then(res => {
+        this.ruleForm = row
+        this.currentSvcTpls = res.data
+        this.checkedSvcTpls = []
+        for (var c of this.currentSvcTpls) {
+          this.checkedSvcTpls.push(c.id)
+        }
+        this.dialogVisible = {
+          title: '编辑集群模板',
+          status: 'edit',
+          dialog: true
+        }
+        this.$nextTick(() => {
+          this.$refs.ruleForm.clearValidate()
+        })
       })
     },
     deleteData(id) {
@@ -247,7 +264,7 @@ export default {
         cancelButtonText: '否',
         type: 'warning'
       }).then(() => {
-        deleteSvcTpl(id).then(() => {
+        deleteClusterTpl(id).then(() => {
           this.getList()
           this.$message({
             type: 'success',
@@ -267,6 +284,34 @@ export default {
         dialog: true,
         status: 'create'
       }
+    },
+    submitForm() {
+      this.$refs.ruleForm.validate((valid) => {
+        if (valid) {
+          this.ruleForm.svc_tpls = this.checkedSvcTpls
+          if (this.dialogVisible.status === 'create') {
+            createClusterTpl(this.ruleForm).then(() => {
+              this.getList()
+              this.$message({
+                type: 'success',
+                message: '新建成功!'
+              })
+            })
+          } else if (this.dialogVisible.status === 'edit') {
+            editClusterTpl(this.ruleForm.id, {
+              name: this.ruleForm.name,
+              svc_tpls: this.checkedSvcTpls
+            }).then(() => {
+              this.getList()
+              this.$message({
+                type: 'success',
+                message: '编辑成功!'
+              })
+            })
+          }
+          this.dialogVisible.dialog = false
+        }
+      })
     }
   }
 }

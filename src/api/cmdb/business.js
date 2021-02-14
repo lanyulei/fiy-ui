@@ -95,3 +95,46 @@ export function deleteSvcTplProcess(id) {
   })
 }
 
+// 新建集群模板
+export function createClusterTpl(data) {
+  return request({
+    url: `/api/v1/cmdb/business/cluster-tpl`,
+    method: 'post',
+    data
+  })
+}
+
+// 集群模板列表
+export function clusterTplList(params) {
+  return request({
+    url: `/api/v1/cmdb/business/cluster-tpl`,
+    method: 'get',
+    params
+  })
+}
+
+// 编辑集群模板
+export function editClusterTpl(id, data) {
+  return request({
+    url: `/api/v1/cmdb/business/cluster-tpl/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+// 删除集群模板
+export function deleteClusterTpl(id) {
+  return request({
+    url: `/api/v1/cmdb/business/cluster-tpl/${id}`,
+    method: 'delete'
+  })
+}
+
+// 集群模板对应的服务模板列表
+export function clusterTplReSvcTpl(id) {
+  return request({
+    url: `/api/v1/cmdb/business/cluster-svc-tpl/${id}`,
+    method: 'get'
+  })
+}
+
