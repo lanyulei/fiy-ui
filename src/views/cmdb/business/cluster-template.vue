@@ -19,7 +19,7 @@
             <el-input
               v-model="listQuery.name"
               size="mini"
-              placeholder="请输入服务模板名称"
+              placeholder="请输入集群模板名称"
               class="input-with-select"
               style="width: 300px; margin-left: 10px"
               @keyup.enter.native="getList"
@@ -74,11 +74,31 @@
         </div>
 
         <el-dialog
-          title="提示"
+          :title="dialogVisible.title"
           :visible.sync="dialogVisible.dialog"
           width="50%"
           :close-on-click-modal="false"
         >
+          <el-dialog
+            width="48%"
+            :title="innerVisible.title"
+            :visible.sync="innerVisible.dialog"
+            append-to-body
+            :close-on-click-modal="false"
+          >
+            <div style="margin-bottom: 20px;">
+              <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">全选</el-checkbox>
+              <div style="margin: 15px 0;" />
+              <el-checkbox-group v-model="checkedSvcTpls" @change="handlecheckedSvcTplsChange">
+                <el-checkbox v-for="s in svcTpls" :key="s.id" size="small" border :label="s.id">{{ s.name }}</el-checkbox>
+              </el-checkbox-group>
+            </div>
+
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="innerVisible.dialog = false">取 消</el-button>
+              <el-button type="primary" @click="addSvcTpl">确 定</el-button>
+            </span>
+          </el-dialog>
           <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="90px">
             <el-form-item label="模板名称" prop="name">
               <el-input v-model="ruleForm.name" size="small" />
@@ -86,23 +106,25 @@
             <el-form-item label="集群拓扑" prop="name">
               <div class="cluster-topology">
                 <div class="cluster-topology-title">
-                  <!-- <svg-icon icon-class="ji" style="font-size: 20px; margin-left: 5px;" /> -->
                   <i class="fiy-node-icon fl">集</i>
-                  <span>模板集群名称</span>
+                  <span v-if="ruleForm.name === undefined || ruleForm.name === ''">模板集群名称</span>
+                  <span v-else>{{ ruleForm.name }}</span>
                 </div>
                 <div class="cluster-topology-body">
                   <ul class="node-children">
-                    <li class="node-child clearfix">
-                      <i class="fiy-node-icon fl">模</i>
-                      <span class="fr">
-                        <i class="fiy-node-icon-operate el-icon-view" style="margin-right: 8px;" />
-                        <i class="fiy-node-icon-operate el-icon-close" />
-                      </span>
-                      <span class="child-name">appt</span>
-                    </li>
+                    <template v-if="currentSvcTpls.length > 0">
+                      <li v-for="(s, i) in currentSvcTpls" :key="i" class="node-child clearfix">
+                        <i class="fiy-node-icon fl">模</i>
+                        <span class="fr">
+                          <!-- <i class="fiy-node-icon-operate el-icon-view" style="margin-right: 8px;" /> -->
+                          <i class="fiy-node-icon-operate el-icon-close" @click="delSvcTpl(i, s.id)" />
+                        </span>
+                        <span class="child-name">{{ s.name }}</span>
+                      </li>
+                    </template>
 
                     <li class="options-child node-child clearfix">
-                      <span style="cursor: pointer;">
+                      <span style="cursor: pointer;" @click="addSvcTplDialog">
                         <i class="el-icon-circle-plus-outline" style="font-size: 20px; margin-right: 3px; color: #3A84FF;" />
                         <span class="child-name">添加服务模板</span>
                       </span>
@@ -134,7 +156,13 @@ export default {
   },
   data() {
     return {
+      currentSvcTpls: [],
+      checkAll: false,
+      checkedSvcTpls: [],
+      isIndeterminate: true,
+
       loading: false,
+      svcTpls: [],
       list: [],
       total: 0,
       listQuery: {
@@ -142,6 +170,7 @@ export default {
         per_page: 10
       },
       dialogVisible: {},
+      innerVisible: {},
       ruleForm: {},
       rules: {
         name: [{ required: true, message: '必填', trigger: 'blur' }]
@@ -150,20 +179,50 @@ export default {
   },
   created() {
     this.getList()
+    this.getsvcTplList()
   },
   methods: {
-    getList() {
-      this.loading = true
-      svcTplList(this.listQuery).then(res => {
-        this.list = res.data.list
-        this.total = res.data.total_count
-        this.loading = false
+    handleCheckAllChange(val) {
+      this.checkedSvcTpls = val ? this.cities : []
+      this.isIndeterminate = false
+    },
+    handlecheckedSvcTplsChange(value) {
+      const checkedCount = value.length
+      this.checkAll = checkedCount === this.svcTpls.length
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.svcTpls.length
+    },
+    getList() {},
+    getsvcTplList() {
+      svcTplList({
+        per_page: 99999
+      }).then(res => {
+        this.svcTpls = res.data.list
       })
+    },
+    // 新建服务模板
+    addSvcTpl() {
+      if (this.dialogVisible.status === 'create') {
+        this.currentSvcTpls = []
+        for (var st of this.svcTpls) {
+          if (this.checkedSvcTpls.indexOf(st.id) !== -1) {
+            this.currentSvcTpls.push(st)
+          }
+        }
+      }
+    },
+    delSvcTpl(i, v) {
+      if (this.dialogVisible.status === 'create') {
+        this.currentSvcTpls.splice(i, 1)
+        var tmp = this.checkedSvcTpls.indexOf(v)
+        if (tmp !== -1) {
+          this.checkedSvcTpls.splice(tmp, 1)
+        }
+      }
     },
     createData() {
       this.ruleForm = {}
       this.dialogVisible = {
-        title: '新建集群',
+        title: '新建集群模板',
         status: 'create',
         dialog: true
       }
@@ -174,7 +233,7 @@ export default {
     editData(row) {
       this.ruleForm = {}
       this.dialogVisible = {
-        title: '编辑集群',
+        title: '编辑集群模板',
         status: 'edit',
         dialog: true
       }
@@ -183,7 +242,7 @@ export default {
       })
     },
     deleteData(id) {
-      this.$confirm('是否删除此模版?', '提示', {
+      this.$confirm('是否删除此集群模板?', '提示', {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
@@ -201,6 +260,13 @@ export default {
           message: '已取消删除'
         })
       })
+    },
+    addSvcTplDialog() {
+      this.innerVisible = {
+        title: '绑定服务模型',
+        dialog: true,
+        status: 'create'
+      }
     }
   }
 }
@@ -295,5 +361,9 @@ export default {
 
   .fiy-node-icon-operate:hover {
     color: #3A84FF;
+  }
+
+  /deep/ .el-checkbox {
+    margin-right: 0;
   }
 </style>
