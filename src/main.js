@@ -57,6 +57,10 @@ Vue.prototype.selectDictLabel = selectDictLabel
 Vue.prototype.selectItemsLabel = selectItemsLabel
 Vue.prototype.download = download
 
+import contentmenu from 'v-contextmenu'
+import 'v-contextmenu/dist/index.css'
+Vue.use(contentmenu)
+
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
 Vue.component('BasicLayout', BasicLayout)

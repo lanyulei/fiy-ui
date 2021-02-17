@@ -138,3 +138,10 @@ export function clusterTplReSvcTpl(id) {
   })
 }
 
+// 业务树
+export function getBusinessTree() {
+  return request({
+    url: `/api/v1/cmdb/business/tree`,
+    method: 'get'
+  })
+}

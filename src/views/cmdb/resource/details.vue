@@ -11,7 +11,7 @@
             <ul class="property-list">
               <li v-for="field of field_groups.fields" id="property-item-1" :key="field.id" class="property-item">
                 <span class="property-name" tabindex="0">
-                  {{ field.name }}:
+                  {{ field.name }} :
                 </span>
                 <span class="property-value" tabindex="0">
                   <span class="value-default-theme">{{ fieldForm[field.identifies] }}</span>
@@ -108,7 +108,7 @@ export default {
 
   .property-list .property-item .property-name {
     position: relative;
-    width: 150px;
+    /* width: 150px; */
     line-height: 32px;
     padding: 0 16px 0 0;
     font-size: 14px;
@@ -129,7 +129,7 @@ export default {
     display: -webkit-box;
     /* -webkit-line-clamp: 2; */
     -webkit-box-orient: vertical;
-}
+  }
 
   ul, dl {
     list-style: none;
