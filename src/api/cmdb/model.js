@@ -232,3 +232,11 @@ export function deleteModelRelated(id) {
   })
 }
 
+// 模型关系
+export function relatedInfo() {
+  return request({
+    url: `/api/v1/cmdb/model/related`,
+    method: 'get'
+  })
+}
+
