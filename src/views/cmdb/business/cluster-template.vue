@@ -205,9 +205,11 @@ export default {
       svcTplList({
         per_page: 99999
       }).then(res => {
-        this.svcTpls = res.data.list
-        for (var i of res.data.list) {
-          this.svcTplIdList.push(i.id)
+        if (res.data.list !== null && res.data.list !== undefined) {
+          this.svcTpls = res.data.list
+          for (var i of res.data.list) {
+            this.svcTplIdList.push(i.id)
+          }
         }
       })
     },

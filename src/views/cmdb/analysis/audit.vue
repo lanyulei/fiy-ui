@@ -91,27 +91,41 @@
 
       </el-card>
 
-      <el-dialog
-        title="数据变更详情"
-        :visible.sync="dialogVisible"
-        width="68%"
+      <el-drawer
+        size="90%"
+        :with-header="false"
+        type="primary"
+        :visible.sync="drawerVisible"
+        direction="rtl"
+        :wrapper-closable="false"
       >
         <div>
-          <div style="margin-bottom: 15px;">
-            <el-alert
-              style="background: #F0F8FF; color: #63656E"
-              title="左侧为变更之前的数据，右侧为变更之后的数据。"
-              type="info"
-              show-icon
-            />
+          <div class="model-field-sideslider-header">
+            <div class="model-field-sideslider-closer" style="float: left;" @click="drawerVisible = false">
+              <i
+                class="el-icon-arrow-right"
+              />
+            </div>
+            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+              新建服务模版
+            </div>
+            <div style="padding: 23px 20px 20px 20px;">
+              <div style="margin-bottom: 15px;">
+                <el-alert
+                  style="background: #F0F8FF; color: #63656E"
+                  title="左侧为变更之前的数据，右侧为变更之后的数据。"
+                  type="info"
+                  show-icon
+                />
+              </div>
+              <div v-if="dataLoading" style="height: 200px; line-height: 200px; text-align: center;">
+                <i class="el-icon-loading" style="font-size: 35px;" />
+              </div>
+              <code-diff v-else :old-string="oldData" :new-string="newData" :output-format="'side-by-side'" :context="10" />
+            </div>
           </div>
-          <code-diff :old-string="oldData" :new-string="newData" :output-format="'side-by-side'" :context="10" />
         </div>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-        </span>
-      </el-dialog>
+      </el-drawer>
     </template>
   </BasicLayout>
 </template>
@@ -129,7 +143,8 @@ export default {
   },
   data() {
     return {
-      dialogVisible: false,
+      dataLoading: true,
+      drawerVisible: false,
       oldData: '',
       newData: '',
       loading: false,
@@ -187,10 +202,12 @@ export default {
       })
     },
     getComparedData(row, column, event) {
+      this.dataLoading = true
+      this.drawerVisible = true
       getAuditDetails(row.id).then(res => {
         this.oldData = JSON.stringify(res.data.old_data, null, '  ')
         this.newData = JSON.stringify(res.data.new_data, null, '  ')
-        this.dialogVisible = true
+        this.dataLoading = false
       })
     }
   }
@@ -198,19 +215,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .create-template-title {
-    color: #63656e;
+  .model-field-sideslider-header {
+    width: 100%;
+    height: 60px;
+    background: rgb(255, 255, 255);
+  }
+
+  .model-field-sideslider-closer {
+    width: 30px;
+    height: 60px;
+    line-height: 60px;
+    background-color: rgb(58, 132, 255);
+    text-align: center;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    font-size: 24px;
+  }
+
+  .model-field-sideslider-title {
+    height: 60px;
+    line-height: 60px;
     font-size: 16px;
-    padding-bottom: 10px;
     font-weight: 700;
-  }
-
-  /deep/ .create-process-dialog .el-form-item__label {
-    padding: 0;
-    line-height: 25px;
-  }
-
-  /deep/ .create-process-dialog .el-form-item {
-    margin-bottom: 10px;
+    color: rgb(102, 102, 102);
+    border-bottom: 1px solid rgb(220, 222, 229);
   }
 </style>
