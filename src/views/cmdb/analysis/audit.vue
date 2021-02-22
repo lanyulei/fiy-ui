@@ -113,7 +113,7 @@
               <div style="margin-bottom: 15px;">
                 <el-alert
                   style="background: #F0F8FF; color: #63656E"
-                  title="左侧为变更之前的数据，右侧为变更之后的数据。"
+                  title="当展示方式为左右的时候，则左侧为变更之前的数据，右侧为变更之后的数据。"
                   type="info"
                   show-icon
                 />
