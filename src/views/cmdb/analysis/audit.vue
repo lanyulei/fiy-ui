@@ -107,7 +107,7 @@
               />
             </div>
             <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
-              新建服务模版
+              变更详情
             </div>
             <div style="padding: 23px 20px 20px 20px;">
               <div style="margin-bottom: 15px;">
@@ -121,7 +121,13 @@
               <div v-if="dataLoading" style="height: 200px; line-height: 200px; text-align: center;">
                 <i class="el-icon-loading" style="font-size: 35px;" />
               </div>
-              <code-diff v-else :old-string="oldData" :new-string="newData" :output-format="'side-by-side'" :context="10" />
+              <div v-else>
+                <el-radio-group v-model="outputFormat" size="mini" style="margin-bottom: 12px;">
+                  <el-radio :label="'side-by-side'">左右对比</el-radio>
+                  <el-radio :label="'line-by-line'">上下对比</el-radio>
+                </el-radio-group>
+                <code-diff v-if="codeDiffLoading" :old-string="oldData" :new-string="newData" :output-format="outputFormat" :context="10" />
+              </div>
             </div>
           </div>
         </div>
@@ -143,6 +149,8 @@ export default {
   },
   data() {
     return {
+      outputFormat: 'side-by-side',
+      codeDiffLoading: true,
       dataLoading: true,
       drawerVisible: false,
       oldData: '',
