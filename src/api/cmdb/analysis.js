@@ -17,3 +17,11 @@ export function getAuditDetails(id) {
     id
   })
 }
+
+// 运营统计
+export function getOperation() {
+  return request({
+    url: `/api/v1/cmdb/analysis/operation`,
+    method: 'get'
+  })
+}

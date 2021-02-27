@@ -2,16 +2,16 @@
   <div class="dashboard-editor-container">
     <el-row :gutter="12">
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
-        <chart-card title="业务总数" icon="el-icon-s-cooperation" :total="300" />
+        <chart-card title="业务总数" icon="el-icon-s-cooperation" :total="operationData.biz_count" />
       </el-col>
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
-        <chart-card title="自定义模型总数" icon="el-icon-s-platform" :total="88" />
+        <chart-card title="自定义模型总数" icon="el-icon-s-platform" :total="operationData.model_count" />
       </el-col>
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
-        <chart-card title="集群模板总数" icon="el-icon-s-order" :total="65" />
+        <chart-card title="集群模板总数" icon="el-icon-s-order" :total="operationData.cluster_tpl_count" />
       </el-col>
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
-        <chart-card title="服务模板总数" icon="el-icon-s-grid" :total="78" />
+        <chart-card title="服务模板总数" icon="el-icon-s-grid" :total="operationData.svc_tpl_count" />
       </el-col>
     </el-row>
 
@@ -48,6 +48,8 @@ import ChartCard from './components/ChartCard'
 import RankList from './components/RankList/index'
 import Bar from './components/Bar.vue'
 
+import { getOperation } from '@/api/cmdb/analysis'
+
 const rankList = []
 for (let i = 0; i < 7; i++) {
   rankList.push({
@@ -65,6 +67,7 @@ export default {
   },
   data() {
     return {
+      operationData: {},
       barData: [{
         type: '主机',
         value: 560,
@@ -80,12 +83,20 @@ export default {
       }, {
         type: '模型',
         value: 88,
-        percent: 0.24
+        percent: 0.2
       }],
       rankList
     }
   },
+  created() {
+    this.getData()
+  },
   methods: {
+    getData() {
+      getOperation().then(res => {
+        this.operationData = res.data
+      })
+    }
   }
 }
 </script>
