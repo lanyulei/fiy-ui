@@ -80,7 +80,7 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="configList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" border :data="configList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="参数主键" width="80" align="center" prop="ID" />
           <el-table-column label="参数名称" align="center" prop="configName" :show-overflow-tooltip="true" />

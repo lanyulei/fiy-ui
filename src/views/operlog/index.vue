@@ -73,7 +73,7 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" border :data="list" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="日志编号" width="80" align="center" prop="ID" />
           <el-table-column label="系统模块" align="center" prop="title" :show-overflow-tooltip="true" />

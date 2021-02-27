@@ -1,10 +1,9 @@
 <template>
   <BasicLayout>
     <template #wrapper>
-      <el-card class="box-card">
-        <el-row :gutter="20">
-          <!--部门数据-->
-          <el-col :span="4" :xs="24">
+      <el-row>
+        <el-col :span="5" style="padding-right:10px;">
+          <el-card class="box-card">
             <div class="head-container">
               <el-input
                 v-model="deptName"
@@ -26,9 +25,10 @@
                 @node-click="handleNodeClick"
               />
             </div>
-          </el-col>
-          <!--用户数据-->
-          <el-col :span="20" :xs="24">
+          </el-card>
+        </el-col>
+        <el-col :span="19">
+          <el-card class="box-card">
             <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
               <el-form-item label="用户名称" prop="username">
                 <el-input
@@ -107,6 +107,7 @@
             <el-table
               v-loading="loading"
               :data="userList"
+              border
               @selection-change="handleSelectionChange"
             >
               <el-table-column type="selection" width="45" align="center" />
@@ -170,9 +171,10 @@
               :limit.sync="queryParams.pageSize"
               @pagination="getList"
             />
-          </el-col>
-        </el-row>
-      </el-card>
+          </el-card>
+        </el-col>
+      </el-row>
+
       <!-- 添加或修改参数配置对话框 -->
       <el-dialog :title="title" :visible.sync="open" width="600px">
         <el-form ref="form" :model="form" :rules="rules" label-width="80px">

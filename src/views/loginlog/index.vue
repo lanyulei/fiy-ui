@@ -55,7 +55,7 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="sysloginlogList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" border :data="sysloginlogList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column
             label="用户名"

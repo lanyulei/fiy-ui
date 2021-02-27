@@ -38,6 +38,7 @@
           v-loading="loading"
           :data="menuList"
           row-key="menuId"
+          border
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
         >
           <el-table-column prop="title" label="菜单名称" :show-overflow-tooltip="true" width="180px" />
