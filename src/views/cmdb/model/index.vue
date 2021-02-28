@@ -34,7 +34,7 @@
         </div>
         <!-- 模型列表 -->
         <div>
-          <div v-for="group of groupModelList" :key="group.id" style="margin-top: 23px;">
+          <div v-for="group of groupModelList.models" :key="group.id" style="margin-top: 23px;">
             <!-- 模型分组名称 -->
             <div style="font-size: 16px;">
               <span class="group-title-before" />
@@ -118,7 +118,7 @@
           <el-form-item label="所属分组" prop="group_id">
             <el-select v-model="modelRuleForm.group_id" placeholder="请选择所属分组" style="width: 100%">
               <el-option
-                v-for="group of groupModelList"
+                v-for="group of groupModelList.models"
                 :key="group.id"
                 :label="group.name"
                 :value="group.id"

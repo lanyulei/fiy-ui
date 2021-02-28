@@ -57,7 +57,7 @@
         <el-form-item label="目标模型" prop="target">
           <el-select v-model="ruleForm.target" placeholder="请选择目标模型" size="small" style="width: 100%">
             <el-option-group
-              v-for="group in groupModelList"
+              v-for="group in groupModelList.models"
               :key="group.id"
               :label="group.name"
             >

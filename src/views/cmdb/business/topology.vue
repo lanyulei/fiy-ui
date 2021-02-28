@@ -4,6 +4,14 @@
       <el-row>
         <el-col :span="5">
           <el-card class="box-card">
+            <div style="margin-bottom: 10px;">
+              <el-alert
+                style="background: #F0F8FF; color: #63656E"
+                title="选中节点，单击鼠标右键管理节点。"
+                type="info"
+                show-icon
+              />
+            </div>
             <el-input
               v-model="filterText"
               suffix-icon="el-icon-search"
@@ -17,6 +25,7 @@
               default-expand-all
               :expand-on-click-node="false"
               @node-click="handleNodeClick"
+              @node-contextmenu="handleContextmenu"
             >
               <span slot-scope="{ node }" v-contextmenu:contextmenu class="custom-tree-node">
                 <i v-if="node.level === 1" class="fiy-node-icon">业</i>
@@ -27,9 +36,8 @@
             </el-tree>
             <template>
               <v-contextmenu ref="contextmenu">
-                <v-contextmenu-item @click="handleClick">新增节点</v-contextmenu-item>
-                <v-contextmenu-item @click="handleClick">修改节点</v-contextmenu-item>
-                <v-contextmenu-item @click="handleClick">删除节点</v-contextmenu-item>
+                <v-contextmenu-item @click="addNode"><i class="el-icon-plus" /> 新增</v-contextmenu-item>
+                <v-contextmenu-item @click="delNode"><i class="el-icon-delete" /> 删除</v-contextmenu-item>
               </v-contextmenu>
             </template>
           </el-card>
@@ -51,7 +59,7 @@
                     @change="getFieldsData"
                   >
                     <el-option-group
-                      v-for="(groupItem, groupIndex) in groupModelList"
+                      v-for="(groupItem, groupIndex) in groupModelList.models"
                       :key="groupIndex"
                       :label="groupItem.name"
                     >
@@ -125,6 +133,39 @@
           </el-tabs>
         </el-col>
       </el-row>
+
+      <el-dialog
+        title="添加子节点"
+        :visible.sync="dialogVisible"
+        width="30%"
+      >
+        <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
+          <el-form-item label="新建方式：" prop="name">
+            <el-radio-group v-model="ruleForm.type" size="small">
+              <el-radio :label="1">从模版新建</el-radio>
+              <el-radio :label="2">直接新建</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="集群模版：" prop="name">
+            <el-select v-model="ruleForm.cluster_tpl" placeholder="请选择" size="small" style="width:100%">
+              <el-option
+                v-for="item in clusterTplOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="集群名称：" prop="name">
+            <el-input v-model="ruleForm.cluster_name" placeholder="请输入内容" size="small" />
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+        </span>
+      </el-dialog>
+
     </template>
   </BasicLayout>
 </template>
@@ -150,7 +191,10 @@ export default {
   },
   data() {
     return {
+      dialogVisible: false,
       currentNodeInfo: null,
+      currentNode: null,
+      currentLevel: 0,
       currentFields: {},
       currentModel: 0,
       groupModelList: [],
@@ -164,7 +208,12 @@ export default {
       queryParams: {
         page: 1,
         per_page: 10
-      }
+      },
+      ruleForm: {},
+      rules: {},
+      clusterTplOptions: [
+        { label: '测试集群模版', value: 'test' }
+      ]
     }
   },
   created() {
@@ -201,7 +250,7 @@ export default {
         isUsable: 1
       }).then(res => {
         this.groupModelList = res.data
-        for (var group of this.groupModelList) {
+        for (var group of this.groupModelList.models) {
           for (var model of group.model_list) {
             if (model.identifies === 'built_in_host') {
               this.currentModel = model.id
@@ -211,9 +260,6 @@ export default {
 
         this.getFieldsData()
       })
-    },
-    handleClick(vm, event) {
-      alert(`「${vm.$slots.default[0].text}」被点击啦！`)
     },
     getTree() {
       getBusinessTree().then(res => {
@@ -226,6 +272,27 @@ export default {
         dataDetails(data.id).then(res => {
           this.currentNodeInfo = res.data.data
         })
+      })
+    },
+    handleContextmenu(event, data, node, vm) {
+      this.currentNode = data
+      this.currentLevel = node.level
+    },
+    addNode() {
+      this.dialogVisible = true
+      console.log(this.currentNode, this.currentLevel)
+    },
+    delNode() {
+
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          alert('submit!')
+        } else {
+          console.log('error submit!!')
+          return false
+        }
       })
     }
   }

@@ -2,7 +2,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-row>
-        <el-col v-for="(item, index) in groupModelList" :key="index" :span="6">
+        <el-col v-for="(item, index) in groupModelList.models" :key="index" :span="6">
           <div
             :style="(index + 1) % 4 === 0 ? {} : {'margin-right': '10px'}"
             style="margin-bottom: 10px"
@@ -26,7 +26,7 @@
                     />
                     {{ modelItem.name }}
                   </span>
-                  <span class="model-instance-count" style="float: right;">0</span>
+                  <span class="model-instance-count" style="float: right;">{{ groupModelList.model_resource_count[modelItem.identifies] }}</span>
                 </div>
               </div>
             </el-card>

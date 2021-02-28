@@ -145,7 +145,7 @@
                 filterable
               >
                 <el-option-group
-                  v-for="group in groupModelList"
+                  v-for="group in groupModelList.models"
                   :key="group.id"
                   :label="group.name"
                 >
