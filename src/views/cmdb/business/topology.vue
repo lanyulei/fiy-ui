@@ -139,9 +139,30 @@
         :visible.sync="dialogVisible"
         width="30%"
       >
-        <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
+        <el-form v-if="currentLevel === 1" ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px">
+          <el-form-item label="新建方式：">
+            <el-radio-group v-model="ruleForm.type" size="small" @change="changeCreateClassify">
+              <el-radio :label="1">从模版新建</el-radio>
+              <el-radio :label="2">直接新建</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="ruleForm.type===1" label="集群模版：" prop="cluster_tpl">
+            <el-select v-model="ruleForm.cluster_tpl" placeholder="请选择" size="small" style="width:100%">
+              <el-option
+                v-for="item in clusterTemplates"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="集群名称：" prop="cluster_name">
+            <el-input v-model="ruleForm.cluster_name" placeholder="请输入内容" size="small" />
+          </el-form-item>
+        </el-form>
+        <el-form v-if="currentLevel === 2" ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
           <el-form-item label="新建方式：" prop="name">
-            <el-radio-group v-model="ruleForm.type" size="small">
+            <el-radio-group v-model="ruleForm.type" size="small" @change="changeCreateClassify">
               <el-radio :label="1">从模版新建</el-radio>
               <el-radio :label="2">直接新建</el-radio>
             </el-radio-group>
@@ -149,10 +170,10 @@
           <el-form-item label="集群模版：" prop="name">
             <el-select v-model="ruleForm.cluster_tpl" placeholder="请选择" size="small" style="width:100%">
               <el-option
-                v-for="item in clusterTplOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in clusterTemplates"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
               />
             </el-select>
           </el-form-item>
@@ -183,6 +204,10 @@ import {
 } from '@/api/cmdb/resource'
 
 import {
+  clusterTplList
+} from '@/api/cmdb/business'
+
+import {
   getBusinessTree
 } from '@/api/cmdb/business'
 export default {
@@ -191,6 +216,7 @@ export default {
   },
   data() {
     return {
+      clusterTemplates: [],
       dialogVisible: false,
       currentNodeInfo: null,
       currentNode: null,
@@ -210,10 +236,14 @@ export default {
         per_page: 10
       },
       ruleForm: {},
-      rules: {},
-      clusterTplOptions: [
-        { label: '测试集群模版', value: 'test' }
-      ]
+      rules: {
+        cluster_name: [
+          { required: true, message: '请输入集群名称', trigger: 'blur' }
+        ],
+        cluster_tpl: [
+          { required: true, message: '请选择集群模版', trigger: 'change' }
+        ]
+      }
     }
   },
   created() {
@@ -236,6 +266,13 @@ export default {
         this.loading = false
       })
     },
+    getClusterTemplates() {
+      clusterTplList({
+        per_page: 99999
+      }).then(res => {
+        this.clusterTemplates = res.data.list
+      })
+    },
     getFieldsData() {
       modelDetails(this.currentModel).then(res => {
         this.fields = res.data
@@ -244,6 +281,11 @@ export default {
         this.fieldList = res.data
         this.getList()
       })
+    },
+    changeCreateClassify() {
+      if (this.currentLevel === 1) {
+        this.ruleForm.cluster_tpl = null
+      }
     },
     getModelList() {
       modelList({
@@ -277,10 +319,16 @@ export default {
     handleContextmenu(event, data, node, vm) {
       this.currentNode = data
       this.currentLevel = node.level
+      if (node.level === 1) {
+        this.ruleForm = {
+          type: 1
+        }
+      }
+
+      this.getClusterTemplates()
     },
     addNode() {
       this.dialogVisible = true
-      console.log(this.currentNode, this.currentLevel)
     },
     delNode() {
 
