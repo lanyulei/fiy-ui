@@ -239,4 +239,3 @@ export function relatedInfo() {
     method: 'get'
   })
 }
-

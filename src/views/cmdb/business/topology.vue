@@ -36,8 +36,8 @@
             </el-tree>
             <template>
               <v-contextmenu ref="contextmenu">
-                <v-contextmenu-item @click="addNode"><i class="el-icon-plus" /> 新增</v-contextmenu-item>
-                <v-contextmenu-item @click="delNode"><i class="el-icon-delete" /> 删除</v-contextmenu-item>
+                <v-contextmenu-item @click="addNodeHandler"><i class="el-icon-plus" /> 新增</v-contextmenu-item>
+                <v-contextmenu-item @click="delNodeHandler"><i class="el-icon-delete" /> 删除</v-contextmenu-item>
               </v-contextmenu>
             </template>
           </el-card>
@@ -139,46 +139,25 @@
         :visible.sync="dialogVisible"
         width="30%"
       >
-        <el-form v-if="currentLevel === 1" ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px">
+        <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px">
           <el-form-item label="新建方式：">
-            <el-radio-group v-model="ruleForm.type" size="small" @change="changeCreateClassify">
-              <el-radio :label="1">从模版新建</el-radio>
+            <el-radio-group v-model="createClassifyStatus" size="small" @change="changeCreateClassify">
+              <el-radio :label="1">从模板新建</el-radio>
               <el-radio :label="2">直接新建</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item v-if="ruleForm.type===1" label="集群模版：" prop="cluster_tpl">
-            <el-select v-model="ruleForm.cluster_tpl" placeholder="请选择" size="small" style="width:100%">
+          <el-form-item v-if="createClassifyStatus===1" label="模板：" prop="template">
+            <el-select v-model="ruleForm.template" placeholder="请选择" size="small" style="width:100%">
               <el-option
-                v-for="item in clusterTemplates"
+                v-for="item in templates"
                 :key="item.id"
                 :label="item.name"
                 :value="item.id"
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="集群名称：" prop="cluster_name">
-            <el-input v-model="ruleForm.cluster_name" placeholder="请输入内容" size="small" />
-          </el-form-item>
-        </el-form>
-        <el-form v-if="currentLevel === 2" ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
-          <el-form-item label="新建方式：" prop="name">
-            <el-radio-group v-model="ruleForm.type" size="small" @change="changeCreateClassify">
-              <el-radio :label="1">从模版新建</el-radio>
-              <el-radio :label="2">直接新建</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="集群模版：" prop="name">
-            <el-select v-model="ruleForm.cluster_tpl" placeholder="请选择" size="small" style="width:100%">
-              <el-option
-                v-for="item in clusterTemplates"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="集群名称：" prop="name">
-            <el-input v-model="ruleForm.cluster_name" placeholder="请输入内容" size="small" />
+          <el-form-item label="名称：" prop="name">
+            <el-input v-model="ruleForm.name" placeholder="请输入内容" size="small" />
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -204,19 +183,21 @@ import {
 } from '@/api/cmdb/resource'
 
 import {
-  clusterTplList
+  clusterTplList,
+  getBusinessTree,
+  addNode,
+  svcTplList
 } from '@/api/cmdb/business'
 
-import {
-  getBusinessTree
-} from '@/api/cmdb/business'
 export default {
   components: {
 
   },
   data() {
     return {
-      clusterTemplates: [],
+      createClassifyStatus: 1,
+      clusterTpl: {},
+      templates: [],
       dialogVisible: false,
       currentNodeInfo: null,
       currentNode: null,
@@ -237,11 +218,11 @@ export default {
       },
       ruleForm: {},
       rules: {
-        cluster_name: [
-          { required: true, message: '请输入集群名称', trigger: 'blur' }
+        name: [
+          { required: true, message: `名称必填`, trigger: 'blur' }
         ],
-        cluster_tpl: [
-          { required: true, message: '请选择集群模版', trigger: 'change' }
+        template: [
+          { required: true, message: `模板必选`, trigger: 'change' }
         ]
       }
     }
@@ -270,7 +251,14 @@ export default {
       clusterTplList({
         per_page: 99999
       }).then(res => {
-        this.clusterTemplates = res.data.list
+        this.templates = res.data.list
+      })
+    },
+    getSvcTemplates() {
+      svcTplList({
+        per_page: 99999
+      }).then(res => {
+        this.templates = res.data.list
       })
     },
     getFieldsData() {
@@ -283,8 +271,8 @@ export default {
       })
     },
     changeCreateClassify() {
-      if (this.currentLevel === 1) {
-        this.ruleForm.cluster_tpl = null
+      if (this.createClassifyStatus === 2) {
+        this.ruleForm.template = null
       }
     },
     getModelList() {
@@ -317,29 +305,49 @@ export default {
       })
     },
     handleContextmenu(event, data, node, vm) {
+      this.templates = []
       this.currentNode = data
       this.currentLevel = node.level
-      if (node.level === 1) {
-        this.ruleForm = {
-          type: 1
-        }
+      this.ruleForm = {
+        source: data.id
       }
-
-      this.getClusterTemplates()
+      if (node.level === 1) {
+        this.getClusterTemplates()
+        this.ruleForm.classify = 1
+      } else if (node.level === 2) {
+        this.getSvcTemplates()
+        this.ruleForm.classify = 2
+      }
     },
-    addNode() {
-      this.dialogVisible = true
+    addNodeHandler() {
+      if (this.currentLevel === 3) {
+        this.$message({
+          type: 'error',
+          message: '当前层级节点无法执行此操作'
+        })
+      } else {
+        this.createClassifyStatus = 1
+        this.dialogVisible = true
+      }
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
     },
-    delNode() {
+    delNodeHandler() {
 
     },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
-        } else {
-          console.log('error submit!!')
-          return false
+          console.log(this.ruleForm)
+          addNode(this.ruleForm).then(res => {
+            this.getTree()
+            this.$message({
+              type: 'success',
+              message: '添加成功'
+            })
+            this.dialogVisible = false
+          })
         }
       })
     }

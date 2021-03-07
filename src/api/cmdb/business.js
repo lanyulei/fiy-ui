@@ -145,3 +145,12 @@ export function getBusinessTree() {
     method: 'get'
   })
 }
+
+// 新建节点
+export function addNode(data) {
+  return request({
+    url: `/api/v1/cmdb/business/add-business-node`,
+    method: 'post',
+    data
+  })
+}
