@@ -9,12 +9,20 @@
         <div>
           <el-row>
             <el-button size="mini" type="primary" @click="createDataInfo">新建</el-button>
+            <el-button size="mini" type="primary" style="margin-left: 5px;" @click="distribution">资源分配</el-button>
+            <el-select v-model="queryParams.status" size="mini" style="margin-left: 5px;" placeholder="请选择" @change="getList">
+              <el-option label="无状态" :value="0" />
+              <el-option label="空闲" :value="1" />
+              <el-option label="故障" :value="2" />
+              <el-option label="待回收" :value="3" />
+              <el-option label="正在使用" :value="4" />
+            </el-select>
             <el-input
               v-model="queryParams.value"
               size="mini"
               placeholder="请输入内容"
               class="input-with-select"
-              style="width: 500px; margin-left: 10px"
+              style="width: 500px; margin-left: 5px;"
               @keyup.enter.native="getList"
             >
               <el-select slot="prepend" v-model="queryParams.identifies" placeholder="请选择" style="width: 95px">
@@ -26,7 +34,11 @@
         </div>
         <!-- 模型列表 -->
         <div style="margin-top: 15px;">
-          <el-table v-loading="loading" :data="list" border>
+          <el-table v-loading="loading" :data="list" border @selection-change="handleSelectionChange">
+            <el-table-column
+              type="selection"
+              width="55"
+            />
             <template v-for="field of fieldList">
               <el-table-column
                 v-if="field.is_list_display"
@@ -70,6 +82,7 @@
         </div>
       </el-card>
 
+      <!-- 新建资源数据 -->
       <el-drawer
         size="60%"
         :with-header="false"
@@ -102,6 +115,26 @@
           </div>
         </div>
       </el-drawer>
+
+      <!-- 为资源分配业务模块 -->
+      <el-dialog
+        title="资源分配"
+        :visible.sync="distributionDialog"
+        width="30%"
+      >
+        <el-tree
+          :data="treeData"
+        >
+          <span slot-scope="{ node, data }" class="custom-tree-node">
+            <span v-if="node.level === 3"><el-checkbox v-model="bindDataModels[data.id]" @change="selectModels(data.info_id)" /></span>
+            <span>{{ node.data.data.built_in_field_name }}</span>
+          </span>
+        </el-tree>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="distributionDialog = false">取 消</el-button>
+          <el-button type="primary" @click="bindSubmit">确 定</el-button>
+        </span>
+      </el-dialog>
     </template>
   </BasicLayout>
 </template>
@@ -114,8 +147,13 @@ import {
 
 import {
   getDataList,
-  deleteData
+  deleteData,
+  bindDataRelated
 } from '@/api/cmdb/resource'
+
+import {
+  getBusinessTree
+} from '@/api/cmdb/business'
 
 import renderModel from '@/views/cmdb/model/components/render-model'
 export default {
@@ -124,6 +162,7 @@ export default {
   },
   data() {
     return {
+      distributionDialog: false,
       submitStatus: 'create',
       renderModelStatus: false,
       bizDialog: false,
@@ -137,7 +176,19 @@ export default {
         per_page: 10
       },
       createOrUpdateTitle: '新建业务',
-      fieldData: {}
+      fieldData: {},
+      treeData: [],
+      bindData: {
+        asset: {
+          model: 0,
+          list: []
+        },
+        models: {
+          model: 0,
+          list: []
+        }
+      },
+      bindDataModels: {}
     }
   },
   created() {
@@ -158,6 +209,20 @@ export default {
         }
         this.total = response.data.total_count
         this.loading = false
+      })
+    },
+    distribution() {
+      // 1. 判断有没有选中资产
+      if (this.bindData.asset.list.length > 0) {
+        this.getTree()
+        this.distributionDialog = true
+      } else {
+        this.$message.info('请选择资产，然后进行分配')
+      }
+    },
+    getTree() {
+      getBusinessTree().then(res => {
+        this.treeData = res.data
       })
     },
     getModelDetails() {
@@ -211,13 +276,39 @@ export default {
       })
     },
     getDataDetails(id, info_id) {
-      this.$router.push({ name: 'ResourceDetails', params: { 'id': id }, query: { 'fieldId': info_id }})
+      this.$router.push({ name: 'resourceDetails', params: { 'id': id }, query: { 'fieldId': info_id }})
+    },
+    handleSelectionChange(val) {
+      if (val.length > 0) {
+        for (var v of val) {
+          this.bindData.asset.list.push(v.id)
+        }
+        this.bindData.asset.model = val[0].info_id
+      }
+    },
+    selectModels(infoId) {
+      this.bindData.models.model = infoId
+      for (var k in this.bindDataModels) {
+        var i = this.bindData.models.list.indexOf(parseInt(k))
+        if (this.bindDataModels[k] && i === -1) {
+          this.bindData.models.list.push(parseInt(k))
+        } else if (!this.bindDataModels[k] && i !== -1) {
+          this.bindData.models.list.splice(i, 1)
+        }
+      }
+    },
+    bindSubmit() {
+      if (this.bindData.models.list.length > 0 && this.bindData.asset.list.length > 0) {
+        bindDataRelated(this.bindData).then(res => {
+          this.distributionDialog = false
+        })
+      }
     }
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .model-info-div {
     display: inline-block;
     height: 45px;

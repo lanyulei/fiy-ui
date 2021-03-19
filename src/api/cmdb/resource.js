@@ -103,3 +103,22 @@ export function deleteCloudDiscovery(id) {
     method: 'delete'
   })
 }
+
+// 添加节点关联数据
+export function bindDataRelated(data) {
+  return request({
+    url: `/api/v1/cmdb/resource/data-related`,
+    method: 'post',
+    data
+  })
+}
+
+// 查询节点关联的数据
+export function getNodeModelData(params) {
+  return request({
+    url: `/api/v1/cmdb/resource/node-model-data`,
+    method: 'get',
+    params
+  })
+}
+
