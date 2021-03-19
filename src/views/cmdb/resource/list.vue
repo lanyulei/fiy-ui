@@ -126,8 +126,10 @@
           :data="treeData"
         >
           <span slot-scope="{ node, data }" class="custom-tree-node">
-            <span v-if="node.level === 3"><el-checkbox v-model="bindDataModels[data.id]" @change="selectModels(data.info_id)" /></span>
-            <span>{{ node.data.data.built_in_field_name }}</span>
+            <span v-if="node.level === 3">
+              <el-checkbox v-model="bindDataModels[data.id]" @change="selectModels(data.info_id)" />
+            </span>
+            <span style="margin-left: 5px;">{{ node.data.data.built_in_field_name }}</span>
           </span>
         </el-tree>
         <span slot="footer" class="dialog-footer">
