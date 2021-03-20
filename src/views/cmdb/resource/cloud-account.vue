@@ -45,14 +45,6 @@
               </template>
             </el-table-column>
             <el-table-column
-              label="状态"
-            >
-              <template slot-scope="scope">
-                <el-tag v-if="scope.row.status" type="success">可用</el-tag>
-                <el-tag v-else type="danger">暂停</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
               prop="modifier_name"
               label="修改人"
             />
@@ -90,7 +82,7 @@
           />
         </div>
 
-        <!-- 新建/编辑关联类型 -->
+        <!-- 新建/编辑 -->
         <el-dialog
           :title="dialogForm.title"
           :visible.sync="dialogForm.dialog"
@@ -122,10 +114,16 @@
             <el-form-item label="KeyId" prop="key">
               <el-input v-model="ruleForm.key" size="small" placeholder="请输入KeyId" />
             </el-form-item>
-            <el-form-item v-if="dialogForm.status === 'edit'" label="状态">
-              <el-switch
-                v-model="ruleForm.status"
+            <el-form-item label="区域" prop="region">
+              <el-select
+                v-model="ruleForm.region"
+                style="width: 100%"
                 size="small"
+                multiple
+                filterable
+                allow-create
+                default-first-option
+                placeholder="请输入区域"
               />
             </el-form-item>
             <el-form-item label="备注">
@@ -139,7 +137,6 @@
           </el-form>
           <span slot="footer" class="dialog-footer">
             <el-button @click="dialogForm.dialog = false">取 消</el-button>
-            <el-button @click="dialogForm.dialog = false">测试连通</el-button>
             <el-button type="primary" @click="submitForm">确 定</el-button>
           </span>
         </el-dialog>
@@ -153,7 +150,8 @@
 import {
   createCloudAccount,
   cloudAccountList,
-  deleteCloudAccount
+  deleteCloudAccount,
+  editCloudAccount
 } from '@/api/cmdb/resource'
 export default {
   components: {
@@ -177,7 +175,8 @@ export default {
         name: [{ required: true, message: '请输入账号名称', trigger: 'blur' }],
         type: [{ required: true, message: '请选择账户类型', trigger: 'change' }],
         secret: [{ required: true, message: '请输入AccessSecret', trigger: 'blur' }],
-        key: [{ required: true, message: '请输入AccessKeyId', trigger: 'blur' }]
+        key: [{ required: true, message: '请输入AccessKeyId', trigger: 'blur' }],
+        region: [{ required: true, message: '请输入区域', trigger: 'change' }]
       }
     }
   },
@@ -248,11 +247,19 @@ export default {
         if (valid) {
           // 新建云账号
           if (this.dialogForm.status === 'create') {
-            createCloudAccount(this.ruleForm).then(res => {
+            createCloudAccount(this.ruleForm).then(() => {
               this.getList()
               this.$message({
                 type: 'success',
                 message: '创建成功!'
+              })
+            })
+          } else if (this.dialogForm.status === 'edit') {
+            editCloudAccount(this.ruleForm.id, this.ruleForm).then(() => {
+              this.getList()
+              this.$message({
+                type: 'success',
+                message: '编辑成功!'
               })
             })
           }

@@ -52,6 +52,15 @@ export function createCloudAccount(data) {
   })
 }
 
+// 编辑云账户
+export function editCloudAccount(id, data) {
+  return request({
+    url: `/api/v1/cmdb/resource/cloud-account/${id}`,
+    method: 'put',
+    data
+  })
+}
+
 // 云账户列表
 export function cloudAccountList(params) {
   return request({

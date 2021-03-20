@@ -6,7 +6,7 @@
         <div style="margin-bottom: 15px;">
           <el-alert
             style="background: #F0F8FF; color: #63656E"
-            title="配置云主机任务，自动发现并同步新增或属性有变更的主机到主机池"
+            title="配置云主机任务，每十分钟自动发现并同步新增或属性有变更的主机到主机池"
             type="info"
             show-icon
           />
@@ -29,7 +29,7 @@
           </el-row>
         </div>
 
-        <!-- 云账户列表 -->
+        <!-- 任务同步列表失败 -->
         <div style="margin-top: 15px;">
           <el-table v-loading="loading" :data="list" border>
             <el-table-column
@@ -136,9 +136,9 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="资源模型" prop="resource_type">
+            <el-form-item label="资源模型" prop="resource_model">
               <el-select
-                v-model="ruleForm.resource_type"
+                v-model="ruleForm.resource_model"
                 size="small"
                 placeholder="请选择资源模型"
                 style="width: 100%"
@@ -158,34 +158,16 @@
                 </el-option-group>
               </el-select>
             </el-form-item>
+            <el-form-item label="资源类型" prop="resource_type">
+              <el-select v-model="ruleForm.resource_type" size="small" placeholder="请输入任务名称" disabled>
+                <el-option label="主机" :value="1" />
+              </el-select>
+            </el-form-item>
             <el-form-item v-if="dialogForm.status === 'edit'" label="状态">
               <el-switch
                 v-model="ruleForm.status"
                 size="small"
               />
-            </el-form-item>
-            <el-form-item label="字段映射" prop="field_map">
-              <div class="div-json-field-map">
-                <el-tooltip
-                  class="item"
-                  effect="dark"
-                  placement="top"
-                >
-                  <div slot="content">
-                    需按照指定格式，例如：[{"source": "Hostname", "target": "hostname"}]<br>
-                    source表示云厂商数据字段，target表示本系统模型字段
-                  </div>
-                  <vue-json-editor
-                    :key="ruleForm.id"
-                    v-model="ruleForm.field_map"
-                    :show-btns="false"
-                    :mode="'code'"
-                    lang="zh"
-                    @json-change="onJsonChange"
-                    @json-save="onJsonSave"
-                  />
-                </el-tooltip>
-              </div>
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
@@ -193,15 +175,12 @@
             <el-button type="primary" @click="submitForm">确 定</el-button>
           </span>
         </el-dialog>
-
       </el-card>
     </template>
   </BasicLayout>
 </template>
 
 <script>
-import vueJsonEditor from 'vue-json-editor'
-
 import {
   cloudAccountList,
   createCloudDiscovery,
@@ -216,7 +195,6 @@ import {
 
 export default {
   components: {
-    vueJsonEditor
   },
   data() {
     return {
@@ -238,7 +216,7 @@ export default {
       rules: {
         name: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
         cloud_account: [{ required: true, message: '请选择账号名称', trigger: 'change' }],
-        resource_type: [{ required: true, message: '请选择资源模型', trigger: 'change' }],
+        resource_model: [{ required: true, message: '请选择资源模型', trigger: 'change' }],
         field_map: [{ required: true, message: '请输入字段映射', trigger: 'blur' }]
       }
     }
