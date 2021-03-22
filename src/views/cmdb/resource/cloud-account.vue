@@ -37,11 +37,19 @@
               label="账户名称"
             />
             <el-table-column
-              prop="type"
               label="账户类型"
             >
               <template slot-scope="{row}">
                 {{ getAccountType(row.type) }}
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="账户类型"
+            >
+              <template slot-scope="{row}">
+                <el-tag v-if="row.status" size="small" type="success">可用</el-tag>
+                <el-tag v-else size="small" type="danger">停用</el-tag>
+
               </template>
             </el-table-column>
             <el-table-column
@@ -114,16 +122,10 @@
             <el-form-item label="KeyId" prop="key">
               <el-input v-model="ruleForm.key" size="small" placeholder="请输入KeyId" />
             </el-form-item>
-            <el-form-item label="区域" prop="region">
-              <el-select
-                v-model="ruleForm.region"
-                style="width: 100%"
+            <el-form-item v-if="dialogForm.status === 'edit'" label="状态">
+              <el-switch
+                v-model="ruleForm.status"
                 size="small"
-                multiple
-                filterable
-                allow-create
-                default-first-option
-                placeholder="请输入区域"
               />
             </el-form-item>
             <el-form-item label="备注">
@@ -175,8 +177,8 @@ export default {
         name: [{ required: true, message: '请输入账号名称', trigger: 'blur' }],
         type: [{ required: true, message: '请选择账户类型', trigger: 'change' }],
         secret: [{ required: true, message: '请输入AccessSecret', trigger: 'blur' }],
-        key: [{ required: true, message: '请输入AccessKeyId', trigger: 'blur' }],
-        region: [{ required: true, message: '请输入区域', trigger: 'change' }]
+        key: [{ required: true, message: '请输入AccessKeyId', trigger: 'blur' }]
+
       }
     }
   },
@@ -255,6 +257,7 @@ export default {
               })
             })
           } else if (this.dialogForm.status === 'edit') {
+            console.log(this.ruleForm)
             editCloudAccount(this.ruleForm.id, this.ruleForm).then(() => {
               this.getList()
               this.$message({

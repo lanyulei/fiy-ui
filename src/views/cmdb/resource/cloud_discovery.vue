@@ -6,7 +6,7 @@
         <div style="margin-bottom: 15px;">
           <el-alert
             style="background: #F0F8FF; color: #63656E"
-            title="配置云主机任务，每十分钟自动发现并同步新增或属性有变更的主机到主机池"
+            title="配置云主机任务，自动发现并同步新增或属性有变更的主机到主机池"
             type="info"
             show-icon
           />
@@ -38,18 +38,26 @@
             />
             <el-table-column
               prop="model_info_name"
-              label="资源"
+              label="绑定模型"
             />
             <el-table-column
               prop="cloud_account_name"
               label="账户名称"
             />
             <el-table-column
-              prop="cloud_account_type"
               label="账户类型"
             >
               <template slot-scope="{row}">
                 {{ getAccountType(row.cloud_account_type) }}
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="云资源类型"
+            >
+              <template slot-scope="{row}">
+                <span v-if="row.resource_type === 1">
+                  云服务器
+                </span>
               </template>
             </el-table-column>
             <el-table-column
@@ -74,8 +82,8 @@
               label="状态"
             >
               <template slot-scope="scope">
-                <el-tag v-if="scope.row.status" type="success">可用</el-tag>
-                <el-tag v-else type="danger">暂停</el-tag>
+                <el-tag v-if="scope.row.status" size="small" type="success">可用</el-tag>
+                <el-tag v-else type="danger" size="small">暂停</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="150px;">
@@ -159,9 +167,27 @@
               </el-select>
             </el-form-item>
             <el-form-item label="资源类型" prop="resource_type">
-              <el-select v-model="ruleForm.resource_type" size="small" placeholder="请输入任务名称" disabled>
-                <el-option label="主机" :value="1" />
+              <el-select
+                v-model="ruleForm.resource_type"
+                size="small"
+                placeholder="请输入任务名称"
+                disabled
+                style="width: 100%"
+              >
+                <el-option label="云服务器" :value="1" />
               </el-select>
+            </el-form-item>
+            <el-form-item label="区域" prop="region">
+              <el-select
+                v-model="ruleForm.region"
+                style="width: 100%"
+                size="small"
+                multiple
+                filterable
+                allow-create
+                default-first-option
+                placeholder="请输入区域"
+              />
             </el-form-item>
             <el-form-item v-if="dialogForm.status === 'edit'" label="状态">
               <el-switch
@@ -217,7 +243,8 @@ export default {
         name: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
         cloud_account: [{ required: true, message: '请选择账号名称', trigger: 'change' }],
         resource_model: [{ required: true, message: '请选择资源模型', trigger: 'change' }],
-        field_map: [{ required: true, message: '请输入字段映射', trigger: 'blur' }]
+        field_map: [{ required: true, message: '请输入字段映射', trigger: 'blur' }],
+        region: [{ required: true, message: '请输入区域', trigger: 'change' }]
       }
     }
   },
