@@ -61,9 +61,13 @@
               </template>
             </el-table-column>
             <el-table-column
-              prop="last_sync_status"
               label="最近同步状态"
-            />
+            >
+              <template v-if="row.last_sync_time.Valid" slot-scope="{row}">
+                <el-tag v-if="row.status" size="small" type="success">成功</el-tag>
+                <el-tag v-else type="danger" size="small">失败</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column
               prop="last_sync_time"
               label="最近同步时间"
