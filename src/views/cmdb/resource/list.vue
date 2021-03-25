@@ -200,12 +200,13 @@ export default {
   methods: {
     getList() {
       this.loading = true
-      getDataList(this.$route.params.classify, this.queryParams).then(response => {
+      getDataList(this.$route.query.classify, this.queryParams).then(response => {
         this.list = []
         if (response.data.total_count > 0) {
           for (var l of response.data.list) {
             l.data.id = l.id
             l.data.info_id = l.info_id
+            l.data.uuid = l.uuid
             this.list.push(l.data)
           }
         }
@@ -228,14 +229,14 @@ export default {
       })
     },
     getModelDetails() {
-      modelFields(this.$route.params.classify).then(res => {
+      modelFields(this.$route.query.classify).then(res => {
         this.fieldList = res.data
         this.renderModelStatus = true
         this.getList()
       })
     },
     getModelDetailsForm() {
-      modelDetails(this.$route.params.classify).then(res => {
+      modelDetails(this.$route.query.classify).then(res => {
         this.fields = res.data
       })
     },

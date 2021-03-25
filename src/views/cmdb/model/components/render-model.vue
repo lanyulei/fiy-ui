@@ -110,12 +110,12 @@
 </template>
 
 <script>
-import { listUser } from '@/api/system/sysuser'
+import { fetchList } from '@/api/user'
 import {
   createData,
   editData
-} from '@/api/cmdb/resource'
-// import { treeselect } from '@/api/system/dept'
+} from '@/api/universe/resource'
+  // import { treeselect } from '@/api/system/dept'
 export default {
   // eslint-disable-next-line vue/require-prop-types
   props: {
@@ -158,8 +158,8 @@ export default {
                 { required: true, message: `请输入${field.name}`, trigger: 'blur' }
               ]
               if (field.configuration.regular !== undefined &&
-              field.configuration.regular !== null &&
-              field.configuration.regular !== '') {
+                  field.configuration.regular !== null &&
+                  field.configuration.regular !== '') {
                 this.rules[field.identifies].push(
                   { pattern: field.configuration.regular, message: '数据校验失败', trigger: 'blur' }
                 )
@@ -179,10 +179,11 @@ export default {
       this.formStatus = true
     },
     getUserList() {
-      listUser({
-        pageIndex: 1,
-        pageSize: 999999
+      fetchList({
+        page: 1,
+        limit: 999999
       }).then(response => {
+        console.log(response.data)
         this.userList = response.data.list
       })
     },
@@ -192,7 +193,7 @@ export default {
           if (this.isSubmit !== '') {
             if (this.isSubmit === 'create') {
               createData({
-                info_id: parseInt(this.$route.params.classify),
+                info_id: parseInt(this.$route.query.classify),
                 data: this.fieldData
               }).then(res => {
                 this.closeDialog()
@@ -203,13 +204,14 @@ export default {
                 })
               })
             } else if (this.isSubmit === 'edit') {
-              var dataId = this.fieldData.id
-              var infoId = this.fieldData.info_id
-              delete this.fieldData.id
-              delete this.fieldData.info_id
-              editData(dataId, {
-                info_id: infoId,
-                data: this.fieldData
+              var fieldDataValue = JSON.parse(JSON.stringify(this.fieldData))
+              delete fieldDataValue.id
+              delete fieldDataValue.info_id
+              delete fieldDataValue.uuid
+              editData(this.fieldData.id, {
+                info_id: this.fieldData.info_id,
+                uuid: this.fieldData.uuid,
+                data: fieldDataValue
               }).then(res => {
                 this.closeDialog()
                 this.$emit('getList')
