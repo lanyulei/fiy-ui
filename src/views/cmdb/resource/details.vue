@@ -52,7 +52,7 @@ export default {
       this.getModelDetailsForm()
     },
     getModelDetails() {
-      dataDetails(this.$route.params.id).then(res => {
+      dataDetails(this.$route.query.id).then(res => {
         this.fieldForm = res.data.data
       })
     },

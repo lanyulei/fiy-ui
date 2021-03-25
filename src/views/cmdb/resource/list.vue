@@ -278,7 +278,7 @@ export default {
       })
     },
     getDataDetails(id, info_id) {
-      this.$router.push({ name: 'resourceDetails', params: { 'id': id }, query: { 'fieldId': info_id }})
+      this.$router.push({ name: 'resourceDetails', query: { 'fieldId': info_id, 'id': id }})
     },
     handleSelectionChange(val) {
       if (val.length > 0) {
