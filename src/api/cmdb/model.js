@@ -239,3 +239,11 @@ export function relatedInfo() {
     method: 'get'
   })
 }
+
+// 关联的模型字段
+export function relatedInfoFields(id, dataID) {
+  return request({
+    url: `/api/v1/cmdb/model/related-fields/${id}/${dataID}`,
+    method: 'get'
+  })
+}

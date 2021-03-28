@@ -22,7 +22,24 @@
               </li>
             </ul>
           </div>
-
+          <div class="group">
+            <div class="group-name">关联数据</div>
+            <div v-for="(item, index) in relatedFileds" :key="index" class="property-list-associate">
+              <span class="property-name" tabindex="0">
+                {{ item.name }} :
+              </span>
+              <el-table v-loading="loading" :data="relatedModelData[item.identifies]" border style="margin-top: 12px;">
+                <template v-for="field of item.fields">
+                  <el-table-column
+                    v-if="field.is_list_display"
+                    :key="field.id"
+                    :prop="field.identifies"
+                    :label="field.name"
+                  />
+                </template>
+              </el-table>
+            </div>
+          </div>
         </div>
       </el-card>
     </template>
@@ -31,7 +48,8 @@
 
 <script>
 import {
-  modelDetails
+  modelDetails,
+  relatedInfoFields
 } from '@/api/cmdb/model'
 
 import {
@@ -41,7 +59,11 @@ export default {
   data() {
     return {
       fields: {},
-      fieldForm: {}
+      fieldForm: {},
+      relatedFileds: [],
+      relatedModelData: {},
+      list: [],
+      loading: false
     }
   },
   created() {
@@ -50,6 +72,11 @@ export default {
   methods: {
     initForm() {
       this.getModelDetailsForm()
+
+      relatedInfoFields(this.$route.query.fieldId, this.$route.query.id).then(res => {
+        this.relatedFileds = res.data.fields
+        this.relatedModelData = res.data.data
+      })
     },
     getModelDetails() {
       dataDetails(this.$route.query.id).then(res => {
@@ -74,6 +101,7 @@ export default {
     width: 4px;
     height: 14px;
     margin-right: 9px;
+    margin-top: 10px;
     background-color: #c3cdd7;
   }
 
@@ -93,6 +121,13 @@ export default {
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
     margin-bottom: 0;
+  }
+
+  .property-list-associate {
+    color: #63656e;
+    font-size: 14px;
+    margin-top: 20px;
+    padding-left: 14px;
   }
 
   .property-list .property-item {
