@@ -114,7 +114,7 @@ import { fetchList } from '@/api/user'
 import {
   createData,
   editData
-} from '@/api/universe/resource'
+} from '@/api/cmdb/resource'
   // import { treeselect } from '@/api/system/dept'
 export default {
   // eslint-disable-next-line vue/require-prop-types

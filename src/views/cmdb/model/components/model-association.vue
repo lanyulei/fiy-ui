@@ -7,10 +7,6 @@
       style="width: 100%"
     >
       <el-table-column
-        prop="related_type_name"
-        label="关联类型"
-      />
-      <el-table-column
         label="源-目标约束"
       >
         <template slot-scope="scope">
@@ -20,12 +16,16 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="source_model_name"
-        label="源模型"
-      />
-      <el-table-column
         prop="target_model_name"
         label="目标模型"
+      />
+      <el-table-column
+        prop="related_type_name"
+        label="关联类型"
+      />
+      <el-table-column
+        prop="source_model_name"
+        label="源模型"
       />
       <el-table-column label="操作">
         <template slot-scope="scope">
