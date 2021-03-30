@@ -183,7 +183,6 @@ export default {
         page: 1,
         limit: 999999
       }).then(response => {
-        console.log(response.data)
         this.userList = response.data.list
       })
     },
@@ -193,7 +192,7 @@ export default {
           if (this.isSubmit !== '') {
             if (this.isSubmit === 'create') {
               createData({
-                info_id: parseInt(this.$route.query.classify),
+                info_id: parseInt(this.$route.params.classify),
                 data: this.fieldData
               }).then(res => {
                 this.closeDialog()
