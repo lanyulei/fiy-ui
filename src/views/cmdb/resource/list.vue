@@ -177,7 +177,7 @@ export default {
         page: 1,
         per_page: 10
       },
-      createOrUpdateTitle: '新建业务',
+      createOrUpdateTitle: '新建',
       fieldData: {},
       treeData: [],
       bindData: {
@@ -263,7 +263,7 @@ export default {
     createDataInfo() {
       this.submitStatus = 'create'
       this.fieldData = {}
-      this.createOrUpdateTitle = '新建业务'
+      this.createOrUpdateTitle = '新建' + this.fields.name
       this.bizDialog = true
       this.$nextTick(() => {
         this.$refs.fieldForm.clearValidateHandle()
@@ -272,7 +272,7 @@ export default {
     editDataInfo(row) {
       this.fieldData = row
       this.submitStatus = 'edit'
-      this.createOrUpdateTitle = '编辑业务'
+      this.createOrUpdateTitle = '编辑' + this.fields.name
       this.bizDialog = true
       this.$nextTick(() => {
         this.$refs.fieldForm.clearValidateHandle()
