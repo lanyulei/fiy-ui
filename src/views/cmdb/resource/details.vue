@@ -22,23 +22,32 @@
               </li>
             </ul>
           </div>
-          <div class="group">
+          <div v-if="relatedFileds.length > 0" class="group">
             <div class="group-name">关联数据</div>
-            <div v-for="(item, index) in relatedFileds" :key="index" class="property-list-associate">
-              <span class="property-name" tabindex="0">
-                {{ item.name }} :
-              </span>
-              <el-table v-loading="loading" :data="relatedModelData[item.identifies]" border style="margin-top: 12px;">
-                <template v-for="field of item.fields">
-                  <el-table-column
-                    v-if="field.is_list_display"
-                    :key="field.id"
-                    :prop="field.identifies"
-                    :label="field.name"
-                  />
-                </template>
-              </el-table>
-            </div>
+            <template v-for="(item, index) in relatedFileds">
+              <div v-if="relatedModelData[item.identifies].length > 0" :key="index" class="property-list-associate">
+                <span class="property-name" tabindex="0">
+                  {{ item.name }}，数量: {{ relatedModelData[item.identifies].length }}:
+                </span>
+                <el-table
+                  v-loading="loading"
+                  :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+                  size="mini"
+                  :data="relatedModelData[item.identifies]"
+                  border
+                  style="margin-top: 12px;"
+                >
+                  <template v-for="field of item.fields">
+                    <el-table-column
+                      v-if="field.is_list_display"
+                      :key="field.id"
+                      :prop="field.identifies"
+                      :label="field.name"
+                    />
+                  </template>
+                </el-table>
+              </div>
+            </template>
           </div>
         </div>
       </el-card>
@@ -73,7 +82,7 @@ export default {
     initForm() {
       this.getModelDetailsForm()
 
-      relatedInfoFields(this.$route.query.fieldId, this.$route.query.id).then(res => {
+      relatedInfoFields(this.$route.query.fieldId, { data_id: this.$route.query.id }).then(res => {
         this.relatedFileds = res.data.fields
         this.relatedModelData = res.data.data
       })

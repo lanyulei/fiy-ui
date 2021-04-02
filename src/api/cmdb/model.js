@@ -241,9 +241,10 @@ export function relatedInfo() {
 }
 
 // 关联的模型字段
-export function relatedInfoFields(id, dataID) {
+export function relatedInfoFields(id, params) {
   return request({
-    url: `/api/v1/cmdb/model/related-fields/${id}/${dataID}`,
-    method: 'get'
+    url: `/api/v1/cmdb/model/related-fields/${id}`,
+    method: 'get',
+    params
   })
 }
