@@ -94,19 +94,19 @@
                       />
                     </el-select>
                   </div>
-                <!-- <div v-else-if="fieldItem.type === 'depart'">
-                <el-cascader
-                  v-model="fieldData[fieldItem.identifies]"
-                  style="width: 100%"
-                  :options="deptOptions"
-                  :show-all-levels="false"
-                  size="small"
-                >
-                  <template slot-scope="{ data }">
-                    <span>{{ data.deptName }}</span>
-                  </template>
-                </el-cascader>
-              </div> -->
+                  <!-- <div v-else-if="fieldItem.type === 'depart'">
+                    <el-cascader
+                      v-model="fieldData[fieldItem.identifies]"
+                      style="width: 100%"
+                      :options="deptOptions"
+                      :show-all-levels="false"
+                      size="small"
+                    >
+                      <template slot-scope="{ data }">
+                        <span>{{ data.deptName }}</span>
+                      </template>
+                    </el-cascader>
+                  </div> -->
                 </el-form-item>
               </el-col>
             </template>
