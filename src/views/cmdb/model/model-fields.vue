@@ -454,6 +454,7 @@ export default {
       },
       fieldTypeOptions: [
         { label: '字符', value: 'string' },
+        { label: '文本', value: 'text' },
         { label: '数字', value: 'number' },
         { label: '枚举', value: 'enum' },
         { label: '列表', value: 'list' },

@@ -279,7 +279,7 @@ export default {
       })
     },
     getDataDetails(id, info_id) {
-      this.$router.push({ path: '/cmdb/resource/details', query: { 'fieldId': info_id, 'id': id }})
+      this.$router.push({ path: '/cmdb/resource/details', query: { 'info_id': info_id, 'id': id }})
     },
     handleSelectionChange(val) {
       if (val.length > 0) {

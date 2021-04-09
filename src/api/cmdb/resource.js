@@ -131,3 +131,10 @@ export function getNodeModelData(params) {
   })
 }
 
+// 删除数据关联
+export function deleteDataRelated(id) {
+  return request({
+    url: `/cmdb/resource/delete-data-related/${id}`,
+    method: 'delete'
+  })
+}

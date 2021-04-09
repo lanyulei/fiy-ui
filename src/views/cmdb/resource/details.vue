@@ -45,6 +45,15 @@
                       :label="field.name"
                     />
                   </template>
+                  <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="60"
+                  >
+                    <template slot-scope="{row}">
+                      <el-button type="text" size="small" @click="handleDeleteRelated(row.related_id)">解绑</el-button>
+                    </template>
+                  </el-table-column>
                 </el-table>
               </div>
             </template>
@@ -62,7 +71,8 @@ import {
 } from '@/api/cmdb/model'
 
 import {
-  dataDetails
+  dataDetails,
+  deleteDataRelated
 } from '@/api/cmdb/resource'
 export default {
   data() {
@@ -82,7 +92,7 @@ export default {
     initForm() {
       this.getModelDetailsForm()
 
-      relatedInfoFields(this.$route.query.fieldId, { data_id: this.$route.query.id }).then(res => {
+      relatedInfoFields(this.$route.query.info_id, { data_id: this.$route.query.id }).then(res => {
         this.relatedFileds = res.data.fields
         this.relatedModelData = res.data.data
       })
@@ -93,9 +103,29 @@ export default {
       })
     },
     getModelDetailsForm() {
-      modelDetails(this.$route.query.fieldId).then(res => {
+      modelDetails(this.$route.query.info_id).then(res => {
         this.fields = res.data
         this.getModelDetails()
+      })
+    },
+    handleDeleteRelated(id) {
+      this.$confirm('是否删除此条数据关联?', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      }).then(() => {
+        deleteDataRelated(id).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.initForm()
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
       })
     }
   }
