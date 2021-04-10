@@ -4,8 +4,8 @@
     <ul class="list">
       <li v-for="(item, index) in list" :key="index">
         <span :class="index < 3 ? 'active' : null">{{ index + 1 }}</span>
-        <span>{{ item.name }}</span>
-        <span>{{ item.total }}</span>
+        <span>{{ item.describe }}</span>
+        <span>{{ parseTime(item.createdAt) }}</span>
       </li>
     </ul>
   </div>
