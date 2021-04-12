@@ -10,6 +10,7 @@
           <el-row>
             <el-button size="mini" type="primary" @click="createDataInfo">新建</el-button>
             <el-button size="mini" type="primary" style="margin-left: 5px;" @click="distribution">资源分配</el-button>
+            <el-button :loading="exportLoading" size="mini" type="primary" style="margin-left: 5px;" @click="handleExportData">导出</el-button>
             <el-select v-model="queryParams.status" size="mini" style="margin-left: 5px;" placeholder="请选择" @change="getList">
               <el-option label="无状态" :value="0" />
               <el-option label="空闲" :value="1" />
@@ -142,6 +143,8 @@
 </template>
 
 <script>
+import { parseTime } from '@/utils'
+
 import {
   modelFields,
   modelDetails
@@ -150,7 +153,8 @@ import {
 import {
   getDataList,
   deleteData,
-  bindDataRelated
+  bindDataRelated,
+  exportData
 } from '@/api/cmdb/resource'
 
 import {
@@ -306,6 +310,44 @@ export default {
           this.distributionDialog = false
         })
       }
+    },
+    handleExportData() {
+      this.$confirm('此操作将导出此模型的全部数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info'
+      }).then(() => {
+        this.exportLoading = true
+        exportData(this.$route.params.classify).then(res => {
+          import('@/vendor/Export2Excel').then(excel => {
+            const tHeader = res.data.tHeader
+            const filterVal = res.data.filterVal
+            const data = this.formatJson(filterVal, res.data.dataList)
+            excel.export_json_to_excel({
+              header: tHeader,
+              data,
+              filename: this.fields.identifies,
+              autoWidth: this.autoWidth,
+              bookType: this.bookType
+            })
+            this.exportLoading = false
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
+      })
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v => filterVal.map(j => {
+        if (j === 'timestamp') {
+          return parseTime(v[j])
+        } else {
+          return v[j]
+        }
+      }))
     }
   }
 }
