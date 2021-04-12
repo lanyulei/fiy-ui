@@ -8,29 +8,33 @@
         <!-- 操作 -->
         <div>
           <el-row>
-            <el-button size="mini" type="primary" @click="createDataInfo">新建</el-button>
-            <el-button size="mini" type="primary" style="margin-left: 5px;" @click="distribution">资源分配</el-button>
-            <el-button :loading="exportLoading" size="mini" type="primary" style="margin-left: 5px;" @click="handleExportData">导出</el-button>
-            <el-select v-model="queryParams.status" size="mini" style="margin-left: 5px;" placeholder="请选择" @change="getList">
-              <el-option label="无状态" :value="0" />
-              <el-option label="空闲" :value="1" />
-              <el-option label="故障" :value="2" />
-              <el-option label="待回收" :value="3" />
-              <el-option label="正在使用" :value="4" />
-            </el-select>
-            <el-input
-              v-model="queryParams.value"
-              size="mini"
-              placeholder="请输入内容"
-              class="input-with-select"
-              style="width: 500px; margin-left: 5px;"
-              @keyup.enter.native="getList"
-            >
-              <el-select slot="prepend" v-model="queryParams.identifies" placeholder="请选择" style="width: 95px">
-                <el-option v-for="fieldItem of fieldList" :key="fieldItem.id" :label="fieldItem.name" :value="fieldItem.identifies" />
+            <div>
+              <el-select v-model="queryParams.status" size="mini" placeholder="请选择" @change="getList">
+                <el-option label="无状态" :value="0" />
+                <el-option label="空闲" :value="1" />
+                <el-option label="故障" :value="2" />
+                <el-option label="待回收" :value="3" />
+                <el-option label="正在使用" :value="4" />
               </el-select>
-              <el-button slot="append" icon="el-icon-search" @click="getList" />
-            </el-input>
+              <el-input
+                v-model="queryParams.value"
+                size="mini"
+                placeholder="请输入内容"
+                class="input-with-select"
+                style="width: 500px; margin-left: 5px;"
+                @keyup.enter.native="getList"
+              >
+                <el-select slot="prepend" v-model="queryParams.identifies" placeholder="请选择" style="width: 95px">
+                  <el-option v-for="fieldItem of fieldList" :key="fieldItem.id" :label="fieldItem.name" :value="fieldItem.identifies" />
+                </el-select>
+                <el-button slot="append" icon="el-icon-search" @click="getList" />
+              </el-input>
+            </div>
+            <div style="margin-top: 15px;">
+              <el-button size="mini" type="primary" @click="createDataInfo">新建</el-button>
+              <el-button size="mini" type="primary" style="margin-left: 5px;" @click="distribution">资源分配</el-button>
+              <el-button :loading="exportLoading" size="mini" type="primary" style="margin-left: 5px;" @click="handleExportData">导出</el-button>
+            </div>
           </el-row>
         </div>
         <!-- 模型列表 -->
