@@ -149,9 +149,8 @@ export function exportData(id) {
 
 // 导入数据
 export function importData(id) {
-  return request(serviceName)({
-    url: `/cmdb/resource/import-data/${id}`,
-    method: 'post',
-    headers: { 'Content-Type': 'multipart/form-data' }
+  return request({
+    url: `/api/v1/cmdb/resource/import-data/${id}`,
+    method: 'post'
   })
 }

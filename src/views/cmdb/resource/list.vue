@@ -179,20 +179,7 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label="上传文件：">
-                  <el-upload
-                    drag
-                    action="#"
-                    :http-request="uploadImportFile"
-                    accept=".xlsx"
-                    :show-file-list="false"
-                    auto-upload>
-                    <i class="el-icon-upload"></i>
-                    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                    <div class="el-upload__tip" slot="tip">只能上传 xlsx 文件，且不超过20M</div>
-                    <div class="el-upload__tip" slot="tip" style="font-size: 13px;">
-                      请<el-button type="text" @click="downloadDataTemplate">下载此模板</el-button>，使用此模板梳理数据，然后上传模板文件进行数据导入
-                    </div>
-                  </el-upload>
+                  <upload-excel-component :on-success="handleSuccess" :before-upload="beforeUpload" />
                 </el-form-item>
               </el-form>
             </div>
@@ -204,6 +191,7 @@
 </template>
 
 <script>
+import UploadExcelComponent from '@/components/UploadExcel/index.vue'
 import { parseTime } from '@/utils'
 
 import {
@@ -215,8 +203,7 @@ import {
   getDataList,
   deleteData,
   bindDataRelated,
-  exportData,
-  importData
+  exportData
 } from '@/api/cmdb/resource'
 
 import {
@@ -226,7 +213,8 @@ import {
 import renderModel from '@/views/cmdb/model/components/render-model'
 export default {
   components: {
-    renderModel
+    renderModel,
+    UploadExcelComponent
   },
   data() {
     return {
@@ -447,12 +435,23 @@ export default {
           })
       })
     },
-    uploadImportFile(param) {
-      const formdata = new FormData()
-      formdata.append('upload', param.file)
-      importData(this.ruleForm.status).then(res => {
-        console.log(res)
+    beforeUpload(file) {
+      const isLt1M = file.size / 1024 / 1024 < 20
+
+      if (isLt1M) {
+        return true
+      }
+
+      this.$message({
+        message: 'Please do not upload files larger than 1m in size.',
+        type: 'warning'
       })
+      return false
+    },
+    handleSuccess({ results, header }) {
+      this.tableData = results
+      console.log(this.tableData)
+      this.tableHeader = header
     }
   }
 }
