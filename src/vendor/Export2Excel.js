@@ -1,6 +1,6 @@
 /* eslint-disable */
-import { saveAs } from 'file-saver'
-import XLSX from 'xlsx'
+require('script-loader!file-saver');
+import XLSX from 'xlsx-style'
 
 function generateArray(table) {
   var out = [];
@@ -38,7 +38,8 @@ function generateArray(table) {
             c: outRow.length + colspan - 1
           }
         });
-      };
+      }
+      ;
 
       //Handle Value
       outRow.push(cellValue !== "" ? cellValue : null);
@@ -58,7 +59,7 @@ function datenum(v, date1904) {
   return (epoch - new Date(Date.UTC(1899, 11, 30))) / (24 * 60 * 60 * 1000);
 }
 
-function sheet_from_array_of_arrays(data, opts) {
+function sheet_from_array_of_arrays (data, opts) {
   var ws = {};
   var range = {
     s: {
@@ -145,19 +146,25 @@ export function export_table_to_excel(id) {
 }
 
 export function export_json_to_excel({
+  title,
   multiHeader = [],
   header,
   data,
   filename,
-  merges = [],
   autoWidth = true,
-  bookType = 'xlsx'
-} = {}) {
+  bookType = 'xlsx',
+  colStyle = 0,
+  unitStyle = []
+  } = {}) {
   /* original data */
   filename = filename || 'excel-list'
   data = [...data]
-  data.unshift(header);
-
+  if (title !== undefined) {
+    data.unshift(title);
+  }
+  if (header !== undefined) {
+    data.unshift(header);
+  }
   for (let i = multiHeader.length - 1; i > -1; i--) {
     data.unshift(multiHeader[i])
   }
@@ -165,13 +172,6 @@ export function export_json_to_excel({
   var ws_name = "SheetJS";
   var wb = new Workbook(),
     ws = sheet_from_array_of_arrays(data);
-
-  if (merges.length > 0) {
-    if (!ws['!merges']) ws['!merges'] = [];
-    merges.forEach(item => {
-      ws['!merges'].push(XLSX.utils.decode_range(item))
-    })
-  }
 
   if (autoWidth) {
     /*设置worksheet每列的最大宽度*/
@@ -208,6 +208,57 @@ export function export_json_to_excel({
   /* add worksheet to workbook */
   wb.SheetNames.push(ws_name);
   wb.Sheets[ws_name] = ws;
+  var dataInfo = wb.Sheets[wb.SheetNames[0]];
+  const borderAll = {  //单元格外侧框线
+    top: {
+      style: 'thin'
+    },
+    bottom: {
+      style: 'thin'
+    },
+    left: {
+      style: 'thin'
+    },
+    right: {
+      style: 'thin'
+    }
+  };
+
+  //设置主标题样式
+  var unitCount = 0
+  var dataColStyleCount = 0
+  if (colStyle > 1) {
+    dataColStyleCount = data[0].length * colStyle
+  } else {
+    dataColStyleCount = data[0].length
+  }
+  if (data.length > 0 && colStyle !== 0) {
+    for (var k in dataInfo) {
+      dataInfo[k].s = {
+        border: borderAll,
+        font: {
+          italic: false,
+          underline: false
+        },
+        fill: {
+          fgColor: {rgb: "DBDBD7"},
+        },
+      };
+      unitCount++
+      if (unitCount === dataColStyleCount) {
+        break
+      }
+    }
+  }
+
+  for (var unit of unitStyle) {
+    dataInfo[unit].s = {
+      border: borderAll,
+      fill: {
+        fgColor: {rgb: "FBECC3"},
+      },
+    };
+  }
 
   var wbout = XLSX.write(wb, {
     bookType: bookType,

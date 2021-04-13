@@ -33,6 +33,7 @@
             <div style="margin-top: 15px;">
               <el-button size="mini" type="primary" @click="createDataInfo">新建</el-button>
               <el-button size="mini" type="primary" style="margin-left: 5px;" @click="distribution">资源分配</el-button>
+              <el-button size="mini" type="primary" style="margin-left: 5px;" @click="handleImportData">导入</el-button>
               <el-button :loading="exportLoading" size="mini" type="primary" style="margin-left: 5px;" @click="handleExportData">导出</el-button>
             </div>
           </el-row>
@@ -142,6 +143,62 @@
           <el-button type="primary" @click="bindSubmit">确 定</el-button>
         </span>
       </el-dialog>
+
+      <!-- 数据导入 -->
+      <el-drawer
+        size="50%"
+        :with-header="false"
+        type="primary"
+        :visible.sync="importDialog"
+        direction="rtl"
+        :wrapper-closable="false"
+      >
+        <div>
+          <div class="model-field-sideslider-header">
+            <div class="model-field-sideslider-closer" style="float: left;" @click="importDialog = false">
+              <i
+                class="el-icon-arrow-right"
+              />
+            </div>
+            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+              导入资源
+            </div>
+            <div style="padding: 25px;">
+              <el-form :model="ruleForm" ref="ruleForm" label-width="92px">
+                <el-form-item label="资源状态：">
+                  <el-select
+                    size="small"
+                    v-model="ruleForm.status"
+                    placeholder="请选择资源状态"
+                    style="width: 100%">
+                    <el-option label="无状态" :value="0" />
+                    <el-option label="空闲" :value="1" />
+                    <el-option label="故障" :value="2" />
+                    <el-option label="待回收" :value="3" />
+                    <el-option label="正在使用" :value="4" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="上传文件：">
+                  <el-upload
+                    drag
+                    action="#"
+                    :http-request="uploadImportFile"
+                    accept=".xlsx"
+                    :show-file-list="false"
+                    auto-upload>
+                    <i class="el-icon-upload"></i>
+                    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                    <div class="el-upload__tip" slot="tip">只能上传 xlsx 文件，且不超过20M</div>
+                    <div class="el-upload__tip" slot="tip" style="font-size: 13px;">
+                      请<el-button type="text" @click="downloadDataTemplate">下载此模板</el-button>，使用此模板梳理数据，然后上传模板文件进行数据导入
+                    </div>
+                  </el-upload>
+                </el-form-item>
+              </el-form>
+            </div>
+          </div>
+        </div>
+      </el-drawer>
     </template>
   </BasicLayout>
 </template>
@@ -158,7 +215,8 @@ import {
   getDataList,
   deleteData,
   bindDataRelated,
-  exportData
+  exportData,
+  importData
 } from '@/api/cmdb/resource'
 
 import {
@@ -172,6 +230,8 @@ export default {
   },
   data() {
     return {
+      importDialog: false,
+      exportLoading: false,
       distributionDialog: false,
       submitStatus: 'create',
       renderModelStatus: false,
@@ -198,7 +258,10 @@ export default {
           list: []
         }
       },
-      bindDataModels: {}
+      bindDataModels: {},
+      ruleForm: {
+        status: 0
+      }
     }
   },
   created() {
@@ -331,8 +394,9 @@ export default {
               header: tHeader,
               data,
               filename: this.fields.identifies,
-              autoWidth: this.autoWidth,
-              bookType: this.bookType
+              autoWidth: true,
+              bookType: 'xlsx',
+              colStyle: 1
             })
             this.exportLoading = false
           })
@@ -352,6 +416,43 @@ export default {
           return v[j]
         }
       }))
+    },
+    handleImportData() {
+      this.importDialog = true
+    },
+    downloadDataTemplate() {
+      var fieldNameList = ['字段名称(请勿修改)']
+      var fieldKeyList = ['字段标识(请勿修改)']
+      for (var f of this.fieldList) {
+        fieldNameList.push(f.name)
+        fieldKeyList.push(f.identifies)
+      }
+      exportData(this.$route.query.classify).then(res => {
+          import('@/vendor/Export2Excel').then(excel => {
+            const tHeader = fieldNameList
+            const titles = fieldKeyList
+            // const filterVal = fieldKeyList
+            // const data = this.formatJson(tHeader, fieldKeyList)
+            const data = []
+            excel.export_json_to_excel({
+              title: titles,
+              header: tHeader,
+              data,
+              filename: 'import_' + this.fields.identifies + '_template',
+              autoWidth: true,
+              bookType: 'xlsx',
+              colStyle: 2,
+              unitStyle: ['A1', 'A2']
+            })
+          })
+      })
+    },
+    uploadImportFile(param) {
+      const formdata = new FormData()
+      formdata.append('upload', param.file)
+      importData(this.ruleForm.status).then(res => {
+        console.log(res)
+      })
     }
   }
 }
@@ -449,5 +550,9 @@ export default {
     font-size: 15px;
     margin-left: 10px;
     cursor: pointer;
+  }
+
+  /deep/ .el-form-item__content {
+    line-height: 20px;
   }
 </style>

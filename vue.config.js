@@ -57,6 +57,9 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
+    },
+    externals: {
+      './cptable': 'var cptable'
     }
   },
   chainWebpack(config) {
