@@ -147,10 +147,11 @@ export function exportData(id) {
   })
 }
 
-// 导入数据
-export function importData(id) {
+// 批量新建资源数据
+export function batchCreateData(data) {
   return request({
-    url: `/api/v1/cmdb/resource/import-data/${id}`,
-    method: 'post'
+    url: `/api/v1/cmdb/resource/batch`,
+    method: 'post',
+    data
   })
 }

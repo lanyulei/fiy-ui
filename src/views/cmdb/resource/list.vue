@@ -31,10 +31,10 @@
               </el-input>
             </div>
             <div style="margin-top: 15px;">
-              <el-button size="mini" type="primary" @click="createDataInfo">新建</el-button>
-              <el-button size="mini" type="primary" style="margin-left: 5px;" @click="distribution">资源分配</el-button>
-              <el-button size="mini" type="primary" style="margin-left: 5px;" @click="handleImportData">导入</el-button>
-              <el-button :loading="exportLoading" size="mini" type="primary" style="margin-left: 5px;" @click="handleExportData">导出</el-button>
+              <el-button size="mini" type="primary" icon="el-icon-plus" @click="createDataInfo">新建</el-button>
+              <el-button size="mini" type="primary" icon="el-icon-finished" style="margin-left: 5px;" @click="distribution">资源分配</el-button>
+              <el-button size="mini" type="primary" icon="el-icon-bottom-left" style="margin-left: 5px;" @click="importDialog = true">导入</el-button>
+              <el-button :loading="exportLoading" size="mini" type="primary" icon="el-icon-top-right" style="margin-left: 5px;" @click="handleExportData">导出</el-button>
             </div>
           </el-row>
         </div>
@@ -164,13 +164,14 @@
               导入资源
             </div>
             <div style="padding: 25px;">
-              <el-form :model="ruleForm" ref="ruleForm" label-width="92px">
+              <el-form ref="ruleForm" :model="ruleForm" label-width="92px">
                 <el-form-item label="资源状态：">
                   <el-select
-                    size="small"
                     v-model="ruleForm.status"
+                    size="small"
                     placeholder="请选择资源状态"
-                    style="width: 100%">
+                    style="width: 100%"
+                  >
                     <el-option label="无状态" :value="0" />
                     <el-option label="空闲" :value="1" />
                     <el-option label="故障" :value="2" />
@@ -180,6 +181,8 @@
                 </el-form-item>
                 <el-form-item label="上传文件：">
                   <upload-excel-component :on-success="handleSuccess" :before-upload="beforeUpload" />
+                  <div class="el-upload__tip">只能上传 execl 文件，且不超过20M</div>
+                  <el-button type="text" icon="el-icon-download" @click="downloadDataTemplate">点击下载模板</el-button>
                 </el-form-item>
               </el-form>
             </div>
@@ -191,7 +194,7 @@
 </template>
 
 <script>
-import UploadExcelComponent from '@/components/UploadExcel/index.vue'
+import UploadExcelComponent from './components/ImportData'
 import { parseTime } from '@/utils'
 
 import {
@@ -203,7 +206,8 @@ import {
   getDataList,
   deleteData,
   bindDataRelated,
-  exportData
+  exportData,
+  batchCreateData
 } from '@/api/cmdb/resource'
 
 import {
@@ -405,9 +409,6 @@ export default {
         }
       }))
     },
-    handleImportData() {
-      this.importDialog = true
-    },
     downloadDataTemplate() {
       var fieldNameList = ['字段名称(请勿修改)']
       var fieldKeyList = ['字段标识(请勿修改)']
@@ -416,42 +417,61 @@ export default {
         fieldKeyList.push(f.identifies)
       }
       exportData(this.$route.query.classify).then(res => {
-          import('@/vendor/Export2Excel').then(excel => {
-            const tHeader = fieldNameList
-            const titles = fieldKeyList
-            // const filterVal = fieldKeyList
-            // const data = this.formatJson(tHeader, fieldKeyList)
-            const data = []
-            excel.export_json_to_excel({
-              title: titles,
-              header: tHeader,
-              data,
-              filename: 'import_' + this.fields.identifies + '_template',
-              autoWidth: true,
-              bookType: 'xlsx',
-              colStyle: 2,
-              unitStyle: ['A1', 'A2']
-            })
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = fieldNameList
+          const titles = fieldKeyList
+          excel.export_json_to_excel({
+            title: titles,
+            header: tHeader,
+            data: [],
+            filename: 'import_' + this.fields.identifies + '_template',
+            autoWidth: true,
+            bookType: 'xlsx',
+            colStyle: 2,
+            unitStyle: ['A1', 'A2']
           })
+        })
       })
     },
     beforeUpload(file) {
-      const isLt1M = file.size / 1024 / 1024 < 20
+      const isLt20M = file.size / 1024 / 1024 < 20
 
-      if (isLt1M) {
+      if (isLt20M) {
         return true
       }
 
       this.$message({
-        message: 'Please do not upload files larger than 1m in size.',
+        message: '请不要上传大于20M的文件。',
         type: 'warning'
       })
       return false
     },
-    handleSuccess({ results, header }) {
-      this.tableData = results
-      console.log(this.tableData)
-      this.tableHeader = header
+    handleSuccess({ results }) {
+      const loading = this.$loading({
+        lock: true,
+        text: '正在导入数据，请稍等...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      })
+      var dataList = []
+      for (var r of results) {
+        dataList.push({
+          info_id: parseInt(this.$route.params.classify),
+          status: this.ruleForm.status,
+          data: r
+        })
+      }
+      batchCreateData(dataList).then(() => {
+        this.getList()
+        this.$message({
+          type: 'success',
+          message: '导入成功!'
+        })
+        loading.close()
+        this.importDialog = false
+      }).catch(() => {
+        loading.close()
+      })
     }
   }
 }
