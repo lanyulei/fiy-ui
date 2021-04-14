@@ -416,20 +416,18 @@ export default {
         fieldNameList.push(f.name)
         fieldKeyList.push(f.identifies)
       }
-      exportData(this.$route.query.classify).then(res => {
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = fieldNameList
-          const titles = fieldKeyList
-          excel.export_json_to_excel({
-            title: titles,
-            header: tHeader,
-            data: [],
-            filename: 'import_' + this.fields.identifies + '_template',
-            autoWidth: true,
-            bookType: 'xlsx',
-            colStyle: 2,
-            unitStyle: ['A1', 'A2']
-          })
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = fieldNameList
+        const titles = fieldKeyList
+        excel.export_json_to_excel({
+          title: titles,
+          header: tHeader,
+          data: [],
+          filename: 'import_' + this.fields.identifies + '_template',
+          autoWidth: true,
+          bookType: 'xlsx',
+          colStyle: 2,
+          unitStyle: ['A1', 'A2']
         })
       })
     },
