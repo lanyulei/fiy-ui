@@ -295,19 +295,25 @@
                       :key="listIndex"
                       style="margin-top: 5px;"
                     >
-                      <div style="width: calc(100% - 60px); display: inline-block;">
+                      <div style="width: calc(100% - 65px); display: inline-block;">
                         <div style="width: 100%;">
-                          <el-input v-model="createFieldForm.configuration.list_value[listIndex].value" placeholder="请输入值" />
+                          <el-input v-model="createFieldForm.configuration.list_value[listIndex].value" size="small" placeholder="请输入值" />
                         </div>
                       </div>
-                      <div style="width: 60px; height: 38px; line-height: 38px; font-size: 23px; display: inline-block;">
-                        <i
-                          class="el-icon-remove-outline"
-                          style="margin-left: 5px; cursor: pointer;"
-                          :style="listIndex === 0 ? {'display': 'none'}: {}"
-                          @click="deleteListValue(listIndex)"
-                        />
-                        <i class="el-icon-circle-plus-outline" style="margin-left: 5px; cursor: pointer;" @click="addListValue" />
+                      <div style="width: 60px; font-size: 23px; display: inline-block; position: relative; top: 10px">
+                        <el-row>
+                          <el-col :span="12">
+                            <i
+                              class="el-icon-remove-outline"
+                              style="margin-left: 5px; cursor: pointer; display: inline-block;"
+                              :style="listIndex === 0 ? {'display': 'none'}: {}"
+                              @click="deleteListValue(listIndex)"
+                            />
+                          </el-col>
+                          <el-col :span="12">
+                            <i class="el-icon-circle-plus-outline" style="margin-left: 5px; cursor: pointer; display: inline-block;" @click="addListValue" />
+                          </el-col>
+                        </el-row>
                       </div>
                     </div>
                   </div>
