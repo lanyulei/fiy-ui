@@ -9,32 +9,50 @@
         <div>
           <el-row>
             <div>
-              <el-select v-model="queryParams.status" size="mini" placeholder="请选择" @change="getList">
-                <el-option label="无状态" :value="0" />
-                <el-option label="空闲" :value="1" />
-                <el-option label="故障" :value="2" />
-                <el-option label="待回收" :value="3" />
-                <el-option label="正在使用" :value="4" />
-              </el-select>
-              <el-input
-                v-model="queryParams.value"
-                size="mini"
-                placeholder="请输入内容"
-                class="input-with-select"
-                style="width: 500px; margin-left: 5px;"
-                @keyup.enter.native="getList"
-              >
-                <el-select slot="prepend" v-model="queryParams.identifies" placeholder="请选择" style="width: 95px">
-                  <el-option v-for="fieldItem of fieldList" :key="fieldItem.id" :label="fieldItem.name" :value="fieldItem.identifies" />
-                </el-select>
-                <el-button slot="append" icon="el-icon-search" @click="getList" />
-              </el-input>
-            </div>
-            <div style="margin-top: 15px;">
               <el-button size="mini" type="primary" icon="el-icon-plus" @click="createDataInfo">新建</el-button>
               <el-button size="mini" type="primary" icon="el-icon-finished" style="margin-left: 5px;" @click="distribution">资源分配</el-button>
               <el-button size="mini" type="primary" icon="el-icon-bottom-left" style="margin-left: 5px;" @click="importDialog = true">导入</el-button>
               <el-button :loading="exportLoading" size="mini" type="primary" icon="el-icon-top-right" style="margin-left: 5px;" @click="handleExportData">导出</el-button>
+              <el-button size="mini" type="primary" icon="el-icon-search" style="margin-left: 5px;" @click="searchShow = !searchShow">筛选</el-button>
+              <div style="margin: 20px 0 10px 0">
+                <transition name="el-zoom-in-top">
+                  <div v-if="searchShow" class="transition-box search-list" style="margin-top: 15px;">
+                    <el-form label-width="55px">
+                      <el-form-item label="类型：" class="el-form-item-content">
+                        <el-radio-group v-model="queryParams.search_type">
+                          <el-radio :label="1">与</el-radio>
+                          <el-radio :label="2">或</el-radio>
+                        </el-radio-group>
+                      </el-form-item>
+                      <el-form-item class="el-form-item-content">
+                        <el-radio-group v-model="queryParams.search_classiy">
+                          <el-radio :label="1">精确</el-radio>
+                          <el-radio :label="2">模糊</el-radio>
+                        </el-radio-group>
+                      </el-form-item>
+                      <el-form-item v-for="(searchItem, searchIndex) in search_list" :key="searchIndex" :label="searchIndex === 0 ? '条件：' : ''" class="el-form-item-content">
+                        <el-input
+                          v-model="search_list[searchIndex].value"
+                          size="mini"
+                          placeholder="请输入搜索内容"
+                          class="input-with-select"
+                          style="width: 500px;"
+                          @keyup.enter.native="getList"
+                        >
+                          <el-select slot="prepend" v-model="search_list[searchIndex].identifies" placeholder="请选择" style="width: 95px">
+                            <el-option v-for="fieldItem of fieldList" :key="fieldItem.id" :label="fieldItem.name" :value="fieldItem.identifies" />
+                          </el-select>
+                          <el-button v-if="searchIndex !== 0" slot="append" icon="el-icon-remove-outline" @click="delSearchContent(searchIndex)" />
+                        </el-input>
+                      </el-form-item>
+                      <el-form-item class="el-form-item-button">
+                        <el-button type="primary" size="mini" @click="getList">搜索</el-button>
+                        <el-button type="success" size="mini" style="margin-left: 5px;" @click="addSearchContent">新增条件</el-button>
+                      </el-form-item>
+                    </el-form>
+                  </div>
+                </transition>
+              </div>
             </div>
           </el-row>
         </div>
@@ -222,6 +240,7 @@ export default {
   },
   data() {
     return {
+      searchShow: false,
       importDialog: false,
       exportLoading: false,
       distributionDialog: false,
@@ -233,9 +252,15 @@ export default {
       fields: {},
       fieldList: [],
       total: 0,
+      search_list: [{
+        identifies: '',
+        value: ''
+      }],
       queryParams: {
         page: 1,
-        per_page: 10
+        per_page: 10,
+        search_type: 1,
+        search_classiy: 1
       },
       createOrUpdateTitle: '新建',
       fieldData: {},
@@ -263,6 +288,7 @@ export default {
   methods: {
     getList() {
       this.loading = true
+      this.queryParams.search_list = JSON.stringify(this.search_list)
       getDataList(this.$route.params.classify, this.queryParams).then(response => {
         this.list = []
         if (response.data.total_count > 0) {
@@ -470,6 +496,15 @@ export default {
       }).catch(() => {
         loading.close()
       })
+    },
+    addSearchContent() {
+      this.search_list.push({
+        identifies: '',
+        value: ''
+      })
+    },
+    delSearchContent(index) {
+      this.search_list.splice(index, 1)
     }
   }
 }
@@ -571,5 +606,18 @@ export default {
 
   /deep/ .el-form-item__content {
     line-height: 20px;
+  }
+
+  /deep/ .search-list .el-form-item-content {
+    margin-bottom: 10px;
+  }
+
+  /deep/ .search-list .el-form-item-button {
+    margin-top: 15px;
+    margin-bottom: 0;
+  }
+
+  /deep/ .search-list .el-form-item-content .el-form-item__label {
+    line-height: 28px;
   }
 </style>
