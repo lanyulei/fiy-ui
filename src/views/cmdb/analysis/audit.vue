@@ -100,13 +100,13 @@
         :wrapper-closable="false"
       >
         <div>
-          <div class="model-field-sideslider-header">
-            <div class="model-field-sideslider-closer" style="float: left;" @click="drawerVisible = false">
+          <div class="el-drawer-new-sideslider-header">
+            <div class="el-drawer-new-sideslider-closer" style="float: left;" @click="drawerVisible = false">
               <i
                 class="el-icon-arrow-right"
               />
             </div>
-            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+            <div class="el-drawer-new-sideslider-title" style="padding: 0px 0px 0px 50px;">
               变更详情
             </div>
             <div style="padding: 23px 20px 20px 20px;">
@@ -221,31 +221,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  .model-field-sideslider-header {
-    width: 100%;
-    height: 60px;
-    background: rgb(255, 255, 255);
-  }
-
-  .model-field-sideslider-closer {
-    width: 30px;
-    height: 60px;
-    line-height: 60px;
-    background-color: rgb(58, 132, 255);
-    text-align: center;
-    color: rgb(255, 255, 255);
-    cursor: pointer;
-    font-size: 24px;
-  }
-
-  .model-field-sideslider-title {
-    height: 60px;
-    line-height: 60px;
-    font-size: 16px;
-    font-weight: 700;
-    color: rgb(102, 102, 102);
-    border-bottom: 1px solid rgb(220, 222, 229);
-  }
-</style>

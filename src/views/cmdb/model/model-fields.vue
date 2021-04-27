@@ -172,17 +172,17 @@
         :wrapper-closable="false"
       >
         <div v-if="fieldDesc.dialog">
-          <div class="model-field-sideslider-header">
-            <div class="model-field-sideslider-closer" style="float: left;">
+          <div class="el-drawer-new-sideslider-header">
+            <div class="el-drawer-new-sideslider-closer" style="float: left;" @click="fieldDesc.dialog = false">
               <i
                 class="el-icon-arrow-right"
               />
             </div>
-            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+            <div class="el-drawer-new-sideslider-title" style="padding: 0px 0px 0px 50px;">
               {{ fieldDesc.title }}
             </div>
           </div>
-          <div class="model-field-slider-content">
+          <div class="el-drawer-new-slider-content">
             <el-form ref="createFieldForm" :model="createFieldForm" :rules="rules" label-width="78px">
               <el-form-item label="唯一标识" prop="identifies">
                 <el-tooltip class="item" effect="dark" content="请以英文开头，且仅支持输入英文、数字及下划线" placement="top-start">
@@ -339,13 +339,13 @@
         :wrapper-closable="false"
       >
         <div>
-          <div class="model-field-sideslider-header">
-            <div class="model-field-sideslider-closer" style="float: left;">
+          <div class="el-drawer-new-sideslider-header">
+            <div class="el-drawer-new-sideslider-closer" style="float: left;" @click="bizDialog = false">
               <i
                 class="el-icon-arrow-right"
               />
             </div>
-            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+            <div class="el-drawer-new-sideslider-title" style="padding: 0px 0px 0px 50px;">
               {{ fieldPreviewDesc.title }}
             </div>
             <div>
@@ -818,36 +818,6 @@ export default {
 
   .model-field-div:hover {
     border-color: #1890ff;
-  }
-
-  .model-field-sideslider-header {
-    width: 100%;
-    height: 60px;
-    background: rgb(255, 255, 255);
-  }
-
-  .model-field-sideslider-closer {
-    width: 30px;
-    height: 60px;
-    line-height: 60px;
-    background-color: rgb(58, 132, 255);
-    text-align: center;
-    color: rgb(255, 255, 255);
-    cursor: pointer;
-    font-size: 24px;
-  }
-
-  .model-field-sideslider-title {
-    height: 60px;
-    line-height: 60px;
-    font-size: 16px;
-    font-weight: 700;
-    color: rgb(102, 102, 102);
-    border-bottom: 1px solid rgb(220, 222, 229);
-  }
-
-  .model-field-slider-content {
-    padding: 20px;
   }
 
   .model-field-settings {

@@ -219,3 +219,33 @@ aside {
   border-top: 1px solid #dfe6ec;
   padding-top: 20px;
 }
+
+.el-drawer-new-sideslider-header {
+  width: 100%;
+  height: 60px;
+  background: rgb(255, 255, 255);
+}
+
+.el-drawer-new-sideslider-closer {
+  width: 30px;
+  height: 60px;
+  line-height: 60px;
+  background-color: rgb(58, 132, 255);
+  text-align: center;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.el-drawer-new-sideslider-title {
+  height: 60px;
+  line-height: 60px;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgb(102, 102, 102);
+  border-bottom: 1px solid rgb(220, 222, 229);
+}
+
+.el-drawer-new-slider-content {
+  padding: 20px;
+}

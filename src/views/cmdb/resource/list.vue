@@ -116,13 +116,13 @@
         :wrapper-closable="false"
       >
         <div>
-          <div class="model-field-sideslider-header">
-            <div class="model-field-sideslider-closer" style="float: left;">
+          <div class="el-drawer-new-sideslider-header">
+            <div class="el-drawer-new-sideslider-closer" style="float: left;" @click="bizDialog = false">
               <i
                 class="el-icon-arrow-right"
               />
             </div>
-            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+            <div class="el-drawer-new-sideslider-title" style="padding: 0px 0px 0px 50px;">
               {{ createOrUpdateTitle }}
             </div>
             <div>
@@ -172,13 +172,13 @@
         :wrapper-closable="false"
       >
         <div>
-          <div class="model-field-sideslider-header">
-            <div class="model-field-sideslider-closer" style="float: left;" @click="importDialog = false">
+          <div class="el-drawer-new-sideslider-header">
+            <div class="el-drawer-new-sideslider-closer" style="float: left;" @click="importDialog = false">
               <i
                 class="el-icon-arrow-right"
               />
             </div>
-            <div class="model-field-sideslider-title" style="padding: 0px 0px 0px 50px;">
+            <div class="el-drawer-new-sideslider-title" style="padding: 0px 0px 0px 50px;">
               导入资源
             </div>
             <div style="padding: 25px;">
@@ -557,36 +557,6 @@ export default {
 
   .model-field-div:hover {
     border-color: #1890ff;
-  }
-
-  .model-field-sideslider-header {
-    width: 100%;
-    height: 60px;
-    background: rgb(255, 255, 255);
-  }
-
-  .model-field-sideslider-closer {
-    width: 30px;
-    height: 60px;
-    line-height: 60px;
-    background-color: rgb(58, 132, 255);
-    text-align: center;
-    color: rgb(255, 255, 255);
-    cursor: pointer;
-    font-size: 24px;
-  }
-
-  .model-field-sideslider-title {
-    height: 60px;
-    line-height: 60px;
-    font-size: 16px;
-    font-weight: 700;
-    color: rgb(102, 102, 102);
-    border-bottom: 1px solid rgb(220, 222, 229);
-  }
-
-  .model-field-slider-content {
-    padding: 20px;
   }
 
   .model-field-settings {
