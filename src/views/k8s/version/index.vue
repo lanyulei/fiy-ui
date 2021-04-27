@@ -17,23 +17,18 @@
               <el-button style="float: right; padding: 3px 0" type="text" @click="handleClick(item)">详情</el-button>
             </div>
             <div>
-              <el-row>
-                <el-col :span="7">
-                  <img src="@/assets/images/kubernetes.png" width="80" height="80">
-                </el-col>
-                <el-col :span="17">
-                  <ul>
-                    <li
-                      v-for="(coreItem, coreIndex) in item.core"
-                      :key="coreIndex"
-                      style="margin-bottom: 10px; color: #666666"
-                    >
-                      {{ coreItem.name }}: {{ coreItem.version }}
-                    </li>
-                  </ul>
-                  <el-switch v-model="item.is_active" style="float: right;" />
-                </el-col>
-              </el-row>
+              <ul>
+                <li
+                  v-for="(coreItem, coreIndex) in item.core"
+                  :key="coreIndex"
+                  style="margin-bottom: 10px; color: #666666"
+                >
+                  {{ coreItem.name }}: {{ coreItem.version }}
+                </li>
+              </ul>
+              <div style="text-align: right;">
+                <el-switch v-model="item.is_active" />
+              </div>
             </div>
           </el-card>
         </el-col>
