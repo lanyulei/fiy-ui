@@ -196,10 +196,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .k8s-version-div {
-    padding: 5px;
-  }
-
   /deep/ .k8s-version-details .el-dialog {
     margin-top: 138vh !important;
   }

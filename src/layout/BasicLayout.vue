@@ -12,7 +12,7 @@ export default {
 
 <style lang="scss" scoped>
   .basic-layout{
-    padding: 10px;
+    padding: 12px;
     box-sizing: border-box;
   }
 </style>

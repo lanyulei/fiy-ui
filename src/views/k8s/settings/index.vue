@@ -1,14 +1,11 @@
 <template>
   <BasicLayout>
     <template #wrapper>
-      <el-card class="box-card">
-        <div slot="header" class="clearfix">
-          <span>系统设置</span>
-        </div>
-        <div v-for="o in 4" :key="o" class="text item">
-          {{ '列表内容 ' + o }}
-        </div>
-      </el-card>
+      <el-tabs type="border-card">
+        <el-tab-pane label="仓库">仓库</el-tab-pane>
+        <el-tab-pane label="凭据">凭据</el-tab-pane>
+        <el-tab-pane label="NTP">NTP</el-tab-pane>
+      </el-tabs>
     </template>
   </BasicLayout>
 </template>
