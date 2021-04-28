@@ -4,14 +4,6 @@
       <el-row>
         <el-col :span="5">
           <el-card class="box-card">
-            <div style="margin-bottom: 10px;">
-              <el-alert
-                style="background: #F0F8FF; color: #63656E"
-                title="选中节点，单击鼠标右键管理节点。"
-                type="info"
-                show-icon
-              />
-            </div>
             <el-input
               v-model="filterText"
               suffix-icon="el-icon-search"
