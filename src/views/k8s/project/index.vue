@@ -23,9 +23,14 @@
         <div style="margin-top: 15px;">
           <el-table v-loading="loading" :data="list" border>
             <el-table-column
-              prop="name"
               label="名称"
-            />
+            >
+              <template slot-scope="scope">
+                <router-link :to="{name:'K8sProjectCluster',params:{project:scope.row.id}}">
+                  <span style="color: #1890ff;">{{ scope.row.name }}</span>
+                </router-link>
+              </template>
+            </el-table-column>
             <el-table-column
               prop="remarks"
               label="描述"
