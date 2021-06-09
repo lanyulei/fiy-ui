@@ -52,7 +52,7 @@
     "core-js": "^3.6.5",
     "driver.js": "0.9.8",
     "dropzone": "5.7.2",
-    "e-icon-picker": "^1.0.17",
+    "e-icon-picker": "1.0.17",
     "echarts": "4.8.0",
     "element-ui": "2.13.2",
     "file-saver": "2.0.2",
