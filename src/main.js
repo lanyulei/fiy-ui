@@ -40,9 +40,6 @@ import * as filters from './filters' // global filters
 import Pagination from '@/components/Pagination'
 import BasicLayout from '@/layout/BasicLayout'
 
-import VueParticles from 'vue-particles'
-Vue.use(VueParticles)
-
 import '@/utils/dialog'
 
 // 全局方法挂载
