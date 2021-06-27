@@ -36,7 +36,7 @@
         <div>
           <div v-for="group of groupModelList.models" :key="group.id" style="margin-top: 23px;">
             <!-- 模型分组名称 -->
-            <div style="font-size: 16px;">
+            <div style="font-size: 16px;" class="model-group-name">
               <span class="group-title-before" />
               <span style="color: rgb(51, 57, 72);">{{ group.name }} </span>
               <span style="color: rgb(195, 205, 215);"> ( {{ group.model_list === null ? 0 : group.model_list.length }} )</span>
@@ -378,5 +378,10 @@ export default {
     font-size: 15px;
     color: rgb(51, 57, 72);
     cursor: pointer;
+    display: none;
+  }
+
+  .model-group-name:hover .group-operate-icon {
+    display: inline;
   }
 </style>

@@ -13,12 +13,6 @@
           <span style="color: #737987;">唯一标识：</span>{{ modelDetail.identifies }}
           <span style="color: #737987; margin-left: 10px;">名称：</span>{{ modelDetail.name }}
           <span style="color: #737987; margin-left: 10px;">状态：</span>{{ modelDetail.is_usable ? '已启用' : '已停用' }}
-          <span style="color: #737987; margin-left: 10px;">实例数量：</span>
-          <span style="color: #1890ff">
-            <router-link to="/">
-              1 <i class="el-icon-s-promotion" />
-            </router-link>
-          </span>
         </div>
         <div class="model-info-div" style="float: right;">
           <el-link
@@ -68,10 +62,10 @@
             <template v-if="modelDetail.field_groups !== undefined && modelDetail.field_groups !== null && modelDetail.field_groups.length > 0">
               <div v-for="fieldGroup of modelDetail.field_groups" :key="fieldGroup.id" style="margin-top: 25px">
                 <div>
-                  <el-link
-                    style="font-size: 16px;"
-                    :underline="false"
-                    icon="el-icon-arrow-right"
+                  <i class="el-icon-arrow-right" />
+                  <span
+                    style="font-size: 16px; color: #333948;"
+                    class="model-group-name"
                   >
                     {{ fieldGroup.name }}
                     <i
@@ -83,7 +77,7 @@
                       class="el-icon-delete group-operate-icon"
                       @click="deleteFieldGroupHandle(fieldGroup.id)"
                     />
-                  </el-link>
+                  </span>
                   <!-- 字段列表 -->
                   <div>
                     <el-collapse-transition>
@@ -833,5 +827,10 @@ export default {
     font-size: 15px;
     margin-left: 10px;
     cursor: pointer;
+    display: none;
+  }
+
+  .model-group-name:hover .group-operate-icon {
+    display: inline;
   }
 </style>

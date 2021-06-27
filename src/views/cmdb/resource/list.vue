@@ -15,7 +15,7 @@
               <el-button :loading="exportLoading" size="mini" type="primary" icon="el-icon-top-right" style="margin-left: 5px;" @click="handleExportData">导出</el-button>
               <el-button size="mini" type="primary" icon="el-icon-search" style="margin-left: 5px;" @click="searchShow = !searchShow">筛选</el-button>
               <div>
-                <transition name="el-zoom-in-top">
+                <el-collapse-transition>
                   <div v-if="searchShow" class="transition-box search-list" style="margin: 20px 0 10px 0">
                     <el-form label-width="55px">
                       <el-form-item label="类型：" class="el-form-item-content">
@@ -51,7 +51,7 @@
                       </el-form-item>
                     </el-form>
                   </div>
-                </transition>
+                </el-collapse-transition>
               </div>
             </div>
           </el-row>

@@ -25,9 +25,15 @@
           <div v-if="relatedFileds.length > 0" class="group">
             <div class="group-name">关联数据</div>
             <template v-for="(item, index) in relatedFileds">
-              <div v-if="relatedModelData[item.identifies].length > 0" :key="index" class="property-list-associate">
+              <div :key="index" class="property-list-associate">
                 <span class="property-name" tabindex="0">
-                  {{ item.name }}，数量: {{ relatedModelData[item.identifies].length }}:
+                  {{ item.name }}，数量: {{ relatedModelData[item.identifies].length }}
+                  <el-tooltip class="item" effect="dark" content="添加数据关联" placement="top-start">
+                    <i
+                      class="el-icon-circle-plus-outline"
+                      style="cursor: pointer; margin-left: 10px;"
+                    />
+                  </el-tooltip>
                 </span>
                 <el-table
                   v-loading="loading"
