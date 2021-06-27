@@ -3,7 +3,7 @@
     <template #wrapper>
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>{{ fields.name }}</span>
+          <span>{{ modelDetail.name }}</span>
         </div>
         <!-- 操作 -->
         <div>
@@ -56,7 +56,7 @@
             </div>
           </el-row>
         </div>
-        <!-- 模型列表 -->
+        <!-- 数据列表 -->
         <div style="margin-top: 15px;">
           <el-table v-loading="loading" :data="list" border @selection-change="handleSelectionChange">
             <el-table-column
@@ -129,7 +129,8 @@
               <renderModel
                 v-if="renderModelStatus"
                 ref="fieldForm"
-                :fields="fields.field_groups"
+                :fields="modelDetail.field_groups"
+                :model-name="modelDetail.name"
                 :biz-dialog.sync="bizDialog"
                 :is-submit="submitStatus"
                 :field-data="fieldData"
@@ -216,7 +217,6 @@ import UploadExcelComponent from './components/ImportData'
 import { parseTime } from '@/utils'
 
 import {
-  modelFields,
   modelDetails
 } from '@/api/cmdb/model'
 
@@ -249,7 +249,7 @@ export default {
       bizDialog: false,
       loading: false,
       list: [],
-      fields: {},
+      modelDetail: {},
       fieldList: [],
       total: 0,
       search_list: [{
@@ -282,8 +282,8 @@ export default {
     }
   },
   created() {
-    this.getModelDetails()
     this.getModelDetailsForm()
+    this.getList()
   },
   methods: {
     getList() {
@@ -317,16 +317,17 @@ export default {
         this.treeData = res.data
       })
     },
-    getModelDetails() {
-      modelFields(this.$route.params.classify).then(res => {
-        this.fieldList = res.data
-        this.renderModelStatus = true
-        this.getList()
-      })
-    },
     getModelDetailsForm() {
       modelDetails(this.$route.params.classify).then(res => {
-        this.fields = res.data
+        this.modelDetail = res.data
+        for (var fieldGroup of res.data.field_groups) {
+          for (var field of fieldGroup.fields) {
+            if (field.is_list_display) {
+              this.fieldList.push(field)
+            }
+          }
+        }
+        this.renderModelStatus = true
       })
     },
     deleteDataHandle(id) {
@@ -352,7 +353,7 @@ export default {
     createDataInfo() {
       this.submitStatus = 'create'
       this.fieldData = {}
-      this.createOrUpdateTitle = '新建' + this.fields.name
+      this.createOrUpdateTitle = '新建' + this.modelDetail.name
       this.bizDialog = true
       this.$nextTick(() => {
         this.$refs.fieldForm.clearValidateHandle()
@@ -361,7 +362,7 @@ export default {
     editDataInfo(row) {
       this.fieldData = row
       this.submitStatus = 'edit'
-      this.createOrUpdateTitle = '编辑' + this.fields.name
+      this.createOrUpdateTitle = '编辑' + this.modelDetail.name
       this.bizDialog = true
       this.$nextTick(() => {
         this.$refs.fieldForm.clearValidateHandle()
@@ -411,7 +412,7 @@ export default {
             excel.export_json_to_excel({
               header: tHeader,
               data,
-              filename: this.fields.identifies,
+              filename: this.modelDetail.identifies,
               autoWidth: true,
               bookType: 'xlsx',
               colStyle: 1
@@ -449,7 +450,7 @@ export default {
           title: titles,
           header: tHeader,
           data: [],
-          filename: 'import_' + this.fields.identifies + '_template',
+          filename: 'import_' + this.modelDetail.identifies + '_template',
           autoWidth: true,
           bookType: 'xlsx',
           colStyle: 2,

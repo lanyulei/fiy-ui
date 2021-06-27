@@ -147,6 +147,10 @@ export default {
       default: function() {
         return {}
       }
+    },
+    modelName: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -208,7 +212,8 @@ export default {
             if (this.isSubmit === 'create') {
               createData({
                 info_id: parseInt(this.$route.params.classify),
-                data: this.fieldData
+                data: this.fieldData,
+                info_name: this.modelName
               }).then(res => {
                 this.closeDialog()
                 this.$emit('getList')

@@ -32,6 +32,7 @@
                     <i
                       class="el-icon-circle-plus-outline"
                       style="cursor: pointer; margin-left: 10px;"
+                      @click="addRelateHandle(item)"
                     />
                   </el-tooltip>
                 </span>
@@ -66,6 +67,60 @@
           </div>
         </div>
       </el-card>
+
+      <el-dialog
+        title="添加关联数据"
+        :visible.sync="addRelatedDialog"
+        width="80%"
+      >
+        <div style="padding-bottom: 20px">
+          <!-- 操作 -->
+          <div>
+            <el-input
+              v-model="search_list[0].value"
+              size="small"
+              placeholder="请输入搜索内容"
+              class="input-with-select"
+              style="width: 380px; margin-bottom: 10px; margin-right: 30px"
+              @keyup.enter.native="getModelDataList"
+            >
+              <el-select slot="prepend" v-model="search_list[0].identifies" placeholder="请选择" style="width: 95px">
+                <el-option v-for="fieldItem of fieldList" :key="fieldItem.id" :label="fieldItem.name" :value="fieldItem.identifies" />
+              </el-select>
+              <el-button slot="append" icon="el-icon-search" @click="getModelDataList" />
+            </el-input>
+            <el-radio-group v-model="listQuery.search_classiy" size="small">
+              <el-radio :label="1">精确搜索</el-radio>
+              <el-radio :label="2">模糊搜索</el-radio>
+            </el-radio-group>
+          </div>
+          <el-table v-loading="dataLoading" :data="list" border @selection-change="handleSelectionChange">
+            <el-table-column
+              type="selection"
+              width="55"
+            />
+            <template v-for="field of fieldList">
+              <el-table-column
+                v-if="field.is_list_display"
+                :key="field.id"
+                :prop="field.identifies"
+                :label="field.name"
+              />
+            </template>
+          </el-table>
+          <pagination
+            v-show="total>0"
+            :total="total"
+            :page.sync="listQuery.page"
+            :limit.sync="listQuery.per_page"
+            @pagination="getModelDataList"
+          />
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="addRelatedDialog = false">取 消</el-button>
+          <el-button type="primary" @click="addRelatedDialog = false">确 定</el-button>
+        </span>
+      </el-dialog>
     </template>
   </BasicLayout>
 </template>
@@ -77,18 +132,34 @@ import {
 } from '@/api/cmdb/model'
 
 import {
+  getDataList,
   dataDetails,
   deleteDataRelated
 } from '@/api/cmdb/resource'
 export default {
   data() {
     return {
+      fieldList: [],
       fields: {},
       fieldForm: {},
       relatedFileds: [],
       relatedModelData: {},
       list: [],
-      loading: false
+      total: 0,
+      loading: false,
+      dataLoading: false,
+      addRelatedDialog: false,
+      search_list: [{
+        identifies: '',
+        value: ''
+      }],
+      listQuery: {
+        page: 1,
+        per_page: 10,
+        search_type: 1,
+        search_classiy: 2
+      },
+      relatedModel: {}
     }
   },
   created() {
@@ -103,11 +174,35 @@ export default {
         this.relatedModelData = res.data.data
       })
     },
+    getModelDataList() {
+      this.fieldList = this.relatedModel.fields
+      this.dataLoading = true
+      this.listQuery.search_list = JSON.stringify(this.search_list)
+      getDataList(this.relatedModel.id, this.listQuery).then(response => {
+        this.list = []
+        if (response.data.total_count > 0) {
+          for (var l of response.data.list) {
+            l.data.id = l.id
+            l.data.info_id = l.info_id
+            l.data.uuid = l.uuid
+            this.list.push(l.data)
+          }
+        }
+        this.total = response.data.total_count
+        this.dataLoading = false
+      })
+    },
+    addRelateHandle(item) {
+      this.relatedModel = item
+      this.addRelatedDialog = true
+      this.getModelDataList()
+    },
     getModelDetails() {
       dataDetails(this.$route.query.id).then(res => {
         this.fieldForm = res.data.data
       })
     },
+    handleSelectionChange() {},
     getModelDetailsForm() {
       modelDetails(this.$route.query.info_id).then(res => {
         this.fields = res.data
