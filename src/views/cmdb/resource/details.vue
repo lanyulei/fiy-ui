@@ -118,7 +118,7 @@
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="addRelatedDialog = false">取 消</el-button>
-          <el-button type="primary" @click="addRelatedDialog = false">确 定</el-button>
+          <el-button type="primary" @click="addRelatedDataSubmit">确 定</el-button>
         </span>
       </el-dialog>
     </template>
@@ -134,7 +134,8 @@ import {
 import {
   getDataList,
   dataDetails,
-  deleteDataRelated
+  deleteDataRelated,
+  addRelatedData
 } from '@/api/cmdb/resource'
 export default {
   data() {
@@ -159,7 +160,8 @@ export default {
         search_type: 1,
         search_classiy: 2
       },
-      relatedModel: {}
+      relatedModel: {},
+      relatedTargetList: []
     }
   },
   created() {
@@ -168,7 +170,9 @@ export default {
   methods: {
     initForm() {
       this.getModelDetailsForm()
-
+      this.getRelatedInfoFileds()
+    },
+    getRelatedInfoFileds() {
       relatedInfoFields(this.$route.query.info_id, { data_id: this.$route.query.id }).then(res => {
         this.relatedFileds = res.data.fields
         this.relatedModelData = res.data.data
@@ -202,7 +206,35 @@ export default {
         this.fieldForm = res.data.data
       })
     },
-    handleSelectionChange() {},
+    handleSelectionChange(val) {
+      this.relatedTargetList = []
+      for (var v of val) {
+        this.relatedTargetList.push(v.id)
+      }
+    },
+    addRelatedDataSubmit() {
+      if (this.relatedTargetList.length > 0) {
+        var jsonParams = {
+          source: parseInt(this.$route.query.id),
+          target: this.relatedTargetList,
+          source_info_id: parseInt(this.$route.query.info_id),
+          target_info_id: this.relatedModel.id
+        }
+        addRelatedData(jsonParams).then(res => {
+          this.getRelatedInfoFileds()
+          this.addRelatedDialog = false
+          this.$message({
+            type: 'success',
+            message: '关联资源成功'
+          })
+        })
+      } else {
+        this.$message({
+          type: 'warning',
+          message: '请选择需要绑定的目标资源数据'
+        })
+      }
+    },
     getModelDetailsForm() {
       modelDetails(this.$route.query.info_id).then(res => {
         this.fields = res.data

@@ -155,3 +155,12 @@ export function batchCreateData(data) {
     data
   })
 }
+
+// 批量新建资源数据
+export function addRelatedData(data) {
+  return request({
+    url: `/api/v1/cmdb/resource/add-related-data`,
+    method: 'post',
+    data
+  })
+}
