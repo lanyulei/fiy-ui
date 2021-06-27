@@ -22,3 +22,4 @@ selenium-debug.log
 package-lock.json
 yarn.lock
 .github/
+dist.tar.gz
