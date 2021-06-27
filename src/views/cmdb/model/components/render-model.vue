@@ -89,8 +89,8 @@
                       <el-option
                         v-for="userItem in userList"
                         :key="userItem.userId"
-                        :label="userItem.nickName"
-                        :value="userItem.userId"
+                        :label="userItem.username + ' - ' + userItem.nickName"
+                        :value="userItem.username + ' - ' + userItem.nickName"
                       />
                     </el-select>
                   </div>

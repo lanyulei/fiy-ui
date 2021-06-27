@@ -68,14 +68,14 @@
                       </el-option-group>
                     </el-select>
                     <el-input
-                      v-model="queryParams.value"
+                      v-model="search_list[0].value"
                       size="mini"
                       placeholder="请输入内容"
                       class="input-with-select"
                       style="width: 500px;"
                       @keyup.enter.native="getList"
                     >
-                      <el-select slot="prepend" v-model="queryParams.identifies" placeholder="请选择" style="width: 95px">
+                      <el-select slot="prepend" v-model="search_list[0].identifies" placeholder="请选择" style="width: 95px">
                         <el-option v-for="fieldItem of fieldList" :key="fieldItem.id" :label="fieldItem.name" :value="fieldItem.identifies" />
                       </el-select>
                       <el-button slot="append" icon="el-icon-search" @click="getList" />
@@ -183,7 +183,8 @@ import {
   clusterTplList,
   getBusinessTree,
   addNode,
-  svcTplList
+  svcTplList,
+  deleteNode
 } from '@/api/cmdb/business'
 
 export default {
@@ -213,6 +214,10 @@ export default {
         page: 1,
         per_page: 10
       },
+      search_list: [{
+        value: '',
+        identifies: ''
+      }],
       ruleForm: {},
       rules: {
         name: [
@@ -230,6 +235,7 @@ export default {
   methods: {
     getList() {
       this.loading = true
+      this.queryParams.search_list = JSON.stringify(this.search_list)
       getDataList(this.currentModel, this.queryParams).then(response => {
         this.dataList = []
         if (response.data.total_count > 0) {
@@ -334,7 +340,24 @@ export default {
       })
     },
     delNodeHandler() {
-
+      this.$confirm('确认是否删除此节点?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteNode(this.currentNode.id).then(() => {
+          this.getTree()
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {

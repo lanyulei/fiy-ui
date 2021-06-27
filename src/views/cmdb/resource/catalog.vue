@@ -22,7 +22,6 @@
                   <span class="model-name">
                     <i
                       :class="modelItem.icon"
-                      style="color: rgb(58, 132, 255); margin-right: 6px; font-size: 16px;"
                     />
                     {{ modelItem.name }}
                   </span>
@@ -90,6 +89,14 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+  }
+
+  .model-name > i {
+    color: rgb(58, 132, 255);
+    margin-right: 6px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
   }
 
   .model-instance-count {

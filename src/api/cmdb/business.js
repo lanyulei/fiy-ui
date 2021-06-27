@@ -154,3 +154,11 @@ export function addNode(data) {
     data
   })
 }
+
+// 删除节点
+export function deleteNode(id) {
+  return request({
+    url: `/api/v1/cmdb/business/delete-business-node/${id}`,
+    method: 'delete'
+  })
+}
