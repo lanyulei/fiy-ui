@@ -410,7 +410,7 @@ export default {
     color: #3A84FF;
   }
 
-  /deep/ .el-checkbox {
+  ::v-deep .el-checkbox {
     margin-right: 0;
   }
 </style>

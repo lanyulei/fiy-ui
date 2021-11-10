@@ -165,12 +165,12 @@ export default {
     font-weight: 700;
   }
 
-  /deep/ .create-process-dialog .el-form-item__label {
+  ::v-deep .create-process-dialog .el-form-item__label {
     padding: 0;
     line-height: 25px;
   }
 
-  /deep/ .create-process-dialog .el-form-item {
+  ::v-deep .create-process-dialog .el-form-item {
     margin-bottom: 10px;
   }
 </style>

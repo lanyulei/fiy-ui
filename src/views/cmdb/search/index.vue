@@ -124,7 +124,7 @@ export default {
     margin-bottom: 230px;
   }
 
-  /deep/ .input-with-select .el-input__inner {
+  ::v-deep .input-with-select .el-input__inner {
     height: 46px;
   }
 

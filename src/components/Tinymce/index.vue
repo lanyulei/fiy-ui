@@ -214,7 +214,7 @@ export default {
 
 <style lang="scss" scoped>
 
-.tinymce-container /deep/{
+.tinymce-container ::v-deep{
   position: relative;
   line-height: normal;
   width: 100%;

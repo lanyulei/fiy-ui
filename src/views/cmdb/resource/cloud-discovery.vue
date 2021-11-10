@@ -365,15 +365,15 @@ export default {
 <style lang="scss" scoped>
   .div-json-field-map{
     border-radius: 4px;
-    /deep/ .jsoneditor-poweredBy{
+    ::v-deep .jsoneditor-poweredBy{
       display: none;
     }
-    /deep/ div.jsoneditor {
+    ::v-deep div.jsoneditor {
       border: 1px solid #dfe6ec;
       border-radius: 4px;
       overflow: hidden;
     }
-    /deep/ .jsoneditor-vue{
+    ::v-deep .jsoneditor-vue{
       height:300px;
     }
   }

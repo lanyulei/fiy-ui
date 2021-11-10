@@ -213,7 +213,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .el-select{
+  ::v-deep .el-select{
     width: 100%;
   }
 </style>
