@@ -101,7 +101,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.form /deep/ {
+.form ::v-deep {
   .el-upload {
     width: 100%;
   }

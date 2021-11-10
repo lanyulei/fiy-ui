@@ -45,7 +45,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .upload-dialog /deep/ {
+  .upload-dialog ::v-deep {
     .el-dialog__body{
       padding: 30px 20px 0 20px;
     }

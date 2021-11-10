@@ -298,7 +298,7 @@ export default {
     width: 100%;
   }
 }
-.file-footer /deep/ {
+.file-footer ::v-deep {
   margin-top: 20px;
   height: 440px;
   .el-card {
