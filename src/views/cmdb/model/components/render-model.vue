@@ -17,7 +17,7 @@
                   <div v-if="fieldItem.type === 'string'">
                     <el-input
                       v-model="fieldData[fieldItem.identifies]"
-                      :disabled="fieldItem.configuration.is_edit?false:true"
+                      :disabled="!fieldItem.configuration.is_edit"
                       size="small"
                       :placeholder="'请输入' + fieldItem.name"
                     />
@@ -27,7 +27,7 @@
                       v-model="fieldData[fieldItem.identifies]"
                       type="textarea"
                       :rows="2"
-                      :disabled="fieldItem.configuration.is_edit?false:true"
+                      :disabled="!fieldItem.configuration.is_edit"
                       size="small"
                       :placeholder="'请输入' + fieldItem.name"
                     />
@@ -36,7 +36,7 @@
                     <el-input-number
                       v-model="fieldData[fieldItem.identifies]"
                       size="small"
-                      :disabled="fieldItem.configuration.is_edit?false:true"
+                      :disabled="!fieldItem.configuration.is_edit"
                       :min="fieldItem.configuration.min_number"
                       :max="fieldItem.configuration.max_number"
                     />
@@ -125,12 +125,11 @@
 
 <script>
 import { listUser } from '@/api/system/sysuser'
-
 import {
   createData,
   editData
 } from '@/api/cmdb/resource'
-  // import { treeselect } from '@/api/system/dept'
+// import { treeselect } from '@/api/system/dept'
 export default {
   // eslint-disable-next-line vue/require-prop-types
   props: {
@@ -229,6 +228,7 @@ export default {
               delete fieldDataValue.uuid
               editData(this.fieldData.id, {
                 info_id: this.fieldData.info_id,
+                info_name: this.modelName,
                 uuid: this.fieldData.uuid,
                 data: fieldDataValue
               }).then(res => {

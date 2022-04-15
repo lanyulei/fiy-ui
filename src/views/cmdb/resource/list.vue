@@ -147,16 +147,18 @@
         :visible.sync="distributionDialog"
         width="30%"
       >
-        <el-tree
-          :data="treeData"
-        >
-          <span slot-scope="{ node, data }" class="custom-tree-node">
-            <span v-if="node.level === 3">
-              <el-checkbox v-model="bindDataModels[data.id]" @change="selectModels(data.info_id)" />
+        <div class="mb20">
+          <el-tree
+            :data="treeData"
+          >
+            <span slot-scope="{ node, data }" class="custom-tree-node">
+              <span v-if="node.level === 3">
+                <el-checkbox v-model="bindDataModels[data.id]" @change="selectModels(data.info_id)" />
+              </span>
+              <span style="margin-left: 5px;">{{ node.data.data.built_in_field_name }}</span>
             </span>
-            <span style="margin-left: 5px;">{{ node.data.data.built_in_field_name }}</span>
-          </span>
-        </el-tree>
+          </el-tree>
+        </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="distributionDialog = false">取 消</el-button>
           <el-button type="primary" @click="bindSubmit">确 定</el-button>

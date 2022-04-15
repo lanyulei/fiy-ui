@@ -8,8 +8,8 @@
         <div style="padding: 10px">
           <div class="create-template-title">基本属性</div>
           <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px">
-            <el-form-item label="账号名称" prop="name">
-              <el-input v-model="ruleForm.name" style="width:30%" size="small" placeholder="请输入账号名称" />
+            <el-form-item label="服务名称" prop="name">
+              <el-input v-model="ruleForm.name" style="width:30%" size="small" placeholder="请输入服务名称" />
             </el-form-item>
             <el-form-item label="服务分类" prop="svc_classify">
               <el-select
