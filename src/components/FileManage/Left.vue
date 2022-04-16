@@ -279,7 +279,7 @@ String.prototype.colorRgb = function() {
 </script>
 
 <style lang="scss" scoped>
-.left /deep/ {
+.left ::v-deep {
   height: 100%;
   .el-card {
     height: 100%;

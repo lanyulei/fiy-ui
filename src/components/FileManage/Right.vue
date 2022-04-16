@@ -541,7 +541,7 @@ String.prototype.colorRgb = function() {
   height: 36px;
   line-height: 36px;
 }
-.file-container /deep/ {
+.file-container ::v-deep {
   .el-scrollbar__wrap::-webkit-scrollbar {
     display: none;
   }

@@ -577,20 +577,20 @@ export default {
     cursor: pointer;
   }
 
-  /deep/ .el-form-item__content {
+  ::v-deep .el-form-item__content {
     line-height: 20px;
   }
 
-  /deep/ .search-list .el-form-item-content {
+  ::v-deep .search-list .el-form-item-content {
     margin-bottom: 10px;
   }
 
-  /deep/ .search-list .el-form-item-button {
+  ::v-deep .search-list .el-form-item-button {
     margin-top: 15px;
     margin-bottom: 0;
   }
 
-  /deep/ .search-list .el-form-item-content .el-form-item__label {
+  ::v-deep .search-list .el-form-item-content .el-form-item__label {
     line-height: 28px;
   }
 </style>
